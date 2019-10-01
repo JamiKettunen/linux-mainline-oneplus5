@@ -11,6 +11,7 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/clk-provider.h>
+#include <linux/clk.h>
 #include <linux/regmap.h>
 #include <linux/reset-controller.h>
 
@@ -115,17 +116,6 @@ static const char * const gcc_parent_names_5[] = {
 	"gpll0_out_main",
 	"aud_ref_clk",
 	"core_bi_pll_test_se",
-};
-
-static struct clk_fixed_factor xo = {
-	.mult = 1,
-	.div = 1,
-	.hw.init = &(struct clk_init_data){
-		.name = "xo",
-		.parent_names = (const char *[]){ "xo_board" },
-		.num_parents = 1,
-		.ops = &clk_fixed_factor_ops,
-	},
 };
 
 static struct pll_vco fabia_vco[] = {
@@ -3045,10 +3035,6 @@ static const struct regmap_config gcc_msm8998_regmap_config = {
 	.fast_io	= true,
 };
 
-static struct clk_hw *gcc_msm8998_hws[] = {
-	&xo.hw,
-};
-
 static const struct qcom_cc_desc gcc_msm8998_desc = {
 	.config = &gcc_msm8998_regmap_config,
 	.clks = gcc_msm8998_clocks,
@@ -3057,14 +3043,23 @@ static const struct qcom_cc_desc gcc_msm8998_desc = {
 	.num_resets = ARRAY_SIZE(gcc_msm8998_resets),
 	.gdscs = gcc_msm8998_gdscs,
 	.num_gdscs = ARRAY_SIZE(gcc_msm8998_gdscs),
-	.clk_hws = gcc_msm8998_hws,
-	.num_clk_hws = ARRAY_SIZE(gcc_msm8998_hws),
 };
 
 static int gcc_msm8998_probe(struct platform_device *pdev)
 {
 	struct regmap *regmap;
 	int ret;
+	struct clk *xo;
+
+	/*
+	 * We must have a valid XO to continue, otherwise having a missing
+	 * parent on a system critical clock like the uart core clock can
+	 * result in strange bugs.  We know XO will be provided by rpmcc,
+	 * but it might not be specified in DT like it should.
+	 */
+	xo = __clk_lookup("xo");
+	if (!xo)
+		return -EPROBE_DEFER;
 
 	regmap = qcom_cc_map(pdev, &gcc_msm8998_desc);
 	if (IS_ERR(regmap))
