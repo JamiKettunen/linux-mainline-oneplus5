@@ -3,11 +3,11 @@
 
 /dts-v1/;
 
-#include "msm8998-mtp.dtsi"
+#include "msm8998-oneplus-cheeseburger.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. MSM8998 v1 MTP";
-	compatible = "qcom,msm8998-mtp";
+	model = "OnePlus 5 (cheeseburger)";
+	compatible = "oneplus,cheeseburger", "qcom,msm8998";
 
-	qcom,board-id = <8 0>;
+	qcom,board-id = <8 0 16859 23>;
 };
