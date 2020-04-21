@@ -271,7 +271,7 @@
 			regulator-max-microvolt = <3312000>;
 		};
 		vreg_l24a_3p075: l24 {
-			regulator-min-microvolt = <3088000>;
+			regulator-min-microvolt = <1848000>;
 			regulator-max-microvolt = <3088000>;
 		};
 		vreg_l25a_3p3: l25 {
