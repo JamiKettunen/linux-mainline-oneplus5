@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-2.0
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved. */
+
+/dts-v1/;
+
+#include "msm8998-oneplus-cheeseburger.dtsi"
+
+/ {
+	model = "OnePlus 5T (dumpling)";
+	compatible = "oneplus,dumpling", "qcom,msm8998";
+
+	qcom,board-id = <8 0 17801 53>;
+};
+
+// Update the screen heights from 1920 to 2160 on the 5T
+&framebuffer0 {
+	reg = <0 0x9d400000 0 (1080 * 2160 * 4)>;
+	height = <2160>;
+};
+
+&fb_mem {
+	reg = <0 0x9d400000 0 (1080 * 2160 * 4)>;
+};
