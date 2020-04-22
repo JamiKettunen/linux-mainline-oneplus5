@@ -290,6 +290,10 @@
 	gpio-reserved-ranges = <0 4>, <81 4>;
 };
 
+&pcie0 {
+	status = "disabled";
+};
+
 &ufshc {
 	vcc-supply = <&vreg_l20a_2p95>;
 	vccq-supply = <&vreg_l26a_1p2>;
