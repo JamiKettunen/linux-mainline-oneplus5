@@ -16,37 +16,13 @@
 	aliases {
 		serial0 = &blsp2_uart1;
 		serial1 = &blsp1_uart3;
-		display0 = &framebuffer0;
 	};
 
 	chosen {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+		stdout-path = "serial0:115200n8";
 
 		/* Add "earlycon" intended to be used in combination with UART serial console */
 		bootargs = "earlycon clk_ignore_unused";
-
-		/*
-		 * Define as "serial0:115200n8" instead of simplefb "display0" for UART console;
-		 * the tiny golden UART TX pad on the OnePlus 5 mainboard can be found in the
-		 * bottom left corner right above the black screw.
-		 */
-		stdout-path = "display0";
-
-		/*
-		 * HACK: Use display framebuffer setup by the UEFI XBL bootloader for simplefb.
-		 * the address was extracted from a bootloader dd image using the following:
-		 * $ strings xbl.img | grep 'Display Reserved'
-		 */
-		framebuffer0: framebuffer@9d400000 {
-			compatible = "simple-framebuffer";
-			reg = <0 0x9d400000 0 (1080 * 1920 * 4)>;
-			width = <1080>;
-			height = <1920>;
-			stride = <(1080 * 4)>;
-			format = "a8r8g8b8";
-		};
 	};
 
 	gpio-hall-sensor {
@@ -158,13 +134,6 @@
 		};
 		memory@95700000 {         /* wlan_msa_mem */
 			reg = <0x0 0x95715000 0x0 0x100000>;
-		};
-
-		/* HACK: Bootloader display framebuffer memory region */
-		fb_mem: memory@9d400000 {
-			compatible = "removed-dma-pool";
-			reg = <0 0x9d400000 0 (1080 * 1920 * 4)>;
-			no-map;
 		};
 	};
 

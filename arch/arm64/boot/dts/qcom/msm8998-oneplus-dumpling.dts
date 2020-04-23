@@ -11,16 +11,6 @@
 	qcom,board-id = <8 0 17801 53>;
 };
 
-/* Update the screen height values from 1920 to 2160 on the 5T */
-&framebuffer0 {
-	reg = <0 0x9d400000 0 (1080 * 2160 * 4)>;
-	height = <2160>;
-};
-
-&fb_mem {
-	reg = <0 0x9d400000 0 (1080 * 2160 * 4)>;
-};
-
 /* Adjust digitizer area height to match the 5T's taller panel */
 &rmi4_f12 {
 	touchscreen-y-mm = <137>;
