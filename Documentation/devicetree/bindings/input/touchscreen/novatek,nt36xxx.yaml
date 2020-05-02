@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: GPL-2.0
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/touchscreen/novatek,nt36xxx.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Novatek NT36xxx series touchscreen controller Bindings
+
+maintainers:
+  - TBD
+
+allOf:
+  - $ref: touchscreen.yaml#
+
+properties:
+  compatible:
+    enum:
+      - novatek,NVT-ts
+
+  reg:
+    enum: [ 0x62 ]
+
+  irq-gpio:
+    description: GPIO pin used for IRQ. The driver uses the interrupt gpio pin
+      as output to reset the device.
+    maxItems: 1
+
+  reset-gpio:
+    maxItems: 1
+
+  vddio-reg-name:
+    description: Power supply regulator on VDDIO pin
+
+  lab-reg-name:
+    description: Power supply regulator on LAB pin
+
+  ibb-reg-name:
+    description: Power supply regulator on IBB pin
+
+additionalProperties: false
+
+required:
+  - compatible
+  - reg
+  - irq-gpio
+
+examples:
+  - |
+    i2c {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      novatek@62 {
+        compatible = "novatek,nt36xxx";
+        reg = <0x62>;
+        reset-gpio = <&msm_gpio 102 0x00>;
+        irq-gpio = <&msm_gpio 65 0x2001>;
+      };
+    };
+
+...
