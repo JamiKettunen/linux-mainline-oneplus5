@@ -11,3 +11,28 @@
 
 	qcom,board-id = <8 0 16859 23>;
 };
+
+// Keypad button backlight
+&pmi8998_lsid0 {
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		keypad-backlight {
+			gpios = <&pmi8998_gpio 5 GPIO_ACTIVE_HIGH>;
+			label = "button-backlight";
+			//default-state = "on"; // Enable backlight for capacitive keys by default
+		};
+	};
+};
+
+&pmi8998_gpio {
+	// GPIO 5 for keypad button backlight
+	keypad_backlight_gpio: pmi8998_gpio5 {
+		pinconf {
+			pins = "gpio5";
+			function = "normal";
+			bias-pull-down;
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+		};
+	};
+};
