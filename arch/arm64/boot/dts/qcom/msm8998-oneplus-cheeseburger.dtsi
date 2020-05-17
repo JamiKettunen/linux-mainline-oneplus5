@@ -448,17 +448,35 @@
 
 &usb3 {
 	status = "okay";
+
+	// For "GCC_USB30_MASTER_CLK" in HS mode (>=60 MHz)
+	assigned-clock-rates = <19200000>, <60000000>;
+
+	// Disable USB3 pipe_clk requirement
+	qcom,select-utmi-as-pipe-clk;
+
+	// FIXME: We need a 'extcon_usb2' reference here to actually
+	//        detect a plugged in USB cable via interrupts.
+	//extcon = <&pmi8998_pdphy>;
 };
 
 &usb3_dwc3 {
-	dr_mode = "host"; /* Force to host until we have Type-C hooked up */
+	// Drop "usb1_ssphy" / "usb3-phy" PHY -> we now get a "usb0" interface
+	phys = <&qusb2phy>;
+	phy-names = "usb2-phy";
+
+	maximum-speed = "high-speed"; // We should only operate at USB 2.0 speeds
+
+	dr_mode = "peripheral"; // Force to peripheral until we have Type-C hooked up
 };
 
-&usb3phy {
+&qusb2phy {
 	status = "okay";
 
-	vdda-phy-supply = <&vreg_l1a_0p875>;
-	vdda-pll-supply = <&vreg_l2a_1p2>;
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-pll-supply = <&vreg_l12a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+	/delete-property/ nvmem-cells;
 };
 
 &qusb2phy {
