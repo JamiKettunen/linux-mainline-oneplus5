@@ -40,6 +40,62 @@
 	};
 
 	reserved-memory {
+		// Increase size of "adsp_mem" region by 4 MiB (now 30 MiB in total) as per downstream
+		memory@8b200000 {
+			reg = <0x0 0x8b200000 0x0 0x1e00000>;
+		};
+
+		// Remove the now invalid definitions for nodes conflicting with "adsp_mem"
+		/delete-node/ memory@8cc00000; // mpss_mem
+		/delete-node/ memory@93c00000; // venus_mem
+		/delete-node/ memory@94100000; // mba_mem
+		/delete-node/ memory@94300000; // slpi_mem
+		/delete-node/ memory@95200000; // ipa_fw_mem
+		/delete-node/ memory@95210000; // ipa_gsi_mem
+		/delete-node/ memory@95600000; // gpu_mem
+		/delete-node/ memory@95700000; // wlan_msa_mem
+
+		// Re-define the deleted nodes above with +4 MiB address offsets
+		mpss_mem: memory@8d000000 {
+			reg = <0x0 0x8d000000 0x0 0x7000000>;
+			no-map;
+		};
+
+		venus_mem: memory@94000000 {
+			reg = <0x0 0x94000000 0x0 0x500000>;
+			no-map;
+		};
+
+		mba_mem: memory@94500000 {
+			reg = <0x0 0x94500000 0x0 0x200000>;
+			no-map;
+		};
+
+		slpi_mem: memory@94700000 {
+			reg = <0x0 0x94700000 0x0 0xf00000>;
+			no-map;
+		};
+
+		ipa_fw_mem: memory@95600000 {
+			reg = <0x0 0x95600000 0x0 0x10000>;
+			no-map;
+		};
+
+		ipa_gsi_mem: memory@95610000 {
+			reg = <0x0 0x95610000 0x0 0x5000>;
+			no-map;
+		};
+
+		gpu_mem: memory@95615000 {
+			reg = <0x0 0x95615000 0x0 0x100000>;
+			no-map;
+		};
+
+		wlan_msa_mem: memory@95715000 {
+			reg = <0x0 0x95715000 0x0 0x100000>;
+			no-map;
+		};
+
 		// hack: Bootloader framebuffer memory region
 		fb_mem: memory@a1a10000 {
 			compatible = "removed-dma-pool";
