@@ -420,12 +420,20 @@
 	};
 };
 
+&remoteproc_mss {
+	firmware-name = "mba.mbn", "modem.mbn";
+};
+
 &remoteproc_slpi {
 	status = "okay";
+
+	firmware-name = "slpi.mbn";
 };
 
 &remoteproc_adsp {
 	status = "okay";
+
+	firmware-name = "adsp.mbn";
 };
 
 &tlmm {
