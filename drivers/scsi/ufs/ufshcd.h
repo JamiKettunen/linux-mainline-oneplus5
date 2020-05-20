@@ -884,6 +884,7 @@ int ufshcd_wait_for_register(struct ufs_hba *hba, u32 reg, u32 mask,
 void ufshcd_parse_dev_ref_clk_freq(struct ufs_hba *hba, struct clk *refclk);
 void ufshcd_update_reg_hist(struct ufs_err_reg_hist *reg_hist,
 			    u32 reg);
+int ufshcd_uic_hibern8_enter(struct ufs_hba *hba);
 
 static inline void check_upiu_size(void)
 {
