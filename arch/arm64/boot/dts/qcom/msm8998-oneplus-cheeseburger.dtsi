@@ -213,6 +213,9 @@
 };
 
 &blsp2_i2c0 {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&blsp2_i2c0_default>;
+	pinctrl-1 = <&blsp2_i2c0_sleep>;
 	status = "okay";
 
 	bq27541: fuel-gauge@55 {
@@ -439,6 +442,7 @@
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
 
+	// For touchscreen
 	touch_default: touch_default {
 		mux {
 			pins = "gpio89", "gpio125";
@@ -501,6 +505,33 @@
 			pins = "gpio87", "gpio88";
 			drive-strength = <2>;
 			bias-disable;
+		};
+	};
+
+	// For fuel gauge
+	blsp2_i2c0_default: blsp2_i2c0 {
+		mux {
+			pins = "gpio55", "gpio56";
+			function = "blsp_i2c7";
+		};
+
+		config {
+			pins = "gpio55", "gpio56";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	blsp2_i2c0_sleep: blsp2_i2c0_sleep {
+		mux {
+			pins = "gpio55", "gpio56";
+			function = "blsp_i2c7";
+		};
+
+		config {
+			pins = "gpio55", "gpio56";
+			drive-strength = <2>;
+			bias-pull-up;
 		};
 	};
 };
