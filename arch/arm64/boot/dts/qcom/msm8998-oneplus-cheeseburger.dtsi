@@ -68,6 +68,41 @@
 	};
 };
 
+&blsp1_i2c5 {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&blsp1_i2c5_default>;
+	pinctrl-1 = <&blsp1_i2c5_sleep>;
+	status = "okay";
+
+	touchscreen: synaptics-rmi4-i2c@20 {
+		compatible = "syna,rmi4-i2c";
+		reg = <0x20>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		interrupts-extended = <&tlmm 125 0x2008>; // 0x2008 = IRQF_ONESHOT | IRQF_TRIGGER_LOW
+		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&touch_default>;
+		pinctrl-1 = <&touch_int_suspend &touch_reset_suspend>;
+		vdd-supply = <&vreg_l28_3p0>;
+		vio-supply = <&vreg_l6a_1p8>;
+		syna,reset-delay-ms = <200>;
+		syna,startup-delay-ms = <200>;
+
+		rmi4-f01@1 {
+			reg = <0x01>;
+			syna,nosleep-mode = <1>;
+		};
+
+		rmi4_f12: rmi4-f12@12 {
+			reg = <0x12>;
+			touchscreen-x-mm = <68>;
+			touchscreen-y-mm = <122>;
+			syna,sensor-type = <1>;
+			syna,rezero-wait-ms = <200>;
+		};
+	};
+};
+
 &blsp2_uart1 {
 	status = "okay";
 };
@@ -288,6 +323,72 @@
 
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
+
+	// For touchscreen
+	touch_default: touch_default {
+		mux {
+			pins = "gpio89", "gpio125";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio89", "gpio125";
+			drive-strength = <16>;
+			bias-pull-up;
+		};
+	};
+
+	touch_int_suspend: touch_int_suspend {
+		mux {
+			pins = "gpio125";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio125";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	touch_reset_suspend: touch_reset_suspend {
+		mux {
+			pins = "gpio89";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio89";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+
+	blsp1_i2c5_default: blsp1_i2c5 {
+		mux {
+			pins = "gpio87", "gpio88";
+			function = "blsp_i2c5";
+		};
+
+		config {
+			pins = "gpio87", "gpio88";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
+
+	blsp1_i2c5_sleep: blsp1_i2c5_sleep {
+		mux {
+			pins = "gpio87", "gpio88";
+			function = "blsp_i2c5";
+		};
+
+		config {
+			pins = "gpio87", "gpio88";
+			drive-strength = <2>;
+			bias-disable;
+		};
+	};
 };
 
 &pcie0 {
