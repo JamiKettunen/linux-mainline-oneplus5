@@ -423,12 +423,20 @@
 	};
 };
 
+&remoteproc_mss {
+	firmware-name = "qcom/mba.mbn", "qcom/modem.mbn";
+};
+
 &remoteproc_slpi {
 	status = "okay";
+
+	firmware-name = "qcom/slpi.mbn";
 };
 
 &remoteproc_adsp {
 	status = "okay";
+
+	firmware-name = "qcom/adsp.mbn";
 };
 
 &tlmm {
