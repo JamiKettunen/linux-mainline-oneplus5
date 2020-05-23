@@ -100,6 +100,7 @@
 		};
 
 		gpu_mem: memory@95600000 {
+			compatible = "shared-dma-pool";
 			reg = <0x0 0x95600000 0x0 0x100000>;
 			no-map;
 		};
@@ -1129,6 +1130,69 @@
 				qcom,remote-pid = <1>;
 				mboxes = <&apcs_glb 15>;
 			};
+		};
+
+		gpu: gpu@5000000 {
+			compatible = "qcom,adreno-540.2", "qcom,adreno";
+			#stream-id-cells = <16>;
+
+			reg = <0x5000000 0x40000>; // 0x6e000
+			reg-names = "kgsl_3d0_reg_memory";
+
+			interrupts = <0 300 IRQ_TYPE_LEVEL_HIGH>;
+			interrupt-names = "kgsl_3d0_irq";
+
+			clocks = <&gpucc GFX3D_CLK>,
+			         <&gcc GCC_GPU_CFG_AHB_CLK>,
+			         <&gpucc RBBMTIMER_CLK>,
+			         <&gcc GCC_BIMC_GFX_CLK>,
+			         <&gcc GCC_GPU_BIMC_GFX_CLK>;
+			clock-names = "core",
+			              "iface",
+			              "rbbmtimer",
+			              "mem",
+			              "mem_iface";
+
+			power-domains = <&gpucc GPU_GX_GDSC>;
+			iommus = <&adreno_smmu 0>;
+
+			/* temp hack until opp is brought up */
+			qcom,gpu-pwrlevels {
+				compatible = "qcom,gpu-pwrlevels";
+				qcom,gpu-pwrlevel@0 {
+					qcom,gpu-freq = <403000000>; // 403 MHz
+				};
+				qcom,gpu-pwrlevel@1 {
+					qcom,gpu-freq = <27000000>; // 270 MHz (default)
+				};
+			};
+
+			zap-shader {
+				memory-region = <&gpu_mem>;
+			};
+
+			//status = "disabled";
+		};
+
+		adreno_smmu: iommu@5040000 {
+			compatible = "qcom,msm8998-smmu-v2", "qcom,smmu-v2";
+			reg = <0x5040000 0x10000>;
+			#iommu-cells = <1>;
+
+			#global-interrupts = <1>;
+			interrupts = <0 334 IRQ_TYPE_LEVEL_HIGH>,
+			             <0 329 IRQ_TYPE_LEVEL_HIGH>,
+			             <0 330 IRQ_TYPE_LEVEL_HIGH>,
+			             <0 331 IRQ_TYPE_LEVEL_HIGH>,
+			             <0 332 IRQ_TYPE_LEVEL_HIGH>;
+
+			clocks = <&gcc GCC_GPU_CFG_AHB_CLK>,
+			         <&gcc GCC_GPU_BIMC_GFX_CLK>;
+			clock-names = "bus", "iface";
+
+			power-domains = <&gpucc GPU_CX_GDSC>;
+
+			//status = "disabled";
 		};
 
 		gpucc: clock-controller@5065000 {
