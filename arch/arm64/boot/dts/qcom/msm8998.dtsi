@@ -1167,6 +1167,54 @@
 				};
 			};
 
+/*
+			operating-points-v2 = <&gpu_opp_table>;
+
+			gpu_opp_table: opp-table {
+				compatible = "operating-points-v2";
+
+				opp-710000000 { // 710 MHz (MAX!)
+					opp-hz = /bits/ 64 <710000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_TURBO_L1>;
+				};
+
+				opp-650000000 { // 650 MHz
+					opp-hz = /bits/ 64 <650000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_TURBO>;
+				};
+
+				opp-504000000 { // 504 MHz
+					opp-hz = /bits/ 64 <504000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_NOM>;
+				};
+
+				opp-403000000 { // 403 MHz
+					opp-hz = /bits/ 64 <403000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_SVS_L1>;
+				};
+
+				opp-332000000 { // 332 MHz
+					opp-hz = /bits/ 64 <332000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_SVS>;
+				};
+
+				opp-251000000 { // 251 MHz
+					opp-hz = /bits/ 64 <251000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_LOW_SVS>;
+				};
+
+				opp-171000000 { // 171 MHz
+					opp-hz = /bits/ 64 <171000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_LOW_SVS>;
+				};
+
+				opp-27000000 { // 270 MHz (default)
+					opp-hz = /bits/ 64 <27000000>;
+					//opp-level = <RPMH_REGULATOR_LEVEL_SVS>;
+				};
+			};
+*/
+
 			zap-shader {
 				memory-region = <&gpu_mem>;
 			};
