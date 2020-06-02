@@ -367,11 +367,11 @@
 	};
 };
 
-&remoteproc_adsp {
+&remoteproc_slpi {
 	status = "okay";
 };
 
-&remoteproc_slpi {
+&remoteproc_adsp {
 	status = "okay";
 };
 
