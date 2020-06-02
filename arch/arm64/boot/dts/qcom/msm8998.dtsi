@@ -1098,7 +1098,7 @@
 				 <&gcc GCC_MSS_SNOC_AXI_CLK>,
 				 <&gcc GCC_MSS_MNOC_BIMC_AXI_CLK>,
 				 <&rpmcc RPM_SMD_QDSS_CLK>,
-				 <&rpmcc RPM_SMD_XO_CLK_SRC>;
+				 <&xo>;
 			clock-names = "iface", "bus", "mem", "gpll0_mss",
 				      "snoc_axi", "mnoc_axi", "qdss", "xo";
 
@@ -1137,7 +1137,7 @@
 			#power-domain-cells = <1>;
 			reg = <0x05065000 0x9000>;
 
-			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
+			clocks = <&xo>,
 				 <&gcc GPLL0_OUT_MAIN>;
 			clock-names = "xo",
 				      "gpll0";
@@ -1157,7 +1157,7 @@
 
 			px-supply = <&vreg_lvs2a_1p8>;
 
-			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
+			clocks = <&xo>,
 				 <&rpmcc RPM_SMD_AGGR2_NOC_CLK>;
 			clock-names = "xo", "aggre2";
 
@@ -1983,7 +1983,7 @@
 			interrupt-names = "wdog", "fatal", "ready",
 					  "handover", "stop-ack";
 
-			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>;
+			clocks = <&xo>;
 			clock-names = "xo";
 
 			memory-region = <&adsp_mem>;
