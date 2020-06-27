@@ -188,6 +188,8 @@ static int c_show(struct seq_file *m, void *v)
 		seq_printf(m, "CPU revision\t: %d\n\n", MIDR_REVISION(midr));
 	}
 
+	seq_printf(m, "Hardware\t: Qualcomm Snapdragon 835 (MSM8998)\n");
+
 	return 0;
 }
 
