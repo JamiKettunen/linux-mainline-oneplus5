@@ -466,6 +466,12 @@
 	firmware-name = "qcom/OnePlus/MSM8998/adsp.mbn";
 };
 
+&gpu {
+	zap-shader {
+		firmware-name = "qcom/a540_zap.mbn";
+	};
+};
+
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
 
