@@ -957,8 +957,15 @@ static void arm_smmu_test_smr_masks(struct arm_smmu_device *smmu)
 	u32 smr;
 	int i;
 
-	if (!smmu->smrs)
+	if (!smmu->smrs && !(of_find_property(smmu->dev->of_node, "qcom,no-smr-check", NULL)))
 		return;
+
+	if (of_find_property(smmu->dev->of_node, "qcom,no-smr-check", NULL)) {
+		smmu->streamid_mask = 0x7FFF;
+		smmu->smr_mask_mask = 0x7FFF;
+		return;
+	}
+
 	/*
 	 * If we've had to accommodate firmware memory regions, we may
 	 * have live SMRs by now; tread carefully...

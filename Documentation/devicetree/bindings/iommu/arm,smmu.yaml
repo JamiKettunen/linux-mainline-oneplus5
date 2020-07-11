@@ -114,6 +114,12 @@ properties:
       access to SMMU configuration registers. In this case non-secure aliases of
       secure registers have to be used during SMMU configuration.
 
+  qcom,no-smr-check:
+    description: |
+      As the name suggests, this property skips checking of SMRs.
+      This is required for some SMMUs to function properly, mostly
+      concerning ones associated with the multimedia subsystem.
+
   qcom,skip-init:
     description: |
       Disable resetting configuration for all context banks
