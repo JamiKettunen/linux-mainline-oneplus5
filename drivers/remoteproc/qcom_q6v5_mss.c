@@ -68,6 +68,7 @@
 #define QDSP6SS_MEM_PWR_CTL		0x0B0
 #define QDSP6V6SS_MEM_PWR_CTL		0x034
 #define QDSP6SS_STRAP_ACC		0x110
+#define QDSP6V62SS_BHS_STATUS		0x0C4
 
 /* AXI Halt Register Offsets */
 #define AXI_HALTREQ_REG			0x0
@@ -109,6 +110,9 @@
 #define QDSP6v56_CLAMP_QMC_MEM		BIT(22)
 #define QDSP6SS_XO_CBCR		0x0038
 #define QDSP6SS_ACC_OVERRIDE_VAL		0x20
+#define QDSP6v55_BHS_EN_REST_ACK        BIT(0)
+
+#define BHS_CHECK_MAX_LOOPS             (200)
 
 /* QDSP6v65 parameters */
 #define QDSP6SS_CORE_CBCR		0x20
@@ -214,6 +218,7 @@ enum {
 	MSS_MSM8996,
 	MSS_MSM8998,
 	MSS_SC7180,
+	MSS_SDM660,
 	MSS_SDM845,
 };
 
@@ -710,6 +715,80 @@ static int q6v5proc_reset(struct q6v5 *qproc)
 		val = readl(qproc->reg_base + QDSP6SS_PWR_CTL_REG);
 		val &= ~QDSP6v56_CLAMP_WL;
 		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+	} else if (qproc->version == MSS_SDM660) {
+		int mem_pwr_ctl;
+
+		/* Override the ACC value if required */
+		writel(QDSP6SS_ACC_OVERRIDE_VAL,
+		       qproc->reg_base + QDSP6SS_STRAP_ACC);
+
+		/* Assert resets, stop core */
+		val = readl(qproc->reg_base + QDSP6SS_RESET_REG);
+		val |= Q6SS_CORE_ARES | Q6SS_BUS_ARES_ENABLE | Q6SS_STOP_CORE;
+		writel(val, qproc->reg_base + QDSP6SS_RESET_REG);
+
+		/* BHS require xo cbcr to be enabled */
+		val = readl(qproc->reg_base + QDSP6SS_XO_CBCR);
+		val |= 1;
+		writel(val, qproc->reg_base + QDSP6SS_XO_CBCR);
+
+		/* Enable power block headswitch and wait for it to stabilize */
+		val = readl(qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+		val |= QDSP6v56_BHS_ON;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+		//val |= readl(qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+		mb();
+		udelay(1);
+
+		for (i = BHS_CHECK_MAX_LOOPS; i > 0; i--) {
+			if (readl_relaxed(qproc->reg_base + QDSP6V62SS_BHS_STATUS)
+			    & QDSP6v55_BHS_EN_REST_ACK)
+				break;
+			udelay(1);
+		}
+		if (!i) {
+			pr_err("%s: BHS_EN_REST_ACK not set!\n", __func__);
+			return -ETIMEDOUT;
+		}
+
+		/* Put LDO in bypass mode */
+		val |= QDSP6v56_LDO_BYP;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+
+		/* Remove QMC_MEM clamp */
+		val &= ~QDSP6v56_CLAMP_QMC_MEM;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+
+		/* Deassert QDSP6 compiler memory clamp */
+		val = readl(qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+		val &= ~QDSP6v56_CLAMP_QMC_MEM;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+
+		/* Deassert memory peripheral sleep and L2 memory standby */
+		val |= Q6SS_L2DATA_STBY_N | Q6SS_SLP_RET_N;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+
+		/* Turn on L1, L2, ETB and JU memories 1 at a time */
+		mem_pwr_ctl = QDSP6V6SS_MEM_PWR_CTL;
+		i = 29;
+		
+		val = readl(qproc->reg_base + mem_pwr_ctl); //?
+		for (; i >= 0; i--) {
+			val |= BIT(i);
+			writel(val, qproc->reg_base + mem_pwr_ctl);
+			/*
+			 * Read back value to ensure the write is done then
+			 * wait for 1us for both memory peripheral and data
+			 * array to turn on.
+			 */
+			val |= readl(qproc->reg_base + mem_pwr_ctl);
+			udelay(1);
+		}
+
+		/* Remove word line clamp */
+		val = readl(qproc->reg_base + QDSP6SS_PWR_CTL_REG);
+		val &= ~QDSP6v56_CLAMP_WL;
+		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
 	} else {
 		/* Assert resets, stop core */
 		val = readl(qproc->reg_base + QDSP6SS_RESET_REG);
@@ -737,6 +816,7 @@ static int q6v5proc_reset(struct q6v5 *qproc)
 		val |= Q6SS_L2DATA_SLP_NRET_N_0;
 		writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
 	}
+
 	/* Remove IO clamp */
 	val &= ~Q6SS_CLAMP_IO;
 	writel(val, qproc->reg_base + QDSP6SS_PWR_CTL_REG);
@@ -1824,6 +1904,33 @@ static const struct rproc_hexagon_res sc7180_mss = {
 	.version = MSS_SC7180,
 };
 
+static const struct rproc_hexagon_res sdm660_mss = {
+	.hexagon_mba_image = "mba.mbn",
+	.proxy_clk_names = (char*[]){
+			"xo",
+			"qdss",
+			NULL
+	},
+	.active_clk_names = (char*[]){
+			"iface",
+			"bus",
+			"gpll0_mss",
+			"mnoc_axi",
+			"snoc_axi",
+			"mem",
+			NULL
+	},
+	.proxy_pd_names = (char*[]){
+			"cx",
+			"mx",
+			NULL
+	},
+	.need_mem_protection = true,
+	.has_alt_reset = false,
+	.has_spare_reg = false,
+	.version = MSS_SDM660,
+};
+
 static const struct rproc_hexagon_res sdm845_mss = {
 	.hexagon_mba_image = "mba.mbn",
 	.proxy_clk_names = (char*[]){
@@ -2002,6 +2109,7 @@ static const struct of_device_id q6v5_of_match[] = {
 	{ .compatible = "qcom,msm8996-mss-pil", .data = &msm8996_mss},
 	{ .compatible = "qcom,msm8998-mss-pil", .data = &msm8998_mss},
 	{ .compatible = "qcom,sc7180-mss-pil", .data = &sc7180_mss},
+	{ .compatible = "qcom,sdm660-mss-pil", .data = &sdm660_mss},
 	{ .compatible = "qcom,sdm845-mss-pil", .data = &sdm845_mss},
 	{ },
 };
