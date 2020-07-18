@@ -4580,6 +4580,36 @@ static const struct panel_desc_dsi sony_kirin_nt36672a_truly = {
 	.lanes = 4,
 };
 
+static const struct drm_display_mode sony_mermaid_nt36672a_tianma_mode = {
+	.clock = (1080 + 102 + 20 + 40) * (2520 + 10 + 2 + 8) * 60 / 1000,
+	.hdisplay = 1080,
+	.hsync_start = 1080 + 102,
+	.hsync_end = 1080 + 102 + 20,
+	.htotal = 1080 + 102 + 20 + 40,
+	.vdisplay = 2520,
+	.vsync_start = 2520 + 10,
+	.vsync_end = 2520 + 10 + 2,
+	.vtotal = 2520 + 10 + 2 + 8,
+	.width_mm = 65,
+	.height_mm = 151,
+};
+
+static const struct panel_desc_dsi sony_mermaid_nt36672a_tianma = {
+	.desc = {
+		.modes = &sony_mermaid_nt36672a_tianma_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 65,
+			.height = 151,
+		},
+	},
+	.flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+		 MIPI_DSI_CLOCK_NON_CONTINUOUS,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
 static const struct of_device_id dsi_of_match[] = {
 	{
 		.compatible = "auo,b080uan01",
@@ -4605,6 +4635,9 @@ static const struct of_device_id dsi_of_match[] = {
 	}, {
 		.compatible = "sony,kirin-nt36672a-truly",
 		.data = &sony_kirin_nt36672a_truly
+	}, {
+		.compatible = "sony,mermaid-nt36672a-tianma",
+		.data = &sony_mermaid_nt36672a_tianma
 	}, {
 		/* sentinel */
 	}
