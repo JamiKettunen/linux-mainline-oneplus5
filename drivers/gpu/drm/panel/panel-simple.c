@@ -4550,6 +4550,36 @@ static const struct panel_desc_dsi osd101t2045_53ts = {
 	.lanes = 4,
 };
 
+static const struct drm_display_mode sony_kirin_nt36672a_truly_mode = {
+	.clock = (1080 + 25 + 12 + 120) * (2520 + 12 + 4 + 10) * 60 / 1000,
+	.hdisplay = 1080,
+	.hsync_start = 1080 + 25,
+	.hsync_end = 1080 + 25 + 12,
+	.htotal = 1080 + 25 + 12 + 120,
+	.vdisplay = 2520,
+	.vsync_start = 2520 + 12,
+	.vsync_end = 2520 + 12 + 4,
+	.vtotal = 2520 + 12 + 4 + 10,
+	.width_mm = 60,
+	.height_mm = 139,
+};
+
+static const struct panel_desc_dsi sony_kirin_nt36672a_truly = {
+	.desc = {
+		.modes = &sony_kirin_nt36672a_truly_mode,
+		.num_modes = 1,
+		.bpc = 8,
+		.size = {
+			.width = 60,
+			.height = 139,
+		},
+	},
+	.flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+		 MIPI_DSI_CLOCK_NON_CONTINUOUS,
+	.format = MIPI_DSI_FMT_RGB888,
+	.lanes = 4,
+};
+
 static const struct of_device_id dsi_of_match[] = {
 	{
 		.compatible = "auo,b080uan01",
@@ -4572,6 +4602,9 @@ static const struct of_device_id dsi_of_match[] = {
 	}, {
 		.compatible = "osddisplays,osd101t2045-53ts",
 		.data = &osd101t2045_53ts
+	}, {
+		.compatible = "sony,kirin-nt36672a-truly",
+		.data = &sony_kirin_nt36672a_truly
 	}, {
 		/* sentinel */
 	}
