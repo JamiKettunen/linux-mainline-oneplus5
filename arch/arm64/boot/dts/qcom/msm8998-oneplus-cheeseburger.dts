@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * OnePlus 5 (cheeseburger) device tree
+ *
+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
+ */
+
+#include "msm8998-oneplus-common.dtsi"
+
+/ {
+	model = "OnePlus 5";
+	compatible = "oneplus,cheeseburger", "qcom,msm8998";
+	/* Required for bootloader to select correct board */
+	qcom,msm-id = <0x124 0x20001>; /* 8998 v2.1 */
+	qcom,board-id = <8 0 16859 23>;
+};
+
+/* Capacitive keypad button backlight */
+&pmi8998_lsid0 {
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		keypad-backlight {
+			gpios = <&pmi8998_gpio 5 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
+
+&pmi8998_gpio {
+	pmi8998-gpio5 {
+		pinconf {
+			pins = "gpio5";
+			function = "normal";
+			bias-pull-down;
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+		};
+	};
+};
