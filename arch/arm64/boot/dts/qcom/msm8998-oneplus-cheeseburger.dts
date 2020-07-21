@@ -1,0 +1,36 @@
+// SPDX-License-Identifier: GPL-2.0-only
+
+/dts-v1/;
+
+#include "msm8998-oneplus-common.dtsi"
+
+/ {
+	model = "OnePlus 5 (cheeseburger)";
+	compatible = "oneplus,cheeseburger", "qcom,msm8998";
+	/* Required for bootloader to select correct board */
+	qcom,board-id = <8 0 16859 23>;
+};
+
+/* Capacitive keypad button backlight */
+&pmi8998_lsid0 {
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		keypad-backlight {
+			gpios = <&pmi8998_gpio 5 GPIO_ACTIVE_HIGH>;
+			//label = "button-backlight"; // Expose brightness control in /sys/class/leds/button-backlight/
+			//default-state = "on"; // Enable backlight for capacitive keys by default
+		};
+	};
+};
+
+&pmi8998_gpio {
+	gpio-keypad-backlight {
+		pinconf {
+			pins = "gpio5";
+			function = "normal";
+			bias-pull-down;
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+		};
+	};
+};
