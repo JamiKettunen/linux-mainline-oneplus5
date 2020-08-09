@@ -728,9 +728,19 @@ static int clk_gfx3d_determine_rate(struct clk_hw *hw,
 				    struct clk_rate_request *req)
 {
 	struct clk_rate_request parent_req = { };
-	struct clk_hw *p2, *p8, *p9, *xo;
-	unsigned long p9_rate;
+	struct clk_rcg2_gfx3d *cgfx = to_clk_rcg2_gfx3d(hw);
+	struct clk_hw *xo;
+	unsigned long request, p0_rate;
 	int ret;
+
+	/*
+	 * This function does ping-pong the RCG between PLLs: if we don't
+	 * have at least one fixed PLL and two variable ones,
+	 * then it's not going to work correctly.
+	 */
+	if (unlikely(cgfx->hws[0] == NULL || cgfx->hws[1] == NULL ||
+	    cgfx->hws[2] == NULL))
+		return -EINVAL;
 
 	xo = clk_hw_get_parent_by_index(hw, 0);
 	if (req->rate == clk_hw_get_rate(xo)) {
@@ -738,30 +748,29 @@ static int clk_gfx3d_determine_rate(struct clk_hw *hw,
 		return 0;
 	}
 
-	p9 = clk_hw_get_parent_by_index(hw, 2);
-	p2 = clk_hw_get_parent_by_index(hw, 3);
-	p8 = clk_hw_get_parent_by_index(hw, 4);
+	request = req->rate;
+	if (cgfx->div > 1)
+		parent_req.rate = request = request * cgfx->div;
 
-	/* PLL9 is a fixed rate PLL */
-	p9_rate = clk_hw_get_rate(p9);
+	/* This has to be a fixed rate PLL */
+	p0_rate = clk_hw_get_rate(cgfx->hws[0]);
 
-	parent_req.rate = req->rate = min(req->rate, p9_rate);
-	if (req->rate == p9_rate) {
-		req->rate = req->best_parent_rate = p9_rate;
-		req->best_parent_hw = p9;
+	if (request == p0_rate) {
+		req->rate = req->best_parent_rate = p0_rate;
+		req->best_parent_hw = cgfx->hws[0];
 		return 0;
 	}
 
-	if (req->best_parent_hw == p9) {
+	if (req->best_parent_hw == cgfx->hws[0]) {
 		/* Are we going back to a previously used rate? */
-		if (clk_hw_get_rate(p8) == req->rate)
-			req->best_parent_hw = p8;
+		if (clk_hw_get_rate(cgfx->hws[2]) == request)
+			req->best_parent_hw = cgfx->hws[2];
 		else
-			req->best_parent_hw = p2;
-	} else if (req->best_parent_hw == p8) {
-		req->best_parent_hw = p2;
+			req->best_parent_hw = cgfx->hws[1];
+	} else if (req->best_parent_hw == cgfx->hws[2]) {
+		req->best_parent_hw = cgfx->hws[1];
 	} else {
-		req->best_parent_hw = p8;
+		req->best_parent_hw = cgfx->hws[2];
 	}
 
 	ret = __clk_determine_rate(req->best_parent_hw, &parent_req);
@@ -770,18 +779,25 @@ static int clk_gfx3d_determine_rate(struct clk_hw *hw,
 
 	req->rate = req->best_parent_rate = parent_req.rate;
 
+	if (cgfx->div > 1)
+		do_div(req->rate, cgfx->div);
+
 	return 0;
 }
 
 static int clk_gfx3d_set_rate_and_parent(struct clk_hw *hw, unsigned long rate,
 		unsigned long parent_rate, u8 index)
 {
-	struct clk_rcg2 *rcg = to_clk_rcg2(hw);
+	struct clk_rcg2_gfx3d *cgfx = to_clk_rcg2_gfx3d(hw);
+	struct clk_rcg2 *rcg = &cgfx->rcg;
 	u32 cfg;
 	int ret;
 
-	/* Just mux it, we don't use the division or m/n hardware */
 	cfg = rcg->parent_map[index].cfg << CFG_SRC_SEL_SHIFT;
+	/* On some targets, the GFX3D RCG may need to divide PLL frequency */
+	if (cgfx->div > 1)
+		cfg |= ((2 * cgfx->div) - 1) << CFG_SRC_DIV_SHIFT;
+
 	ret = regmap_write(rcg->clkr.regmap, rcg->cmd_rcgr + CFG_REG, cfg);
 	if (ret)
 		return ret;
