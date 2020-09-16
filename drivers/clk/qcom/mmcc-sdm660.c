@@ -2574,6 +2574,8 @@ static struct gdsc mdss_gdsc = {
 	.pd = {
 		.name = "mdss",
 	},
+	.cxcs = (unsigned int []){ 0x2040 },
+	.cxc_count = 1,
 	.pwrsts = PWRSTS_OFF_ON,
 };
 
