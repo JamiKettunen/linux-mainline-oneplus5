@@ -62,6 +62,15 @@ config INTERCONNECT_QCOM_RPMH_POSSIBLE
 	  but in order to avoid link failures, drivers must not be built-in
 	  when QCOM_RPMH or QCOM_COMMAND_DB are loadable modules
 
+config INTERCONNECT_QCOM_SDM660
+	tristate "Qualcomm SDM660 interconnect driver"
+	depends on INTERCONNECT_QCOM
+	depends on QCOM_SMD_RPM
+	select INTERCONNECT_QCOM_SMD_RPM
+	help
+	  This is a driver for the Qualcomm Network-on-Chip on sdm660-based
+	  platforms.
+
 config INTERCONNECT_QCOM_RPMH
 	tristate
 
