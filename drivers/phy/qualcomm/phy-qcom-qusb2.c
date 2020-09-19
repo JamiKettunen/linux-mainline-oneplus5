@@ -702,7 +702,8 @@ static int qusb2_phy_init(struct phy *phy)
 	usleep_range(150, 160);
 
 	/* Default is single-ended clock on msm8996 */
-	qphy->has_se_clk_scheme = true;
+	if (!of_device_is_compatible(phy->dev.of_node, "qcom,sdm660-qusb2-phy"))
+		qphy->has_se_clk_scheme = true;
 	/*
 	 * read TCSR_PHY_CLK_SCHEME register to check if single-ended
 	 * clock scheme is selected. If yes, then disable differential
@@ -818,6 +819,10 @@ static const struct of_device_id qusb2_phy_of_match_table[] = {
 	}, {
 		.compatible	= "qcom,msm8998-qusb2-phy",
 		.data		= &msm8998_phy_cfg,
+	}, {
+		.compatible	= "qcom,sdm660-qusb2-phy",
+		/* sdm630/660 use the same config as msm8996. */
+		.data		= &msm8996_phy_cfg,
 	}, {
 		/*
 		 * Deprecated. Only here to support legacy device
