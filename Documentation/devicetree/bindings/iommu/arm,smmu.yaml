@@ -114,6 +114,16 @@ properties:
       access to SMMU configuration registers. In this case non-secure aliases of
       secure registers have to be used during SMMU configuration.
 
+  qcom,skip-init:
+    description: |
+      Disable resetting configuration for all context banks
+      during device reset.  This is useful for targets where
+      some context banks are dedicated to other execution
+      environments outside of Linux and those other EEs are
+      programming their own stream match tables, SCTLR, etc.
+      Without setting this option we will trample on their
+      configuration.
+
   stream-match-mask:
     $ref: /schemas/types.yaml#/definitions/uint32
     description: |
