@@ -37,4 +37,8 @@
 	};
 };
 
+&panel {
+	compatible = "sony,kirin-nt36672a-truly";
+};
+
 /delete-node/ &vreg_l18a_1v8;

@@ -19,3 +19,7 @@
 		};
 	};
 };
+
+&panel {
+	compatible = "sony,voyager-td4328-tianma";
+};

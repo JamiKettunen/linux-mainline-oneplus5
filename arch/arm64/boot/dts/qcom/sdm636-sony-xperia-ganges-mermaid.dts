@@ -41,6 +41,10 @@
 	};
 };
 
+&panel {
+	compatible = "sony,mermaid-nt36672a-tianma";
+};
+
 &sdc2_state_on {
 	pinconf-clk {
 		drive-strength = <14>;
