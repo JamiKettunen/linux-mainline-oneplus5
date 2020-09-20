@@ -5,16 +5,46 @@
 
 /dts-v1/;
 
-/* Mermaid uses sdm636, but it's different ever so slightly
- * that we can ignore it for the time being. Sony also commonizes
- * the Ganges platform as a whole in downstream kernels.
- */
-#include "sdm630-sony-xperia-ganges.dtsi"
+#include "sdm636.dtsi"
+#include "sdm630-sony-xperia-nile.dtsi"
 
 / {
 	model = "Sony Xperia 10 Plus";
 	compatible = "sony,mermaid-row", "qcom,sdm636";
 
 	qcom,msm-id = <345 0>;
+	qcom,board-id = <8 1>;
 	qcom,pmic-id = <0x1001b 0x101011a 0x00 0x00 0x1001b 0x201011a 0x00 0x00 0x1001b 0x102001a 0x00 0x00>;
+
+	chosen {
+		framebuffer@9d400000 {
+			reg = <0 0x9d400000 0 (2520 * 1080 * 4)>;
+			height = <2520>;
+		};
+	};
 };
+
+&gpio_keys {
+	/delete-node/ camera_focus;
+	/delete-node/ camera_snapshot;
+};
+
+&i2c1_touch {
+	/delete-node/ synaptics-rmi4-i2c@70;
+
+	touchscreen: novatek@62 {
+		compatible = "novatek,nt36xxx";
+		reg = <0x62>;
+		status = "okay";
+
+		novatek,irq-gpio = <&tlmm 45 0x2002>;
+	};
+};
+
+&sdc2_state_on {
+	pinconf-clk {
+		drive-strength = <14>;
+	};
+};
+
+/delete-node/ &vreg_l18a_1v8;

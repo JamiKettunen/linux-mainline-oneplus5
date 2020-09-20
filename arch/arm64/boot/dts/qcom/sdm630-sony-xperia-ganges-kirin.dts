@@ -5,9 +5,36 @@
 
 /dts-v1/;
 
-#include "sdm630-sony-xperia-ganges.dtsi"
+#include "sdm630.dtsi"
+#include "sdm630-sony-xperia-nile.dtsi"
 
 / {
 	model = "Sony Xperia 10";
 	compatible = "sony,kirin-row", "qcom,sdm630";
+
+	chosen {
+		framebuffer@9d400000 {
+			reg = <0 0x9d400000 0 (2520 * 1080 * 4)>;
+			height = <2520>;
+		};
+	};
 };
+
+&gpio_keys {
+	/delete-node/ camera_focus;
+	/delete-node/ camera_snapshot;
+};
+
+&i2c1_touch {
+	/delete-node/ synaptics-rmi4-i2c@70;
+
+	touchscreen: novatek@62 {
+		compatible = "novatek,nt36xxx";
+		reg = <0x62>;
+		status = "okay";
+
+		novatek,irq-gpio = <&tlmm 45 0x2002>;
+	};
+};
+
+/delete-node/ &vreg_l18a_1v8;
