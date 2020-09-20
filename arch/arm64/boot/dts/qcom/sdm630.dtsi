@@ -565,6 +565,14 @@
 			compatible = "qcom,sdm630-smmu-v2", "qcom,smmu-v2";
 			reg = <0x016c0000 0x40000>;
 			#iommu-cells = <1>;
+			qcom,use-3-lvl-tables;
+			qcom,skip-init;
+
+			clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>;
+			clock-names = "bus";
+			
+			assigned-clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>;
+			assigned-clock-rates = <1000>;
 
 			#global-interrupts = <2>;
 			interrupts =
@@ -600,8 +608,6 @@
 				<GIC_SPI 472 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 473 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 474 IRQ_TYPE_LEVEL_HIGH>;
-
-			status = "disabled";
 		};
 
 		a2noc: interconnect@1704000 {
@@ -905,10 +911,25 @@
 			};
 		};
 
-		kgsl_smmu: iommu@5040000 {
+		adreno_smmu: iommu@5040000 {
 			compatible = "qcom,sdm630-smmu-v2", "qcom,smmu-v2";
 			reg = <0x05040000 0x10000>;
 			#iommu-cells = <1>;
+			qcom,use-3-lvl-tables;
+			qcom,skip-init;
+
+			/*
+			 * HACK: GX GDSC parent is CX. We need to bring up CX for SMMU
+			 * but we need both up for Adreno. On the other hand, we
+			 * need to manage the GX rpmpd domain in the adreno driver.
+			 * Enable CX/GX GDSCs here so that we can manage the GX
+			 * RPM Power Domain in the Adreno driver.
+			 */
+			power-domains = <&gpucc GPU_GX_GDSC>;
+			clocks = <&gcc GCC_GPU_CFG_AHB_CLK>,
+				 <&gcc GCC_BIMC_GFX_CLK>,
+				 <&gcc GCC_GPU_BIMC_GFX_CLK>;
+			clock-names = "iface", "mem", "mem_iface";
 
 			#global-interrupts = <2>;
 			interrupts =
@@ -923,8 +944,6 @@
 				<GIC_SPI 117 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 349 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 350 IRQ_TYPE_LEVEL_HIGH>;
-
-			status = "disabled";
 		};
 
 		gpucc: clock-controller@5065000 {
@@ -948,6 +967,8 @@
 			compatible = "qcom,sdm630-smmu-v2", "qcom,smmu-v2";
 			reg = <0x05100000 0x40000>;
 			#iommu-cells = <1>;
+			qcom,use-3-lvl-tables;
+			qcom,skip-init;
 
 			#global-interrupts = <2>;
 			interrupts =
@@ -971,8 +992,6 @@
 				<GIC_SPI 225 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 310 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 404 IRQ_TYPE_LEVEL_HIGH>;
-
-			status = "disabled";
 		};
 
 		spmi_bus: spmi@800f000 {
@@ -1601,6 +1620,16 @@
 			compatible = "qcom,sdm630-smmu-v2", "qcom,smmu-v2";
 			reg = <0x0cd00000 0x40000>;
 			#iommu-cells = <1>;
+			qcom,use-3-lvl-tables;
+			qcom,skip-init;
+			qcom,no-smr-check;
+			
+			clocks = <&mmcc MNOC_AHB_CLK>,
+				 <&mmcc BIMC_SMMU_AHB_CLK>,
+				 <&rpmcc RPM_SMD_MMSSNOC_AXI_CLK>,
+				 <&mmcc BIMC_SMMU_AXI_CLK>;
+			clock-names = "iface-mm", "iface-smmu",
+				      "bus-mm", "bus-smmu";
 
 			#global-interrupts = <2>;
 			interrupts =
@@ -1631,8 +1660,6 @@
 				<GIC_SPI 274 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 275 IRQ_TYPE_LEVEL_HIGH>,
 				<GIC_SPI 276 IRQ_TYPE_LEVEL_HIGH>;
-
-			status = "disabled";
 		};
 
 		gnoc: interconnect@17900000 {
