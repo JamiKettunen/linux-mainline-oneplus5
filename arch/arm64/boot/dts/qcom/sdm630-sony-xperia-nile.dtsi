@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- * Copyright (c) 2020, Konrad Dybcio
+ * Copyright (c) 2020, AngeloGioacchino Del Regno <kholk11@gmail.com>
+ * Copyright (c) 2020, Konrad Dybcio <konradybcio@gmail.com>
+ * Copyright (c) 2020, Martin Botka <martin.botka1@gmail.com>
  */
-
-/dts-v1/;
 
 #include "sdm630.dtsi"
 #include "pm660.dtsi"
@@ -18,7 +18,6 @@
 	qcom,board-id = <8 1>;
 	qcom,pmic-id = <0x1001b 0x101011a 0x00 0x00 0x1001b 0x201011a 0x00 0x00>;
 
-	/* This part enables graphical output via bootloader-enabled display */
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -103,37 +102,568 @@
 		};
 	};
 
-	soc {
-		sdhci@c0c4000 {
-			status = "okay";
+	/* This is not exactly pretty, but required for TS to work.. */
 
-			mmc-ddr-1_8v;
-			/* SoMC Nile platform's eMMC doesn't support HS200 mode */
-			mmc-hs400-1_8v;
+	i2c1_touch: i2c {
+		compatible = "i2c-gpio";
+		status = "okay";
+
+		sda-gpios = <&tlmm 2 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
+		scl-gpios = <&tlmm 3 (GPIO_ACTIVE_HIGH|GPIO_OPEN_DRAIN)>;
+
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-frequency = <400000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&i2c1_default>;
+
+		touchscreen: synaptics-rmi4-i2c@70 {
+			compatible = "syna,rmi4-i2c";
+			reg = <0x70>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			interrupts-extended = <&tlmm 45 0x2008>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&ts_int_active &ts_lcd_id_active>;
+
+			syna,reset-delay-ms = <200>;
+			syna,startup-delay-ms = <220>;
+
+			rmi4-f01@1 {
+				reg = <0x01>;
+				syna,nosleep-mode = <1>;
+			};
+
+			rmi4-f11@11 {
+				reg = <0x11>;
+				syna,sensor-type = <1>;
+			};
 		};
+	};
 
-		i2c@c175000 {
-			status = "okay";
+	/*
+	 * Until we hook up type-c detection, we
+	 * have to stick with this. But it works.
+	 */
+	extcon_usb: extcon-usb {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpio = <&tlmm 58 GPIO_ACTIVE_HIGH>;
+	};
+};
 
-			/* Synaptics touchscreen */
-		};
+&adsp_pil {
+	firmware-name = "adsp.mdt";
+};
 
-		i2c@c176000 {
-			status = "okay";
+&blsp_i2c1 {
+	status = "okay";
 
-			/* SMB1351 charger */
-		};
+	/* Synaptics touchscreen - see above */
+};
 
-		serial@c1af000 {
-			status = "okay";
-		};
+&blsp_i2c2 {
+	status = "okay";
 
-		/* I2C3, 4, 5, 7 and 8 are disabled on this board. */
+	/* SMB1351 charger */
+};
 
-		i2c@c1b6000 {
-			status = "okay";
+/* I2C3, 4, 5, 7 and 8 are disabled on this board. */
 
-			/* NXP NFC */
+&blsp_i2c6 {
+	status = "okay";
+
+	pn553c2@28 {
+		compatible = "ncp,nxp-nci-i2c";
+
+		reg = <0x28>;
+		clock-frequency = <100000>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <28 IRQ_TYPE_LEVEL_HIGH>;
+
+		enable-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>;
+		firmware-gpios = <&tlmm 30 GPIO_ACTIVE_HIGH>;
+
+		/* TODO: Add support for clock gpio and bbclk clock */
+	};
+};
+
+&blsp1_uart2 {
+	status = "okay";
+};
+
+&blsp2_uart1 {
+	status = "okay";
+
+	bluetooth: wcn3990-bt {
+		compatible = "qcom,wcn3998-bt";
+
+		vddio-supply = <&vreg_l13a_1p8>;
+		vddxo-suppky = <&vreg_l9a_1p8>;
+		vddrf-supply = <&vreg_l6a_1p3>;
+		vddch0-supply = <&vreg_l19a_3p3>;
+
+		max-speed = <3200000>;
+
+		clocks = <&rpmcc RPM_SMD_RF_CLK1_PIN>;
+	};
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	vdda-supply = <&vreg_l1a_1p225>;
+
+	panel: panel@0 {
+		reg = <0>;
+
+		reset-gpios = <&tlmm 53 GPIO_ACTIVE_HIGH>;
+		disp-te-gpios = <&tlmm 59 GPIO_ACTIVE_HIGH>;
+
+		backlight = <&pm660l_wled>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &mdp_vsync_n>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
 		};
 	};
 };
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
+&mdss {
+	status = "okay";
+};
+
+&pm660l_wled {
+	status = "okay";
+};
+
+&pon {
+	volup {
+		compatible = "qcom,pm8941-resin";
+		interrupts = <0x0 0x8 1 IRQ_TYPE_EDGE_BOTH>;
+		debounce = <15625>;
+		bias-pull-up;
+		linux,code = <KEY_VOLUMEUP>;
+	};
+};
+
+&q6asmdai {
+	dai@0 {
+		reg = <0>;
+	};
+
+	dai@1 {
+		reg = <1>;
+	};
+};
+
+&qusb2phy {
+	status = "okay";
+
+	vdd-supply = <&vreg_l1b_0p925>;
+	vdda-pll-supply = <&vreg_l10a_1p8>;
+	vdda-phy-dpdm-supply = <&vreg_l7b_3p125>;
+};
+
+&rpm_requests {
+	pm660l-regulators {
+		compatible = "qcom,rpm-pm660l-regulators";
+
+		vdd_s1-supply = <&vph_pwr>;
+		vdd_s2-supply = <&vph_pwr>;
+		vdd_s3_s4-supply = <&vph_pwr>;
+		vdd_s5-supply = <&vph_pwr>;
+		vdd_s6-supply = <&vph_pwr>;
+
+		vdd_l1_l9_l10-supply = <&vreg_s2b_1p05>;
+		vdd_l2-supply = <&vreg_bob>;
+		vdd_l3_l5_l7_l8-supply = <&vreg_bob>;
+		vdd_l4_l6-supply = <&vreg_bob>;
+		vdd_bob-supply = <&vph_pwr>;
+
+		vreg_s1b_1p125: s1b {
+			regulator-min-microvolt = <1125000>;
+			regulator-max-microvolt = <1125000>;
+			regulator-enable-ramp-delay = <200>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_s2b_1p05: s2b {
+			regulator-min-microvolt = <1050000>;
+			regulator-max-microvolt = <1050000>;
+			regulator-enable-ramp-delay = <200>;
+			regulator-ramp-delay = <0>;
+		};
+
+		/*
+		 * At least on Nile's configuration, S3B/S4B (VDD_CX) and
+		 * S5B (VDD_MX) are managed only through RPM Power Domains.
+		 * Trying to set a voltage on the main supply will create
+		 * havoc and freeze the SoC.
+		 * In any case, reference voltages for these regulators are:
+		 * S3B/S4B: 0.870V
+		 * S5B: 0.915V
+		 */
+
+		/* LDOs */
+		vreg_l1b_0p925: l1b {
+			regulator-min-microvolt = <920000>;
+			regulator-max-microvolt = <928000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l2b_2p95: l2b {
+			/*
+			 * This regulator supports 1.648 - 3.104V on this board
+			 * but we set a max voltage of anything less than 2.7V
+			 * to satisfy a condition in sdhci.c that will disable
+			 * 3.3V SDHCI signaling, which happens to be not really
+			 * supported on the Xperia Nile/Ganges platform.
+			 */
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2696000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l3b_3p0: l3b {
+			regulator-min-microvolt = <1710000>;
+			regulator-max-microvolt = <3544000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l4b_29p5: l4b {
+			regulator-min-microvolt = <2944000>;
+			regulator-max-microvolt = <2952000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+
+			regulator-min-microamp = <200>;
+			regulator-max-microamp = <600000>;
+			regulator-system-load = <570000>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l5b_29p5: l5b {
+			regulator-min-microvolt = <1720000>;
+			regulator-max-microvolt = <3600000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l6b_3p3: l6b {
+			regulator-min-microvolt = <1704000>;
+			regulator-max-microvolt = <3312000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l7b_3p125: l7b {
+			regulator-min-microvolt = <2704000>;
+			regulator-max-microvolt = <3128000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l8b_3p3: l8b {
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <3400000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l9b_0p87: l9b {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_l10b_0p915: l10b {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_bob: bob {
+			regulator-min-microvolt = <3300000>;
+			regulator-max-microvolt = <3600000>;
+			regulator-enable-ramp-delay = <500>;
+			regulator-ramp-delay = <0>;
+		};
+	};
+
+	pm660-regulators {
+		compatible = "qcom,rpm-pm660-regulators";
+
+		vdd_s1-supply = <&vph_pwr>;
+		vdd_s2-supply = <&vph_pwr>;
+		vdd_s3-supply = <&vph_pwr>;
+		vdd_s4-supply = <&vph_pwr>;
+		vdd_s5-supply = <&vph_pwr>;
+		vdd_s6-supply = <&vph_pwr>;
+
+		vdd_l1_l6_l7-supply = <&vreg_s5a_1p35>;
+		vdd_l2_l3-supply = <&vreg_s2b_1p05>;
+		vdd_l5-supply = <&vreg_s2b_1p05>;
+		vdd_l8_l9_l10_l11_l12_l13_l14-supply = <&vreg_s4a_2p04>;
+		vdd_l15_l16_l17_l18_l19-supply = <&vreg_bob>;
+
+		vreg_s1a_ftapc0: s1a {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_s2a_ftapc1: s2a {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_s3a_hfapc1: s3a {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_s4a_2p04: s4a {
+			regulator-min-microvolt = <2040000>;
+			regulator-max-microvolt = <2040000>;
+			regulator-enable-ramp-delay = <200>;
+			regulator-ramp-delay = <0>;
+			regulator-always-on;
+		};
+
+		vreg_s5a_1p35: s5a {
+			regulator-min-microvolt = <1224000>;
+			regulator-max-microvolt = <1350000>;
+			regulator-enable-ramp-delay = <200>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_s6a_0p87: s6a {
+			regulator-min-microvolt = <504000>;
+			regulator-max-microvolt = <992000>;
+			regulator-enable-ramp-delay = <150>;
+			regulator-ramp-delay = <0>;
+		};
+
+		/* LDOs */
+		vreg_l1a_1p225: l1a {
+			regulator-min-microvolt = <1226000>;
+			regulator-max-microvolt = <1250000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l2a_1p0: l2a {
+			regulator-min-microvolt = <944000>;
+			regulator-max-microvolt = <1008000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l3a_1p0: l3a {
+			regulator-min-microvolt = <944000>;
+			regulator-max-microvolt = <1008000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l5a_0p848: l5a {
+			regulator-min-microvolt = <528000>;
+			regulator-max-microvolt = <952000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l6a_1p3: l6a {
+			regulator-min-microvolt = <1304000>;
+			regulator-max-microvolt = <1368000>;
+			regulator-allow-set-load;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l7a_1p2: l7a {
+			regulator-min-microvolt = <1200000>;
+			regulator-max-microvolt = <1200000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l8a_1p8: l8a {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-system-load = <325000>;
+			regulator-allow-set-load;
+		};
+
+
+		vreg_l9a_1p8: l9a {
+			regulator-min-microvolt = <1804000>;
+			regulator-max-microvolt = <1896000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l10a_1p8: l10a {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1944000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+
+		vreg_l11a_1p8: l11a {
+			regulator-min-microvolt = <1784000>;
+			regulator-max-microvolt = <1944000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l12a_1p8: l12a {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1944000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		/* This gives power to the LPDDR4: never turn it off! */
+		vreg_l13a_1p8: l13a {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1944000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-boot-on;
+			regulator-always-on;
+		};
+
+		vreg_l14a_1p8: l14a {
+			regulator-min-microvolt = <1710000>;
+			regulator-max-microvolt = <1904000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l15a_1p8: l15a {
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2952000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l16a_2p7: l16a {
+			/* Unused */
+			status = "disabled";
+		};
+
+		vreg_l17a_1p8: l17a {
+			regulator-min-microvolt = <1648000>;
+			regulator-max-microvolt = <2952000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l18a_1v8: l18a {
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <1800000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+		};
+
+		vreg_l19a_3p3: l19a {
+			regulator-min-microvolt = <3312000>;
+			regulator-max-microvolt = <3400000>;
+			regulator-enable-ramp-delay = <250>;
+			regulator-ramp-delay = <0>;
+			regulator-allow-set-load;
+		};
+	};
+};
+
+&sdhc_1 {
+	status = "okay";
+
+	supports-cqe;
+
+	/* SoMC Nile platform's eMMC doesn't support HS200 mode */
+	mmc-ddr-1_8v;
+	mmc-hs400-1_8v;
+	mmc-hs400-enhanced-strobe;
+
+	vmmc-supply = <&vreg_l4b_29p5>;
+	vqmmc-supply = <&vreg_l8a_1p8>;
+};
+
+&sdhc_2 {
+	status = "okay";
+
+	vmmc-supply = <&vreg_l5b_29p5>;
+	vqmmc-supply = <&vreg_l2b_2p95>;
+};
+
+&tlmm {
+	gpio-reserved-ranges = <8 4>;
+
+	ts_int_active: ts-int-active {
+		pins = "gpio45";
+		drive-strength = <8>;
+		bias-pull-up;
+	};
+
+	ts_lcd_id_active: ts-lcd-id-active {
+		pins = "gpio56";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	panel_reset_n: panel-rst-n {
+		pinmux {
+			pins = "gpio53";
+			function = "gpio";
+		};
+		pinconf {
+			pins = "gpio53";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	mdp_vsync_n: mdp-vsync-n {
+		pinmux {
+			pins = "gpio59";
+			function = "mdp_vsync";
+		};
+		pinconf {
+			pins = "gpio59";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+};
+
+&usb3 {
+	status = "okay";
+};
+
+&usb3_dwc3 {
+	dr_mode = "peripheral";
+	extcon = <&extcon_usb>;
+};
+
