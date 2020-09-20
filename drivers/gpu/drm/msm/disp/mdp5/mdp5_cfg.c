@@ -915,13 +915,12 @@ static const struct mdp5_cfg_hw sdm630_config = {
 	.mdp = {
 		.count = 1,
 		.caps = MDP_CAP_CDM |
-			MDP_CAP_SRC_SPLIT |
 			0,
 	},
 	.ctl = {
 		.count = 5,
 		.base = { 0x01000, 0x01200, 0x01400, 0x01600, 0x01800 },
-		.flush_hw_mask = 0xf4ffffff,
+		.flush_hw_mask = 0xf54338c1,
 	},
 	.pipe_vig = {
 		.count = 1,
@@ -930,16 +929,6 @@ static const struct mdp5_cfg_hw sdm630_config = {
 			MDP_PIPE_CAP_VFLIP	|
 			MDP_PIPE_CAP_SCALE	|
 			MDP_PIPE_CAP_CSC	|
-			MDP_PIPE_CAP_DECIMATION	|
-			MDP_PIPE_CAP_SW_PIX_EXT	|
-			0,
-	},
-	.pipe_rgb = {
-		.count = 4,
-		.base = { 0x14000, 0x16000, 0x18000, 0x1a000 },
-		.caps = MDP_PIPE_CAP_HFLIP	|
-			MDP_PIPE_CAP_VFLIP	|
-			MDP_PIPE_CAP_SCALE	|
 			MDP_PIPE_CAP_DECIMATION	|
 			MDP_PIPE_CAP_SW_PIX_EXT	|
 			0,
@@ -963,13 +952,12 @@ static const struct mdp5_cfg_hw sdm630_config = {
 	},
 
 	.lm = {
-		.count = 2,
-		.base = { 0x44000, 0x46000 },
+		.count = 3, /* LM_1 seems broken */
+		.base = { 0x44000, 0x45000, 0x46000 },
 		.instances = {
 				{ .id = 0, .pp = 0, .dspp = 0,
-				  .caps = MDP_LM_CAP_DISPLAY |
-					  MDP_LM_CAP_PAIR, },
-				{ .id = 1, .pp = 1, .dspp = -1,
+				  .caps = MDP_LM_CAP_DISPLAY, },
+				{ .id = 2, .pp = 2, .dspp = -1,
 				  .caps = MDP_LM_CAP_WB, },
 				},
 		.nb_stages = 8,
@@ -985,8 +973,8 @@ static const struct mdp5_cfg_hw sdm630_config = {
 		.base = { 0x78000, 0x78800 },
 	},
 	.pp = {
-		.count = 3,
-		.base = { 0x70000, 0x71000, 0x72000 },
+		.count = 3, /* Do not use PP1 */
+		.base = { 0x70000, 0x70800, 0x71000 },
 	},
 	.cdm = {
 		.count = 1,
@@ -1014,25 +1002,15 @@ static const struct mdp5_cfg_hw sdm660_config = {
 	.ctl = {
 		.count = 5,
 		.base = { 0x01000, 0x01200, 0x01400, 0x01600, 0x01800 },
-		.flush_hw_mask = 0xf4ffffff,
+		.flush_hw_mask = 0xf5437bc3,
 	},
 	.pipe_vig = {
 		.count = 2,
-		.base = { 0x04000, 0x6000 },
+		.base = { 0x04000, 0x06000 },
 		.caps = MDP_PIPE_CAP_HFLIP	|
 			MDP_PIPE_CAP_VFLIP	|
 			MDP_PIPE_CAP_SCALE	|
 			MDP_PIPE_CAP_CSC	|
-			MDP_PIPE_CAP_DECIMATION	|
-			MDP_PIPE_CAP_SW_PIX_EXT	|
-			0,
-	},
-	.pipe_rgb = {
-		.count = 4,
-		.base = { 0x14000, 0x16000, 0x18000, 0x1a000 },
-		.caps = MDP_PIPE_CAP_HFLIP	|
-			MDP_PIPE_CAP_VFLIP	|
-			MDP_PIPE_CAP_SCALE	|
 			MDP_PIPE_CAP_DECIMATION	|
 			MDP_PIPE_CAP_SW_PIX_EXT	|
 			0,
@@ -1056,19 +1034,19 @@ static const struct mdp5_cfg_hw sdm660_config = {
 	},
 
 	.lm = {
-		.count = 4,
-		.base = { 0x44000, 0x45000, 0x46000, 0x49000 },
+		.count = 6, /* Do not use LM_3, LM_4 */
+		.base = { 0x44000, 0x45000, 0x46000, 0x47000, 0x48000, 0x49000 },
 		.instances = {
 				{ .id = 0, .pp = 0, .dspp = 0,
 				  .caps = MDP_LM_CAP_DISPLAY |
 					  MDP_LM_CAP_PAIR, },
 				{ .id = 1, .pp = 1, .dspp = 1,
 				  .caps = MDP_LM_CAP_DISPLAY, },
-				{ .id = 2, .pp = 2, .dspp = -1,
+				{ .id = 2, .pp = -1, .dspp = -1,
+				  .caps = MDP_LM_CAP_WB, },
+				{ .id = 5, .pp = 4, .dspp = -1,
 				  .caps = MDP_LM_CAP_DISPLAY |
 					  MDP_LM_CAP_PAIR, },
-				{ .id = 3, .pp = 3, .dspp = -1,
-				  .caps = MDP_LM_CAP_WB, },
 				},
 		.nb_stages = 8,
 		.max_width = 2560,
@@ -1083,7 +1061,7 @@ static const struct mdp5_cfg_hw sdm660_config = {
 		.base = { 0x78000, 0x78800 },
 	},
 	.pp = {
-		.count = 5,
+		.count = 5, /* Do not use PP_2 and PP_3 */
 		.base = { 0x70000, 0x70800, 0x71000, 0x71800, 0x72000 },
 	},
 	.cdm = {
@@ -1097,10 +1075,10 @@ static const struct mdp5_cfg_hw sdm660_config = {
 	.intf = {
 		.base = { 0x6a000, 0x6a800, 0x6b000, 0x6b800 },
 		.connect = {
-			[0] = INTF_DISABLED,
+			[0] = INTF_HDMI,
 			[1] = INTF_DSI,
 			[2] = INTF_DSI,
-			[3] = INTF_HDMI,
+			[3] = INTF_DISABLED,
 		},
 	},
 	.max_clk = 412500000,
