@@ -4,9 +4,11 @@
  */
 
 #include <dt-bindings/clock/qcom,gcc-sdm660.h>
+#include <dt-bindings/clock/qcom,mmcc-sdm660.h>
 #include <dt-bindings/clock/qcom,rpmcc.h>
 #include <dt-bindings/power/qcom-rpmpd.h>
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interconnect/qcom,sdm660.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
 / {
@@ -516,9 +518,36 @@
 			clock-names = "core";
 		};
 
+		bimc: interconnect@1008000 {
+			compatible = "qcom,sdm660-bimc";
+			reg = <0x01008000 0x78000>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_BIMC_CLK>,
+				 <&rpmcc RPM_SMD_BIMC_A_CLK>;
+		};
+
 		restart@10ac000 {
 			compatible = "qcom,pshold";
 			reg = <0x010ac000 0x4>;
+		};
+
+		cnoc: interconnect@1500000 {
+			compatible = "qcom,sdm660-cnoc";
+			reg = <0x01500000 0x10000>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_CNOC_CLK>,
+				 <&rpmcc RPM_SMD_CNOC_A_CLK>;
+		};
+
+		snoc: interconnect@1626000 {
+			compatible = "qcom,sdm660-snoc";
+			reg = <0x01626000 0x7090>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_SNOC_CLK>,
+				 <&rpmcc RPM_SMD_SNOC_A_CLK>;
 		};
 
 		anoc2_smmu: iommu@16c0000 {
@@ -562,6 +591,25 @@
 				<GIC_SPI 474 IRQ_TYPE_LEVEL_HIGH>;
 
 			status = "disabled";
+		};
+
+		a2noc: interconnect@1704000 {
+			compatible = "qcom,sdm660-a2noc";
+			reg = <0x01704000 0xc100>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>,
+				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>;
+		};
+
+		mnoc: interconnect@1745000 {
+			compatible = "qcom,sdm660-mnoc";
+			reg = <0x01745000 0xA010>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a", "iface";
+			clocks = <&rpmcc RPM_SMD_MMSSNOC_AXI_CLK>,
+				 <&rpmcc RPM_SMD_MMSSNOC_AXI_CLK_A>,
+				 <&mmcc AHB_CLK_SRC>;
 		};
 
 		tcsr_mutex_regs: syscon@1f40000 {
@@ -872,6 +920,226 @@
 			status = "disabled";
 		};
 
+		mmcc: clock-controller@c8c0000 {
+			compatible = "qcom,mmcc-sdm630";
+			reg = <0x0c8c0000 0x40000>;
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			#power-domain-cells = <1>;
+			clock-names = "xo",
+					"sleep_clk",
+					"gpll0",
+					"gpll0_div",
+					"dsi0pll",
+					"dsi0pllbyte",
+					"dsi1pll",
+					"dsi1pllbyte",
+					"dp_link_2x_clk_divsel_five",
+					"dp_vco_divided_clk_src_mux";
+			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>,
+					<&sleep_clk>,
+					<&gcc GCC_MMSS_GPLL0_CLK>,
+					<&gcc GCC_MMSS_GPLL0_DIV_CLK>,
+					<&dsi0_phy 1>,
+					<&dsi0_phy 0>,
+					<0>,
+					<0>,
+					<0>,
+					<0>;
+		};
+
+		dsi_opp_table: dsi-opp-table {
+			compatible = "operating-points-v2";
+
+			opp-131250000 {
+				opp-hz = /bits/ 64 <131250000>;
+				required-opps = <&rpmpd_opp_svs>;
+			};
+
+			opp-210000000 {
+				opp-hz = /bits/ 64 <210000000>;
+				required-opps = <&rpmpd_opp_svs_plus>;
+			};
+
+			opp-262500000 {
+				opp-hz = /bits/ 64 <262500000>;
+				required-opps = <&rpmpd_opp_nom>;
+			};
+		};
+
+		mdss: mdss@c900000 {
+			compatible = "qcom,mdss";
+			reg = <0x0c900000 0x1000>,
+			      <0x0c9b0000 0x1040>;
+			reg-names = "mdss_phys", "vbif_phys";
+
+			power-domains = <&mmcc MDSS_GDSC>;
+
+			clocks = <&mmcc MDSS_AHB_CLK>,
+				 <&mmcc MDSS_AXI_CLK>,
+				 <&mmcc MDSS_VSYNC_CLK>,
+				 <&mmcc MDSS_MDP_CLK>;
+			clock-names = "iface",
+				      "bus",
+				      "vsync",
+					  "core";
+
+			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
+
+			interrupt-controller;
+			#interrupt-cells = <1>;
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ranges;
+			status = "disabled";
+
+			mdp: mdp@c901000 {
+				compatible = "qcom,mdp5";
+				reg = <0x0c901000 0x89000>;
+				reg-names = "mdp_phys";
+
+				interrupt-parent = <&mdss>;
+				interrupts = <0 IRQ_TYPE_LEVEL_HIGH>;
+
+				clocks = <&mmcc MDSS_AHB_CLK>,
+					 <&mmcc MDSS_AXI_CLK>,
+					 <&mmcc MDSS_MDP_CLK>,
+					 <&mmcc MDSS_VSYNC_CLK>;
+				clock-names = "iface",
+					      "bus",
+					      "core",
+					      "vsync";
+
+				iommus = <&mmss_smmu 0>;
+
+				operating-points-v2 = <&mdp_opp_table>;
+				power-domains = <&rpmpd SDM660_VDDCX>;
+
+				interconnects = <&mnoc MASTER_MDP_P0 &bimc SLAVE_EBI>,
+						<&mnoc MASTER_MDP_P1 &bimc SLAVE_EBI>,
+						<&gnoc MASTER_APSS_PROC &mnoc SLAVE_DISPLAY_CFG>;
+				interconnect-names = "mdp0-mem",
+						     "mdp1-mem",
+						     "rotator-mem";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+						mdp5_intf1_out: endpoint {
+							remote-endpoint = <&dsi0_in>;
+						};
+					};
+				};
+
+				mdp_opp_table: mdp-opp {
+					compatible = "operating-points-v2";
+
+					opp-150000000 {
+						opp-hz = /bits/ 64 <150000000>;
+						opp-peak-kBps = <320000 320000 76800>;
+						required-opps = <&rpmpd_opp_low_svs>;
+					};
+					opp-275000000 {
+						opp-hz = /bits/ 64 <275000000>;
+						opp-peak-kBps = <6400000 6400000 160000>;
+						required-opps = <&rpmpd_opp_svs>;
+					};
+					opp-300000000 {
+						opp-hz = /bits/ 64 <300000000>;
+						opp-peak-kBps = <6400000 6400000 190000>;
+						required-opps = <&rpmpd_opp_svs_plus>;
+					};
+					opp-330000000 {
+						opp-hz = /bits/ 64 <330000000>;
+						opp-peak-kBps = <6400000 6400000 240000>;
+						required-opps = <&rpmpd_opp_nom>;
+					};
+					opp-412500000 {
+						opp-hz = /bits/ 64 <412500000>;
+						opp-peak-kBps = <6400000 6400000 320000>;
+						required-opps = <&rpmpd_opp_turbo>;
+					};
+				};
+			};
+
+			dsi0: dsi@c994000 {
+				compatible = "qcom,mdss-dsi-ctrl";
+				reg = <0x0c994000 0x400>;
+				reg-names = "dsi_ctrl";
+
+				operating-points-v2 = <&dsi_opp_table>;
+				power-domains = <&rpmpd SDM660_VDDCX>;
+
+				interrupt-parent = <&mdss>;
+				interrupts = <4 IRQ_TYPE_LEVEL_HIGH>;
+
+				assigned-clocks = <&mmcc BYTE0_CLK_SRC>,
+						  <&mmcc PCLK0_CLK_SRC>;
+				assigned-clock-parents = <&dsi0_phy 0>,
+							 <&dsi0_phy 1>;
+
+				clocks = <&mmcc MDSS_MDP_CLK>,
+					 <&mmcc MDSS_BYTE0_CLK>,
+					 <&mmcc MDSS_BYTE0_INTF_CLK>,
+					 <&mmcc MNOC_AHB_CLK>,
+					 <&mmcc MDSS_AHB_CLK>,
+					 <&mmcc MDSS_AXI_CLK>,
+					 <&mmcc MISC_AHB_CLK>,
+					 <&mmcc MDSS_PCLK0_CLK>,
+					 <&mmcc MDSS_ESC0_CLK>;
+				clock-names = "mdp_core",
+					      "byte",
+					      "byte_intf",
+					      "mnoc",
+					      "iface",
+					      "bus",
+					      "core_mmss",
+					      "pixel",
+					      "core";
+
+				phys = <&dsi0_phy>;
+				phy-names = "dsi";
+
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+
+					port@0 {
+						reg = <0>;
+						dsi0_in: endpoint {
+							remote-endpoint = <&mdp5_intf1_out>;
+						};
+					};
+
+					port@1 {
+						reg = <1>;
+						dsi0_out: endpoint {
+						};
+					};
+				};
+			};
+
+			dsi0_phy: dsi-phy@c994400 {
+				compatible = "qcom,dsi-phy-14nm-660";
+				reg = <0x0c994400 0x100>,
+				      <0x0c994500 0x300>,
+				      <0x0c994800 0x188>;
+				reg-names = "dsi_phy",
+					    "dsi_phy_lane",
+					    "dsi_pll";
+
+				#clock-cells = <1>;
+				#phy-cells = <0>;
+
+				clocks = <&mmcc MDSS_AHB_CLK>, <&xo_board>;
+				clock-names = "iface", "ref";
+			};
+		};
+
 		blsp1_dma: dma@c144000 {
 			compatible = "qcom,bam-v1.7.0";
 			reg = <0x0c144000 0x1f000>;
@@ -1124,6 +1392,18 @@
 				<GIC_SPI 276 IRQ_TYPE_LEVEL_HIGH>;
 
 			status = "disabled";
+		};
+
+		gnoc: interconnect@17900000 {
+			compatible = "qcom,sdm660-gnoc";
+			reg = <0x17900000 0xe000>;
+			#interconnect-cells = <1>;
+			/*
+			 * This one apparently features no clocks,
+			 * so let's not mess with the driver needlessly
+			 */
+			clock-names = "bus", "bus_a";
+			clocks = <&xo_board>, <&xo_board>;
 		};
 
 		apcs_glb: mailbox@17911000 {
