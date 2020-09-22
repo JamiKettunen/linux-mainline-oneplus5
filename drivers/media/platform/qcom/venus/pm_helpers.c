@@ -130,6 +130,100 @@ static void vcodec_clks_disable(struct venus_core *core, struct clk **clks)
 		clk_disable_unprepare(clks[i]);
 }
 
+static int vcodec_domains_get(struct device *dev)
+{
+	int ret;
+	struct opp_table *opp_table;
+	struct device **opp_virt_dev;
+	struct venus_core *core = dev_get_drvdata(dev);
+	const struct venus_resources *res = core->res;
+	struct device *pd;
+	unsigned int i;
+
+	if (!res->vcodec_pmdomains_num)
+		goto skip_pmdomains;
+
+	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+		pd = dev_pm_domain_attach_by_name(dev,
+						  res->vcodec_pmdomains[i]);
+		if (IS_ERR(pd))
+			return PTR_ERR(pd);
+		core->pmdomains[i] = pd;
+	}
+
+	core->pd_dl_venus = device_link_add(dev, core->pmdomains[0],
+					    DL_FLAG_PM_RUNTIME |
+					    DL_FLAG_STATELESS |
+					    DL_FLAG_RPM_ACTIVE);
+	if (!core->pd_dl_venus)
+		return -ENODEV;
+
+skip_pmdomains:
+	if (!core->has_opp_table)
+		return 0;
+
+	/* Attach the power domain for setting performance state */
+	opp_table = dev_pm_opp_attach_genpd(dev, res->opp_pmdomain, &opp_virt_dev);
+	if (IS_ERR(opp_table)) {
+		ret = PTR_ERR(opp_table);
+		goto opp_attach_err;
+	}
+
+	core->opp_pmdomain = *opp_virt_dev;
+	core->opp_dl_venus = device_link_add(dev, core->opp_pmdomain,
+					     DL_FLAG_RPM_ACTIVE |
+					     DL_FLAG_PM_RUNTIME |
+					     DL_FLAG_STATELESS);
+	if (!core->opp_dl_venus) {
+		ret = -ENODEV;
+		goto opp_dl_add_err;
+	}
+
+	return 0;
+
+opp_dl_add_err:
+	dev_pm_domain_detach(core->opp_pmdomain, true);
+opp_attach_err:
+	if (core->pd_dl_venus) {
+		device_link_del(core->pd_dl_venus);
+		for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+			if (IS_ERR_OR_NULL(core->pmdomains[i]))
+				continue;
+			dev_pm_domain_detach(core->pmdomains[i], true);
+		}
+	}
+	return ret;
+}
+
+static void vcodec_domains_put(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+	const struct venus_resources *res = core->res;
+	unsigned int i;
+
+	if (!res->vcodec_pmdomains_num)
+		goto skip_pmdomains;
+
+	if (core->pd_dl_venus)
+		device_link_del(core->pd_dl_venus);
+
+	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+		if (IS_ERR_OR_NULL(core->pmdomains[i]))
+			continue;
+		dev_pm_domain_detach(core->pmdomains[i], true);
+	}
+
+skip_pmdomains:
+	if (!core->has_opp_table)
+		return;
+
+	if (core->opp_dl_venus)
+		device_link_del(core->opp_dl_venus);
+
+	dev_pm_domain_detach(core->opp_pmdomain, true);
+}
+
+
 static u32 load_per_instance(struct venus_inst *inst)
 {
 	u32 mbs;
@@ -308,18 +402,16 @@ vcodec_control_v3(struct venus_core *core, u32 session_type, bool enable)
 		writel(1, ctrl);
 }
 
-static int vdec_get_v3(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-
-	return vcodec_clks_get(core, dev, core->vcodec0_clks,
-			       core->res->vcodec0_clks);
-}
-
 static int vdec_power_v3(struct device *dev, int on)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
 	int ret = 0;
+
+	if (!legacy_binding && on == POWER_ON) {
+		ret = pm_runtime_get_sync(core->pmdomains[1]);
+		if (ret < 0)
+			return ret;
+	}
 
 	vcodec_control_v3(core, VIDC_SESSION_TYPE_DEC, true);
 
@@ -330,40 +422,202 @@ static int vdec_power_v3(struct device *dev, int on)
 
 	vcodec_control_v3(core, VIDC_SESSION_TYPE_DEC, false);
 
+	if (!legacy_binding && on == POWER_OFF) {
+		ret = pm_runtime_put_sync(core->pmdomains[1]);
+		if (ret < 0)
+			return ret;
+	}
+
 	return ret;
-}
-
-static int venc_get_v3(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-
-	return vcodec_clks_get(core, dev, core->vcodec1_clks,
-			       core->res->vcodec1_clks);
 }
 
 static int venc_power_v3(struct device *dev, int on)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
-	int ret = 0;
+	const struct venus_resources *res = core->res;
+	struct clk **vcodec_clks;
+	int idx, ret = 0;
+
+	/*
+	 * Some SoCs have got only one vcodec instance and all of them
+	 * have got one global and one pmdomain per instance.
+	 */
+	if (res->vcodec_num > 1) {
+		vcodec_clks = core->vcodec1_clks;
+		idx = 2;
+	} else {
+		vcodec_clks = core->vcodec0_clks;
+		idx = 1;
+	}
+
+	if (!legacy_binding && on == POWER_ON) {
+		ret = pm_runtime_get_sync(core->pmdomains[idx]);
+		if (ret < 0)
+			return ret;
+	}
 
 	vcodec_control_v3(core, VIDC_SESSION_TYPE_ENC, true);
 
 	if (on == POWER_ON)
-		ret = vcodec_clks_enable(core, core->vcodec1_clks);
+		ret = vcodec_clks_enable(core, vcodec_clks);
 	else
-		vcodec_clks_disable(core, core->vcodec1_clks);
+		vcodec_clks_disable(core, vcodec_clks);
 
 	vcodec_control_v3(core, VIDC_SESSION_TYPE_ENC, false);
+
+	if (!legacy_binding && on == POWER_OFF) {
+		ret = pm_runtime_put_sync(core->pmdomains[idx]);
+		if (ret < 0)
+			return ret;
+	}
 
 	return ret;
 }
 
+static int core_get_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+	const struct venus_resources *res = core->res;
+	int ret;
+
+	ret = core_clks_get(core);
+	if (ret)
+		return ret;
+
+	if (!res->vcodec_pmdomains_num)
+		legacy_binding = true;
+
+	dev_info(dev, "%s legacy binding\n", legacy_binding ? "" : "non");
+
+	ret = vcodec_clks_get(core, dev, core->vcodec0_clks, res->vcodec0_clks);
+	if (ret)
+		return ret;
+
+	if (core->vcodec1_clks) {
+		ret = vcodec_clks_get(core, dev,
+				      core->vcodec1_clks, res->vcodec1_clks);
+		if (ret)
+			return ret;
+	}
+
+	if (legacy_binding)
+		return 0;
+
+	core->opp_table = dev_pm_opp_set_clkname(dev, "core");
+	if (IS_ERR(core->opp_table))
+		return PTR_ERR(core->opp_table);
+
+	if (core->res->opp_pmdomain) {
+		ret = dev_pm_opp_of_add_table(dev);
+		if (!ret) {
+			core->has_opp_table = true;
+		} else if (ret != -ENODEV) {
+			dev_err(dev, "invalid OPP table in device tree\n");
+			dev_pm_opp_put_clkname(core->opp_table);
+			return ret;
+		}
+	}
+
+	ret = vcodec_domains_get(dev);
+	if (ret) {
+		if (core->has_opp_table)
+			dev_pm_opp_of_remove_table(dev);
+		dev_pm_opp_put_clkname(core->opp_table);
+		return ret;
+	}
+
+	return 0;
+}
+
+static void core_put_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+
+	if (legacy_binding)
+		return;
+
+	vcodec_domains_put(dev);
+
+	if (core->has_opp_table)
+		dev_pm_opp_of_remove_table(dev);
+	if (core->opp_table)
+		dev_pm_opp_put_clkname(core->opp_table);
+
+}
+
+static int core_power_v4(struct device *dev, int on)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+	int ret = 0;
+
+	if (on == POWER_ON) {
+		ret = core_clks_enable(core);
+	} else {
+		/* Drop the performance state vote */
+		if (core->opp_pmdomain)
+			dev_pm_opp_set_rate(dev, 0);
+
+		core_clks_disable(core);
+	}
+
+	return ret;
+}
+
+static int vdec_get_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+
+	if (!legacy_binding)
+		return 0;
+
+	return vcodec_clks_get(core, dev, core->vcodec0_clks,
+			       core->res->vcodec0_clks);
+}
+
+static void vdec_put_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+	unsigned int i;
+
+	if (!legacy_binding)
+		return;
+
+	for (i = 0; i < core->res->vcodec_clks_num; i++)
+		core->vcodec0_clks[i] = NULL;
+}
+
+static int venc_get_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+
+	if (!legacy_binding)
+		return 0;
+
+	return vcodec_clks_get(core, dev, core->vcodec1_clks,
+			       core->res->vcodec1_clks);
+}
+
+static void venc_put_v4(struct device *dev)
+{
+	struct venus_core *core = dev_get_drvdata(dev);
+	unsigned int i;
+
+	if (!legacy_binding)
+		return;
+
+	for (i = 0; i < core->res->vcodec_clks_num; i++)
+		core->vcodec1_clks[i] = NULL;
+}
+
 static const struct venus_pm_ops pm_ops_v3 = {
-	.core_get = core_get_v1,
-	.core_power = core_power_v1,
-	.vdec_get = vdec_get_v3,
+	.core_get = core_get_v4,
+	.core_put = core_put_v4,
+	.core_power = core_power_v4,
+	.vdec_get = vdec_get_v4,
+	.vdec_put = vdec_put_v4,
 	.vdec_power = vdec_power_v3,
-	.venc_get = venc_get_v3,
+	.venc_get = venc_get_v4,
+	.venc_put = venc_put_v4,
 	.venc_power = venc_power_v3,
 	.load_scale = load_scale_v1,
 };
@@ -652,29 +906,6 @@ static int coreid_power_v4(struct venus_inst *inst, int on)
 	return ret;
 }
 
-static int vdec_get_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-
-	if (!legacy_binding)
-		return 0;
-
-	return vcodec_clks_get(core, dev, core->vcodec0_clks,
-			       core->res->vcodec0_clks);
-}
-
-static void vdec_put_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-	unsigned int i;
-
-	if (!legacy_binding)
-		return;
-
-	for (i = 0; i < core->res->vcodec_clks_num; i++)
-		core->vcodec0_clks[i] = NULL;
-}
-
 static int vdec_power_v4(struct device *dev, int on)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
@@ -697,29 +928,6 @@ static int vdec_power_v4(struct device *dev, int on)
 	return ret;
 }
 
-static int venc_get_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-
-	if (!legacy_binding)
-		return 0;
-
-	return vcodec_clks_get(core, dev, core->vcodec1_clks,
-			       core->res->vcodec1_clks);
-}
-
-static void venc_put_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-	unsigned int i;
-
-	if (!legacy_binding)
-		return;
-
-	for (i = 0; i < core->res->vcodec_clks_num; i++)
-		core->vcodec1_clks[i] = NULL;
-}
-
 static int venc_power_v4(struct device *dev, int on)
 {
 	struct venus_core *core = dev_get_drvdata(dev);
@@ -738,185 +946,6 @@ static int venc_power_v4(struct device *dev, int on)
 		vcodec_clks_disable(core, core->vcodec1_clks);
 
 	vcodec_control_v4(core, VIDC_CORE_ID_2, false);
-
-	return ret;
-}
-
-static int vcodec_domains_get(struct device *dev)
-{
-	int ret;
-	struct opp_table *opp_table;
-	struct device **opp_virt_dev;
-	struct venus_core *core = dev_get_drvdata(dev);
-	const struct venus_resources *res = core->res;
-	struct device *pd;
-	unsigned int i;
-
-	if (!res->vcodec_pmdomains_num)
-		goto skip_pmdomains;
-
-	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
-		pd = dev_pm_domain_attach_by_name(dev,
-						  res->vcodec_pmdomains[i]);
-		if (IS_ERR(pd))
-			return PTR_ERR(pd);
-		core->pmdomains[i] = pd;
-	}
-
-	core->pd_dl_venus = device_link_add(dev, core->pmdomains[0],
-					    DL_FLAG_PM_RUNTIME |
-					    DL_FLAG_STATELESS |
-					    DL_FLAG_RPM_ACTIVE);
-	if (!core->pd_dl_venus)
-		return -ENODEV;
-
-skip_pmdomains:
-	if (!core->has_opp_table)
-		return 0;
-
-	/* Attach the power domain for setting performance state */
-	opp_table = dev_pm_opp_attach_genpd(dev, res->opp_pmdomain, &opp_virt_dev);
-	if (IS_ERR(opp_table)) {
-		ret = PTR_ERR(opp_table);
-		goto opp_attach_err;
-	}
-
-	core->opp_pmdomain = *opp_virt_dev;
-	core->opp_dl_venus = device_link_add(dev, core->opp_pmdomain,
-					     DL_FLAG_RPM_ACTIVE |
-					     DL_FLAG_PM_RUNTIME |
-					     DL_FLAG_STATELESS);
-	if (!core->opp_dl_venus) {
-		ret = -ENODEV;
-		goto opp_dl_add_err;
-	}
-
-	return 0;
-
-opp_dl_add_err:
-	dev_pm_domain_detach(core->opp_pmdomain, true);
-opp_attach_err:
-	if (core->pd_dl_venus) {
-		device_link_del(core->pd_dl_venus);
-		for (i = 0; i < res->vcodec_pmdomains_num; i++) {
-			if (IS_ERR_OR_NULL(core->pmdomains[i]))
-				continue;
-			dev_pm_domain_detach(core->pmdomains[i], true);
-		}
-	}
-	return ret;
-}
-
-static void vcodec_domains_put(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-	const struct venus_resources *res = core->res;
-	unsigned int i;
-
-	if (!res->vcodec_pmdomains_num)
-		goto skip_pmdomains;
-
-	if (core->pd_dl_venus)
-		device_link_del(core->pd_dl_venus);
-
-	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
-		if (IS_ERR_OR_NULL(core->pmdomains[i]))
-			continue;
-		dev_pm_domain_detach(core->pmdomains[i], true);
-	}
-
-skip_pmdomains:
-	if (!core->has_opp_table)
-		return;
-
-	if (core->opp_dl_venus)
-		device_link_del(core->opp_dl_venus);
-
-	dev_pm_domain_detach(core->opp_pmdomain, true);
-}
-
-static int core_get_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-	const struct venus_resources *res = core->res;
-	int ret;
-
-	ret = core_clks_get(core);
-	if (ret)
-		return ret;
-
-	if (!res->vcodec_pmdomains_num)
-		legacy_binding = true;
-
-	dev_info(dev, "%s legacy binding\n", legacy_binding ? "" : "non");
-
-	ret = vcodec_clks_get(core, dev, core->vcodec0_clks, res->vcodec0_clks);
-	if (ret)
-		return ret;
-
-	ret = vcodec_clks_get(core, dev, core->vcodec1_clks, res->vcodec1_clks);
-	if (ret)
-		return ret;
-
-	if (legacy_binding)
-		return 0;
-
-	core->opp_table = dev_pm_opp_set_clkname(dev, "core");
-	if (IS_ERR(core->opp_table))
-		return PTR_ERR(core->opp_table);
-
-	if (core->res->opp_pmdomain) {
-		ret = dev_pm_opp_of_add_table(dev);
-		if (!ret) {
-			core->has_opp_table = true;
-		} else if (ret != -ENODEV) {
-			dev_err(dev, "invalid OPP table in device tree\n");
-			dev_pm_opp_put_clkname(core->opp_table);
-			return ret;
-		}
-	}
-
-	ret = vcodec_domains_get(dev);
-	if (ret) {
-		if (core->has_opp_table)
-			dev_pm_opp_of_remove_table(dev);
-		dev_pm_opp_put_clkname(core->opp_table);
-		return ret;
-	}
-
-	return 0;
-}
-
-static void core_put_v4(struct device *dev)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-
-	if (legacy_binding)
-		return;
-
-	vcodec_domains_put(dev);
-
-	if (core->has_opp_table)
-		dev_pm_opp_of_remove_table(dev);
-	if (core->opp_table)
-		dev_pm_opp_put_clkname(core->opp_table);
-
-}
-
-static int core_power_v4(struct device *dev, int on)
-{
-	struct venus_core *core = dev_get_drvdata(dev);
-	int ret = 0;
-
-	if (on == POWER_ON) {
-		ret = core_clks_enable(core);
-	} else {
-		/* Drop the performance state vote */
-		if (core->opp_pmdomain)
-			dev_pm_opp_set_rate(dev, 0);
-
-		core_clks_disable(core);
-	}
 
 	return ret;
 }
