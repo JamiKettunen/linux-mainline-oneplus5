@@ -1955,6 +1955,86 @@
 			status = "disabled";
 		};
 
+		venus: video-codec@cc00000 {
+			compatible = "qcom,sdm660-venus";
+			reg = <0x0cc00000 0xff000>;
+			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
+			power-domains = <&mmcc VENUS_GDSC>,
+					<&mmcc VENUS_CORE0_GDSC>,
+					<&rpmpd SDM660_VDDCX>;
+			power-domain-names = "venus", "vcodec0", "cx";
+			operating-points-v2 = <&venus_opp_table>;
+			clocks = <&mmcc VIDEO_CORE_CLK>,
+				 <&mmcc VIDEO_AHB_CLK>,
+				 <&mmcc THROTTLE_VIDEO_AXI_CLK>,
+				 <&mmcc VIDEO_AXI_CLK>,
+				 <&mmcc VIDEO_SUBCORE0_CLK>;
+			clock-names = "core", "iface", "bus_throttle", "bus",
+				      "vcodec0_core";
+			iommus = <&mmss_smmu 0x400>,
+				 <&mmss_smmu 0x401>,
+				 <&mmss_smmu 0x40a>,
+				 <&mmss_smmu 0x407>,
+				 <&mmss_smmu 0x40e>,
+				 <&mmss_smmu 0x40f>,
+				 <&mmss_smmu 0x408>,
+				 <&mmss_smmu 0x409>,
+				 <&mmss_smmu 0x40b>,
+				 <&mmss_smmu 0x40c>,
+				 <&mmss_smmu 0x40d>,
+				 <&mmss_smmu 0x410>,
+				 <&mmss_smmu 0x421>,
+				 <&mmss_smmu 0x428>,
+				 <&mmss_smmu 0x429>,
+				 <&mmss_smmu 0x42b>,
+				 <&mmss_smmu 0x42c>,
+				 <&mmss_smmu 0x42d>,
+				 <&mmss_smmu 0x411>,
+				 <&mmss_smmu 0x431>;
+			memory-region = <&venus_region>;
+
+			interconnects = <&mnoc MASTER_VENUS &bimc SLAVE_EBI>,
+					<&gnoc MASTER_APSS_PROC &mnoc SLAVE_VENUS_CFG>;
+			interconnect-names = "video-mem", "cpu-cfg";
+
+			video-decoder {
+				compatible = "venus-decoder";
+			};
+
+			video-encoder {
+				compatible = "venus-encoder";
+			};
+
+			venus_opp_table: venus-opp-table {
+				compatible = "operating-points-v2";
+
+				opp-133330000 {
+					opp-hz = /bits/ 64 <133330000>;
+					required-opps = <&rpmpd_opp_low_svs>;
+				};
+				opp-269330000 {
+					opp-hz = /bits/ 64 <269330000>;
+					required-opps = <&rpmpd_opp_svs>;
+				};
+				opp-320000000 {
+					opp-hz = /bits/ 64 <320000000>;
+					required-opps = <&rpmpd_opp_svs_plus>;
+				};
+				opp-404000000 {
+					opp-hz = /bits/ 64 <404000000>;
+					required-opps = <&rpmpd_opp_nom>;
+				};
+				opp-441600000 {
+					opp-hz = /bits/ 64 <441600000>;
+					required-opps = <&rpmpd_opp_nom_plus>;
+				};
+				opp-518400000 {
+					opp-hz = /bits/ 64 <518400000>;
+					required-opps = <&rpmpd_opp_turbo>;
+				};
+			};
+		};
+
 		mmss_smmu: iommu@cd00000 {
 			compatible = "qcom,sdm630-smmu-v2", "qcom,smmu-v2";
 			reg = <0x0cd00000 0x40000>;
