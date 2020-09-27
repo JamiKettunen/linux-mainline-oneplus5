@@ -1957,6 +1957,7 @@
 
 		venus: video-codec@cc00000 {
 			compatible = "qcom,sdm660-venus";
+			status = "disabled";
 			reg = <0x0cc00000 0xff000>;
 			interrupts = <GIC_SPI 287 IRQ_TYPE_LEVEL_HIGH>;
 			power-domains = <&mmcc VENUS_GDSC>,
