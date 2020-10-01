@@ -16,3 +16,11 @@
 &panel {
 	compatible = "sony,pioneer-td4322-truly";
 };
+
+&imx300_sensor {
+	VDDL-supply = <&vreg_l18a_1v8>; /* VIO */
+};
+
+&imx219_sensor {
+	VDDL-supply = <&vreg_l18a_1v8>; /* VIO */
+};

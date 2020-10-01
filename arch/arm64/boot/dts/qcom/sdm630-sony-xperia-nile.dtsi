@@ -41,6 +41,47 @@
 		regulator-boot-on;
 	};
 
+	cam_vdig_imx300_219_vreg: cam_vdig_imx300_219_vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vdig_imx300_219_vreg";
+		startup-delay-us = <0>;
+		enable-active-high;
+		gpio = <&tlmm 52 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&cam_vdig_default>;
+	};
+
+	cam_vana_front_vreg: cam_vana_front_vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vana_front_vreg";
+		startup-delay-us = <0>;
+		enable-active-high;
+		gpio = <&tlmm 51 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&imx219_vana_default>;
+	};
+
+	cam_vana_rear_vreg: cam_vana_rear_vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vana_rear_vreg";
+		startup-delay-us = <0>;
+		enable-active-high;
+		gpio = <&tlmm 50 GPIO_ACTIVE_HIGH>;
+		regulator-always-on;
+		pinctrl-names = "default";
+		pinctrl-0 = <&imx300_vana_default>;
+	};
+
+/*
+	cam_vio_vreg: cam_vio_vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "cam_vio_vreg";
+		startup-delay-us = <0>;
+		enable-active-high;
+		gpio = <&tlmm 13 GPIO_ACTIVE_HIGH>;
+	};
+*/
+
 	gpio_keys: gpio_keys {
 		status = "okay";
 		compatible = "gpio-keys";
@@ -340,10 +381,15 @@
 		};
 
 		vreg_l3b_3p0: l3b {
-			regulator-min-microvolt = <1710000>;
-			regulator-max-microvolt = <3544000>;
+			regulator-min-microvolt = <2800000>;
+			regulator-max-microvolt = <2800000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
+			regulator-min-microamp = <200>;
+			regulator-max-microamp = <600000>;
+			regulator-system-load = <100000>;
+			regulator-allow-set-load;
+			/* regulator-always-on; */
 		};
 
 		vreg_l4b_29p5: l4b {
@@ -465,6 +511,7 @@
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 			regulator-allow-set-load;
+			/* regulator-always-on; */
 		};
 
 		vreg_l2a_1p0: l2a {
@@ -482,7 +529,7 @@
 		};
 
 		vreg_l5a_0p848: l5a {
-			regulator-min-microvolt = <528000>;
+			regulator-min-microvolt = <800000>;
 			regulator-max-microvolt = <952000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
@@ -583,7 +630,12 @@
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 			regulator-enable-ramp-delay = <250>;
-			regulator-ramp-delay = <0>;
+			regulator-ramp-delay = <10>;
+			regulator-min-microamp = <200>;
+			regulator-max-microamp = <50000>;
+			regulator-system-load = <10000>;
+			regulator-allow-set-load;
+			/* regulator-always-on */
 		};
 
 		vreg_l19a_3p3: l19a {
@@ -620,6 +672,72 @@
 &tlmm {
 	gpio-reserved-ranges = <8 4>;
 
+	sdm_mclk0_default: sdm-mclk0-active {
+		pinmux {
+			pins = "gpio32";
+			function = "cam_mclk";
+		};
+
+		pinconf {
+			pins = "gpio32";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	sdm_mclk1_default: sdm-mclk1-active {
+		pinmux {
+			pins = "gpio33";
+			function = "cam_mclk";
+		};
+
+		pinconf {
+			pins = "gpio33";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	sdm_mclk2_default: sdm-mclk2-active {
+		pinmux {
+			pins = "gpio35";
+			function = "cam_mclk";
+		};
+
+		pinconf {
+			pins = "gpio35";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	imx300_reset_default: imx300-rst-n {
+		/* RESET */
+		pinmux {
+			pins = "gpio46";
+			function = "gpio";
+		};
+
+		pinconf {
+			pins = "gpio46";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	imx219_reset_default: imx219-rst-n {
+		pinmux {
+			pins = "gpio47";
+			function = "gpio";
+		};
+
+		pinconf {
+			pins = "gpio47";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
 	ts_int_active: ts-int-active {
 		pins = "gpio45";
 		drive-strength = <8>;
@@ -630,6 +748,45 @@
 		pins = "gpio56";
 		drive-strength = <8>;
 		bias-disable;
+	};
+
+	imx300_vana_default: imx300-vana-default {
+		pinmux {
+			pins = "gpio50";
+			function = "gpio";
+		};
+
+		pinconf {
+			pins = "gpio50";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	imx219_vana_default: imx219-vana-default {
+		pinmux {
+			pins = "gpio51";
+			function = "gpio";
+		};
+
+		pinconf {
+			pins = "gpio51";
+			bias-disable;
+			drive-strength = <2>;
+		};
+	};
+
+	cam_vdig_default: cam-vdig-default {
+		pinmux {
+			pins = "gpio52";
+			function = "gpio";
+		};
+
+		pinconf {
+			pins = "gpio52";
+			bias-disable;
+			drive-strength = <2>;
+		};
 	};
 
 	panel_reset_n: panel-rst-n {
@@ -665,4 +822,107 @@
 	dr_mode = "peripheral";
 	extcon = <&extcon_usb>;
 };
+
+&camss {
+	status = "okay";
+
+	vdda-supply = <&vreg_l1a_1p225>;
+	vdd_sec-supply = <&vreg_l1b_0p925>;
+
+	ports {
+		port@0 {
+			reg = <0>;
+			csiphy0_ep: endpoint {
+				clock-lanes = <7>;
+				data-lanes = <0 1 2 3>;
+
+				remote-endpoint = <&imx300_ep>;
+			};
+		};
+
+		port@2 {
+			reg = <2>;
+			csiphy2_ep: endpoint {
+				clock-lanes = <7>;
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&imx219_ep>;
+			};
+		};
+	};
+};
+
+&cci {
+	status = "okay";
+};
+
+&cci_i2c0 {
+	status = "okay";
+
+	imx300_sensor: imx300@10 {
+		reg = <0x10>;
+
+		compatible = "sony,imx300";
+
+		VANA-supply = <&cam_vana_rear_vreg>;
+		VDIG-supply = <&cam_vdig_imx300_219_vreg>;
+
+		reset-gpios = <&tlmm 46 GPIO_ACTIVE_HIGH>;
+
+		clocks = <&mmcc CAMSS_MCLK0_CLK>;
+
+		assigned-clocks = <&mmcc CAMSS_MCLK0_CLK>;
+		assigned-clock-rates = <24000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&sdm_mclk0_default>, <&imx300_reset_default>;
+
+		port {
+			imx300_ep: endpoint {
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&csiphy0_ep>;
+				clock-noncontinuous;
+				link-frequencies = /bits/ 64 <780000000 480000000>;
+			};
+		};
+	};
+};
+
+
+&cci_i2c1 {
+	status = "okay";
+
+	/*
+	 * IMX219 EEPROM is at 0x50.
+	 * This platform supports 8MHz XCLK, even though it is
+	 * currently configured for 24MHz.
+	 */
+	imx219_sensor: imx219@1a {
+		compatible = "sony,imx219";
+		reg = <0x1a>;
+
+		VANA-supply = <&cam_vana_front_vreg>;
+		VDIG-supply = <&cam_vdig_imx300_219_vreg>;
+
+		reset-gpios = <&tlmm 47 GPIO_ACTIVE_HIGH>;
+
+		clocks = <&mmcc CAMSS_MCLK1_CLK>;
+		clock-names = "xclk";
+
+		assigned-clocks = <&mmcc CAMSS_MCLK1_CLK>;
+		assigned-clock-rates = <24000000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&sdm_mclk1_default>, <&imx219_reset_default>;
+
+		port {
+			imx219_ep: endpoint {
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&csiphy2_ep>;
+				clock-noncontinuous;
+				link-frequencies = /bits/ 64 <702000000>;
+			};
+		};
+	};
+};
+
 
