@@ -1719,6 +1719,8 @@ static struct clk_branch gcc_mmss_noc_cfg_ahb_clk = {
 static struct clk_branch gcc_mmss_sys_noc_axi_clk = {
 	.halt_reg = 0x9000,
 	.halt_check = BRANCH_HALT,
+	.hwcg_reg = 0x9000,
+	.hwcg_bit = 1,
 	.clkr = {
 		.enable_reg = 0x9000,
 		.enable_mask = BIT(0),
@@ -1977,6 +1979,8 @@ static struct clk_branch gcc_ufs_ahb_clk = {
 static struct clk_branch gcc_ufs_axi_clk = {
 	.halt_reg = 0x75008,
 	.halt_check = BRANCH_HALT,
+	.hwcg_reg = 0x75008,
+	.hwcg_bit = 1,
 	.clkr = {
 		.enable_reg = 0x75008,
 		.enable_mask = BIT(0),
@@ -2362,7 +2366,6 @@ static struct clk_branch hlos2_vote_turing_adsp_smmu_clk = {
 
 static struct gdsc ufs_gdsc = {
 	.gdscr = 0x75004,
-	.gds_hw_ctrl = 0x0,
 	.pd = {
 		.name = "ufs_gdsc",
 	},
@@ -2372,7 +2375,6 @@ static struct gdsc ufs_gdsc = {
 
 static struct gdsc usb_30_gdsc = {
 	.gdscr = 0xf004,
-	.gds_hw_ctrl = 0x0,
 	.pd = {
 		.name = "usb_30_gdsc",
 	},
@@ -2382,9 +2384,35 @@ static struct gdsc usb_30_gdsc = {
 
 static struct gdsc pcie_0_gdsc = {
 	.gdscr = 0x6b004,
-	.gds_hw_ctrl = 0x0,
 	.pd = {
 		.name = "pcie_0_gdsc",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+	.flags = VOTABLE,
+};
+
+static struct gdsc hlos1_vote_lpass_adsp_gdsc = {
+	.gdscr = 0x7d034,
+	.pd = {
+		.name = "hlos1_vote_lpass_adsp",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+	.flags = VOTABLE,
+};
+
+static struct gdsc hlos1_vote_turing_adsp_gdsc = {
+	.gdscr = 0x7d04c,
+	.pd = {
+		.name = "hlos1_vote_turing_adsp",
+	},
+	.pwrsts = PWRSTS_OFF_ON,
+	.flags = VOTABLE,
+};
+
+static struct gdsc hlos2_vote_turing_adsp_gdsc = {
+	.gdscr = 0x7e04c,
+	.pd = {
+		.name = "hlos2_vote_turing_adsp",
 	},
 	.pwrsts = PWRSTS_OFF_ON,
 	.flags = VOTABLE,
@@ -2536,6 +2564,9 @@ static struct gdsc *gcc_sdm660_gdscs[] = {
 	[UFS_GDSC] = &ufs_gdsc,
 	[USB_30_GDSC] = &usb_30_gdsc,
 	[PCIE_0_GDSC] = &pcie_0_gdsc,
+	[HLOS1_VOTE_LPASS_ADSP_GDSC] = &hlos1_vote_lpass_adsp_gdsc,
+	[HLOS1_VOTE_TURING_ADSP_GDSC] = &hlos1_vote_turing_adsp_gdsc,
+	[HLOS2_VOTE_TURING_ADSP_GDSC] = &hlos2_vote_turing_adsp_gdsc,
 };
 
 static const struct qcom_reset_map gcc_sdm660_resets[] = {
