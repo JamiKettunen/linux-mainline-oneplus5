@@ -227,11 +227,11 @@ DEFINE_RPMPD_VFL(sdm660, vddcx_vfl, RWCX, 0);
 DEFINE_RPMPD_PAIR(sdm660, vddmx, vddmx_ao, RWMX, LEVEL, 0);
 DEFINE_RPMPD_VFL(sdm660, vddmx_vfl, RWMX, 0);
 
-DEFINE_RPMPD_LEVEL(sdm660, vdd_ssccx, RWSC, 0);
-DEFINE_RPMPD_VFL(sdm660, vdd_ssccx_vfl, RWSC, 0);
+DEFINE_RPMPD_LEVEL(sdm660, vdd_ssccx, RWLC, 0);
+DEFINE_RPMPD_VFL(sdm660, vdd_ssccx_vfl, RWLC, 0);
 
-DEFINE_RPMPD_LEVEL(sdm660, vdd_sscmx, RWSM, 0);
-DEFINE_RPMPD_VFL(sdm660, vdd_sscmx_vfl, RWSM, 0);
+DEFINE_RPMPD_LEVEL(sdm660, vdd_sscmx, RWLM, 0);
+DEFINE_RPMPD_VFL(sdm660, vdd_sscmx_vfl, RWLM, 0);
 
 static struct rpmpd *sdm660_rpmpds[] = {
 	[SDM660_VDDCX] =		&sdm660_vddcx,
