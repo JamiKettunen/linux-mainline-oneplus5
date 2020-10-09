@@ -11,6 +11,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
+#include <linux/clk.h>
 #include <linux/clk-provider.h>
 #include <linux/regmap.h>
 #include <linux/reset-controller.h>
@@ -2626,7 +2627,27 @@ static int gcc_sdm660_probe(struct platform_device *pdev)
 	if (ret)
 		return ret;
 
-	return qcom_cc_really_probe(pdev, &gcc_sdm660_desc, regmap);
+	ret = qcom_cc_really_probe(pdev, &gcc_sdm660_desc, regmap);
+	if (ret)
+		return ret;
+
+	/* Disable the GPLL0 active input to MMSS and GPU via MISC registers */
+	regmap_update_bits(regmap, 0x0902c, 0x3, 0x3);
+	regmap_update_bits(regmap, 0x71028, 0x3, 0x3);
+
+	/* This clock is used for all MMSSCC register access */
+	clk_prepare_enable(gcc_mmss_noc_cfg_ahb_clk.clkr.hw.clk);
+
+	/* This clock is used for all GPUCC register access */
+	clk_prepare_enable(gcc_gpu_cfg_ahb_clk.clkr.hw.clk);
+
+	/* Keep bimc gfx clock port on all the time */
+	clk_prepare_enable(gcc_bimc_gfx_clk.clkr.hw.clk);
+
+	/* Set the HMSS_GPLL0_SRC for 300MHz to CPU subsystem */
+	clk_set_rate(hmss_gpll0_clk_src.clkr.hw.clk, 300000000);
+
+	return ret;
 }
 
 static struct platform_driver gcc_sdm660_driver = {
