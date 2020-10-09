@@ -2371,7 +2371,7 @@
 			compatible = "qcom,sdm660-adsp-pil";
 			reg = <0x15700000 0x4040>;
 
-			interrupts-extended = <&intc 0 162 IRQ_TYPE_EDGE_RISING>,
+			interrupts-extended = <&intc GIC_SPI 162 IRQ_TYPE_EDGE_RISING>,
 					      <&adsp_smp2p_in 0 IRQ_TYPE_EDGE_RISING>,
 					      <&adsp_smp2p_in 1 IRQ_TYPE_EDGE_RISING>,
 					      <&adsp_smp2p_in 2 IRQ_TYPE_EDGE_RISING>,
@@ -2379,7 +2379,7 @@
 			interrupt-names = "wdog", "fatal", "ready",
 					  "handover", "stop-ack";
 
-			clocks = <&xo_board>;
+			clocks = <&rpmcc RPM_SMD_XO_CLK_SRC>;
 			clock-names = "xo";
 
 			memory-region = <&adsp_region>;
@@ -2395,7 +2395,6 @@
 
 				label = "lpass";
 				mboxes = <&apcs_glb 9>;
-				qcom,glink-edge = <1>;
 				qcom,remote-pid = <2>;
 				#address-cells = <1>;
 				#size-cells = <0>;
