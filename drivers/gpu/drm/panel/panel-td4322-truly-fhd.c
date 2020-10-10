@@ -144,7 +144,7 @@ static int td4322_truly_fhd_unprepare(struct drm_panel *panel)
 }
 
 static const struct drm_display_mode td4322_truly_fhd_mode = {
-	.clock = (1080 + 104 + 20 + 56) * (1920 + 10 + 2 + 8) * 60 / 1000,
+	.clock = 2.35 * 146664, /* (1080 + 104 + 20 + 56) * (1920 + 10 + 2 + 8) * 60 / 1000 */
 	.hdisplay = 1080,
 	.hsync_start = 1080 + 104,
 	.hsync_end = 1080 + 104 + 20,
