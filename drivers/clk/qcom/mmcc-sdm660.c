@@ -498,7 +498,7 @@ static struct clk_rcg2 byte0_clk_src = {
 		.parent_data = mmcc_xo_dsibyte,
 		.num_parents = 3,
 		.ops = &clk_byte2_ops,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 	},
 };
 
@@ -512,7 +512,7 @@ static struct clk_rcg2 byte1_clk_src = {
 		.parent_data = mmcc_xo_dsibyte,
 		.num_parents = 3,
 		.ops = &clk_byte2_ops,
-		.flags = CLK_SET_RATE_PARENT,
+		.flags = CLK_SET_RATE_PARENT | CLK_GET_RATE_NOCACHE,
 	},
 };
 
