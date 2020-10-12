@@ -943,96 +943,112 @@
 
 			i2c1_default: i2c1-default {
 				pins = "gpio2", "gpio3";
+				function = "blsp_i2c1";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c1_sleep: i2c1-sleep {
 				pins = "gpio2", "gpio3";
+				function = "blsp_i2c1";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c2_default: i2c2-default {
 				pins = "gpio6", "gpio7";
+				function = "blsp_i2c2";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c2_sleep: i2c2-sleep {
 				pins = "gpio6", "gpio7";
+				function = "blsp_i2c2";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c3_default: i2c3-default {
 				pins = "gpio10", "gpio11";
+				function = "blsp_i2c3";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c3_sleep: i2c3-sleep {
 				pins = "gpio10", "gpio11";
+				function = "blsp_i2c3";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c4_default: i2c4-default {
 				pins = "gpio14", "gpio15";
+				function = "blsp_i2c4";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c4_sleep: i2c4-sleep {
 				pins = "gpio14", "gpio15";
+				function = "blsp_i2c4";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c5_default: i2c5-default {
 				pins = "gpio18", "gpio19";
+				function = "blsp_i2c5";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c5_sleep: i2c5-sleep {
 				pins = "gpio18", "gpio19";
+				function = "blsp_i2c5";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c6_default: i2c6-default {
 				pins = "gpio22", "gpio23";
+				function = "blsp_i2c6";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c6_sleep: i2c6-sleep {
 				pins = "gpio22", "gpio23";
+				function = "blsp_i2c6";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c7_default: i2c7-default {
 				pins = "gpio26", "gpio27";
+				function = "blsp_i2c7";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c7_sleep: i2c7-sleep {
 				pins = "gpio26", "gpio27";
+				function = "blsp_i2c7";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
 
 			i2c8_default: i2c8-default {
 				pins = "gpio30", "gpio31";
+				function = "blsp_i2c8";
 				drive-strength = <2>;
 				bias-disable;
 			};
 
 			i2c8_sleep: i2c8-sleep {
 				pins = "gpio30", "gpio31";
+				function = "blsp_i2c8";
 				drive-strength = <2>;
 				bias-pull-up;
 			};
@@ -1879,6 +1895,8 @@
 					<&gcc GCC_BLSP1_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp1_dma 4>, <&blsp1_dma 5>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c1_default>;
@@ -1897,6 +1915,8 @@
 				 <&gcc GCC_BLSP1_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp1_dma 6>, <&blsp1_dma 7>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c2_default>;
@@ -1915,6 +1935,8 @@
 				 <&gcc GCC_BLSP1_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp1_dma 8>, <&blsp1_dma 9>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c3_default>;
@@ -1933,6 +1955,8 @@
 				 <&gcc GCC_BLSP1_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp1_dma 10>, <&blsp1_dma 11>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c4_default>;
@@ -1979,6 +2003,8 @@
 				 <&gcc GCC_BLSP2_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp2_dma 4>, <&blsp2_dma 5>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c5_default>;
@@ -1997,6 +2023,8 @@
 				 <&gcc GCC_BLSP2_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp2_dma 6>, <&blsp2_dma 7>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c6_default>;
@@ -2015,6 +2043,8 @@
 				 <&gcc GCC_BLSP2_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp2_dma 8>, <&blsp2_dma 9>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c7_default>;
@@ -2033,6 +2063,8 @@
 				 <&gcc GCC_BLSP2_AHB_CLK>;
 			clock-names = "core", "iface";
 			clock-frequency = <400000>;
+			dmas = <&blsp2_dma 10>, <&blsp2_dma 11>;
+			dma-names = "tx", "rx";
 
 			pinctrl-names = "default", "sleep";
 			pinctrl-0 = <&i2c8_default>;

@@ -29,7 +29,7 @@
 	/delete-node/ camera_snapshot;
 };
 
-&i2c1_touch {
+&blsp_i2c1 {
 	/delete-node/ synaptics-rmi4-i2c@70;
 
 	touchscreen: novatek@62 {
