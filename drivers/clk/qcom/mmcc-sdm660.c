@@ -2048,16 +2048,16 @@ static const struct freq_tbl ftbl_axi_clk_src[] = {
 
 /* RO to linux */
 static struct clk_rcg2 axi_clk_src = {
-		.cmd_rcgr = 0xd000,
-		.hid_width = 5,
-		.parent_map = mmcc_xo_mmpll0_mmpll4_mmpll7_mmpll10_gpll0_gpll0_div_map,
-		.freq_tbl = ftbl_axi_clk_src,
-		.clkr.hw.init = &(struct clk_init_data){
-				.name = "axi_clk_src",
-				.parent_data = mmcc_xo_mmpll0_mmpll4_mmpll7_mmpll10_gpll0_gpll0_div,
-				.num_parents = 7,
-				.ops = &clk_rcg2_ops,
-		},
+	.cmd_rcgr = 0xd000,
+	.hid_width = 5,
+	.parent_map = mmcc_xo_mmpll0_mmpll4_mmpll7_mmpll10_gpll0_gpll0_div_map,
+	.freq_tbl = ftbl_axi_clk_src,
+	.clkr.hw.init = &(struct clk_init_data){
+		.name = "axi_clk_src",
+		.parent_data = mmcc_xo_mmpll0_mmpll4_mmpll7_mmpll10_gpll0_gpll0_div,
+		.num_parents = 7,
+		.ops = &clk_rcg2_ops,
+	},
 };
 
 static struct clk_branch mdss_axi_clk = {
