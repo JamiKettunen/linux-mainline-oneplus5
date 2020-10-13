@@ -1189,66 +1189,6 @@ static struct clk_branch camss_cci_clk = {
 	},
 };
 
-static struct clk_branch camss_cphy_csid0_clk = {
-	.halt_reg = 0x3730,
-	.halt_check = BRANCH_HALT,
-	.clkr = {
-		.enable_reg = 0x3730,
-		.enable_mask = BIT(0),
-		.hw.init = &(struct clk_init_data){
-			.name = "camss_cphy_csid0_clk",
-			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
-			.num_parents = 1,
-			.ops = &clk_branch2_ops,
-		},
-	},
-};
-
-static struct clk_branch camss_cphy_csid1_clk = {
-	.halt_reg = 0x3734,
-	.halt_check = BRANCH_HALT,
-	.clkr = {
-		.enable_reg = 0x3734,
-		.enable_mask = BIT(0),
-		.hw.init = &(struct clk_init_data){
-			.name = "camss_cphy_csid1_clk",
-			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
-			.num_parents = 1,
-			.ops = &clk_branch2_ops,
-		},
-	},
-};
-
-static struct clk_branch camss_cphy_csid2_clk = {
-	.halt_reg = 0x3738,
-	.halt_check = BRANCH_HALT,
-	.clkr = {
-		.enable_reg = 0x3738,
-		.enable_mask = BIT(0),
-		.hw.init = &(struct clk_init_data){
-			.name = "camss_cphy_csid2_clk",
-			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
-			.num_parents = 1,
-			.ops = &clk_branch2_ops,
-		},
-	},
-};
-
-static struct clk_branch camss_cphy_csid3_clk = {
-	.halt_reg = 0x373c,
-	.halt_check = BRANCH_HALT,
-	.clkr = {
-		.enable_reg = 0x373c,
-		.enable_mask = BIT(0),
-		.hw.init = &(struct clk_init_data){
-			.name = "camss_cphy_csid3_clk",
-			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
-			.num_parents = 1,
-			.ops = &clk_branch2_ops,
-		},
-	},
-};
-
 static struct clk_branch camss_cpp_ahb_clk = {
 	.halt_reg = 0x36b4,
 	.halt_check = BRANCH_HALT,
@@ -1670,6 +1610,71 @@ static struct clk_branch camss_csiphy2_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "camss_csiphy2_clk",
+			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+
+static struct clk_branch camss_cphy_csid0_clk = {
+	.halt_reg = 0x3730,
+	.halt_check = BRANCH_HALT,
+	.clkr = {
+		.enable_reg = 0x3730,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "camss_cphy_csid0_clk",
+			.parent_hws = (const struct clk_hw *[]){ &camss_csiphy0_clk.clkr.hw },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch camss_cphy_csid1_clk = {
+	.halt_reg = 0x3734,
+	.halt_check = BRANCH_HALT,
+	.clkr = {
+		.enable_reg = 0x3734,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "camss_cphy_csid1_clk",
+			.parent_hws = (const struct clk_hw *[]){ &camss_csiphy1_clk.clkr.hw },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch camss_cphy_csid2_clk = {
+	.halt_reg = 0x3738,
+	.halt_check = BRANCH_HALT,
+	.clkr = {
+		.enable_reg = 0x3738,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "camss_cphy_csid2_clk",
+			.parent_hws = (const struct clk_hw *[]){ &camss_csiphy2_clk.clkr.hw },
+			.num_parents = 1,
+			.flags = CLK_SET_RATE_PARENT,
+			.ops = &clk_branch2_ops,
+		},
+	},
+};
+
+static struct clk_branch camss_cphy_csid3_clk = {
+	.halt_reg = 0x373c,
+	.halt_check = BRANCH_HALT,
+	.clkr = {
+		.enable_reg = 0x373c,
+		.enable_mask = BIT(0),
+		.hw.init = &(struct clk_init_data){
+			.name = "camss_cphy_csid3_clk",
 			.parent_hws = (const struct clk_hw *[]){ &csiphy_clk_src.clkr.hw },
 			.num_parents = 1,
 			.flags = CLK_SET_RATE_PARENT,
