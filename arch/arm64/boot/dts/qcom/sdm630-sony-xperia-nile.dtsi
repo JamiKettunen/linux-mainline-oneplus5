@@ -261,6 +261,10 @@
 	data-lanes = <0 1 2 3>;
 };
 
+&dsi0_phy {
+	vcca-supply = <&vreg_l1b_0p925>;
+};
+
 &mdss {
 	status = "okay";
 };
