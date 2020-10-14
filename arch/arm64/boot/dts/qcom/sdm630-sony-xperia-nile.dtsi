@@ -391,7 +391,7 @@
 
 		vreg_l5b_29p5: l5b {
 			regulator-min-microvolt = <1720000>;
-			regulator-max-microvolt = <3600000>;
+			regulator-max-microvolt = <3544000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 			regulator-allow-set-load;
