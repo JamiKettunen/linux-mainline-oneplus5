@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: GPL-2.0
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/crypto/qcom-qce.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Qualcomm crypto engine driver
+
+maintainers:
+  - /* Missing data * /
+
+properties:
+  compatible:
+    enum:
+      - qcom,crypto-v5.1
+
+  reg:
+    maxItems: 1
+
+  clocks:
+    items:
+      - description: Interface clock
+      - description: Bus clock
+      - description: Core clock
+    minItems: 3
+    maxItems: 3
+
+  clock-names:
+    items:
+      - const: iface
+      - const: bus
+      - const: core
+    minItems: 3
+    maxItems: 3
+
+  dmas:
+    items:
+      - description: TX DMA Channel
+      - description: RX DMA Channel
+
+  dma-names:
+    items:
+      - const: tx
+      - const: rx
+
+required:
+  - compatible
+  - reg
+  - clocks
+  - clock-names
+  - dmas
+  - dma-names
+
+additionalProperties: false
+
+examples:
+  - |
+    @fd45a000 {
+      compatible = "qcom,crypto-v5.1";
+      reg = <0xfd45a000 0x6000>;
+      clocks = <&gcc GCC_CE2_AHB_CLK>,
+          <&gcc GCC_CE2_AXI_CLK>,
+          <&gcc GCC_CE2_CLK>;
+      clock-names = "iface", "bus", "core";
+      dmas = <&cryptobam 2>, <&cryptobam 3>;
+      dma-names = "rx", "tx";
+	};
