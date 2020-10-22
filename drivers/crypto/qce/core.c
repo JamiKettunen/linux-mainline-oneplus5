@@ -261,6 +261,7 @@ static int qce_crypto_remove(struct platform_device *pdev)
 
 static const struct of_device_id qce_crypto_of_match[] = {
 	{ .compatible = "qcom,crypto-v5.1", },
+	{ .compatible = "qcom,crypto-v5.3.4", },
 	{}
 };
 MODULE_DEVICE_TABLE(of, qce_crypto_of_match);
