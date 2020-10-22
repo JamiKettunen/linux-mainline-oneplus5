@@ -858,6 +858,37 @@
 			#thermal-sensor-cells = <1>;
 		};
 
+		crypto_dma: dma@1dc4000 {
+			compatible = "qcom,bam-v1.7.0";
+			/*
+			 * Downstream sets 0x24000 size, but
+			 * that collides with the next device..
+			 */
+			reg = <0x01dc4000 0x1c000>;
+			interrupts = <GIC_SPI 206 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&rpmcc RPM_SMD_CE1_CLK>;
+			clock-names = "bam_clk";
+			#dma-cells = <1>;
+			qcom,ee = <0>;
+			qcom,controlled-remotely;
+		};
+
+		crypto: crypto@1de0000 {
+			compatible = "qcom,crypto-v5.3.4";
+			reg = <0x01de0000 0x20000>;
+
+			/* Yep, it's all the same here! */
+			clocks = <&rpmcc RPM_SMD_CE1_CLK>,
+				<&rpmcc RPM_SMD_CE1_CLK>,
+				<&rpmcc RPM_SMD_CE1_CLK>;
+			clock-names = "iface", "bus", "core";
+			assigned-clocks = <&rpmcc RPM_SMD_CE1_CLK>;
+			assigned-clock-rates = <171430000>;
+
+			dmas = <&crypto_dma 2>, <&crypto_dma 3>;
+			dma-names = "rx", "tx";
+		};
+
 		tcsr_mutex_regs: syscon@1f40000 {
 			compatible = "syscon";
 			reg = <0x01f40000 0x40000>;
