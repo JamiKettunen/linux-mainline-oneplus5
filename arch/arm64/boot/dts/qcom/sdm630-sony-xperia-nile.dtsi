@@ -271,6 +271,7 @@
 
 &pm660l_wled {
 	status = "okay";
+	default-brightness = <512>;
 };
 
 &pon {
