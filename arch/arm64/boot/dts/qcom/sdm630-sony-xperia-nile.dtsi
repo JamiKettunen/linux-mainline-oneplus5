@@ -318,14 +318,14 @@
 		vdd_l4_l6-supply = <&vreg_bob>;
 		vdd_bob-supply = <&vph_pwr>;
 
-		vreg_s1b_1p125: s1b {
+		vreg_s1b_1p125: s1 {
 			regulator-min-microvolt = <1125000>;
 			regulator-max-microvolt = <1125000>;
 			regulator-enable-ramp-delay = <200>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_s2b_1p05: s2b {
+		vreg_s2b_1p05: s2 {
 			regulator-min-microvolt = <1050000>;
 			regulator-max-microvolt = <1050000>;
 			regulator-enable-ramp-delay = <200>;
@@ -343,7 +343,7 @@
 		 */
 
 		/* LDOs */
-		vreg_l1b_0p925: l1b {
+		vreg_l1b_0p925: l1 {
 			regulator-min-microvolt = <920000>;
 			regulator-max-microvolt = <928000>;
 			regulator-enable-ramp-delay = <250>;
@@ -351,7 +351,7 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l2b_2p95: l2b {
+		vreg_l2b_2p95: l2 {
 			/*
 			 * This regulator supports 1.648 - 3.104V on this board
 			 * but we set a max voltage of anything less than 2.7V
@@ -366,7 +366,7 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l3b_3p0: l3b {
+		vreg_l3b_3p0: l3 {
 			regulator-min-microvolt = <2800000>;
 			regulator-max-microvolt = <2800000>;
 			regulator-enable-ramp-delay = <250>;
@@ -378,7 +378,7 @@
 			/* regulator-always-on; */
 		};
 
-		vreg_l4b_29p5: l4b {
+		vreg_l4b_29p5: l4 {
 			regulator-min-microvolt = <2944000>;
 			regulator-max-microvolt = <2952000>;
 			regulator-enable-ramp-delay = <250>;
@@ -390,7 +390,7 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l5b_29p5: l5b {
+		vreg_l5b_29p5: l5 {
 			regulator-min-microvolt = <1720000>;
 			regulator-max-microvolt = <3544000>;
 			regulator-enable-ramp-delay = <250>;
@@ -398,33 +398,33 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l6b_3p3: l6b {
+		vreg_l6b_3p3: l6 {
 			regulator-min-microvolt = <1704000>;
 			regulator-max-microvolt = <3312000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l7b_3p125: l7b {
+		vreg_l7b_3p125: l7 {
 			regulator-min-microvolt = <2704000>;
 			regulator-max-microvolt = <3128000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l8b_3p3: l8b {
+		vreg_l8b_3p3: l8 {
 			regulator-min-microvolt = <2800000>;
 			regulator-max-microvolt = <3400000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l9b_0p87: l9b {
+		vreg_l9b_0p87: l9 {
 			/* Unused */
 			status = "disabled";
 		};
 
-		vreg_l10b_0p915: l10b {
+		vreg_l10b_0p915: l10 {
 			/* Unused */
 			status = "disabled";
 		};
@@ -453,22 +453,22 @@
 		vdd_l8_l9_l10_l11_l12_l13_l14-supply = <&vreg_s4a_2p04>;
 		vdd_l15_l16_l17_l18_l19-supply = <&vreg_bob>;
 
-		vreg_s1a_ftapc0: s1a {
+		vreg_s1a_ftapc0: s1 {
 			/* Unused */
 			status = "disabled";
 		};
 
-		vreg_s2a_ftapc1: s2a {
+		vreg_s2a_ftapc1: s2 {
 			/* Unused */
 			status = "disabled";
 		};
 
-		vreg_s3a_hfapc1: s3a {
+		vreg_s3a_hfapc1: s3 {
 			/* Unused */
 			status = "disabled";
 		};
 
-		vreg_s4a_2p04: s4a {
+		vreg_s4a_2p04: s4 {
 			regulator-min-microvolt = <2040000>;
 			regulator-max-microvolt = <2040000>;
 			regulator-enable-ramp-delay = <200>;
@@ -476,14 +476,14 @@
 			regulator-always-on;
 		};
 
-		vreg_s5a_1p35: s5a {
+		vreg_s5a_1p35: s5 {
 			regulator-min-microvolt = <1224000>;
 			regulator-max-microvolt = <1350000>;
 			regulator-enable-ramp-delay = <200>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_s6a_0p87: s6a {
+		vreg_s6a_0p87: s6 {
 			regulator-min-microvolt = <504000>;
 			regulator-max-microvolt = <992000>;
 			regulator-enable-ramp-delay = <150>;
@@ -491,7 +491,7 @@
 		};
 
 		/* LDOs */
-		vreg_l1a_1p225: l1a {
+		vreg_l1a_1p225: l1 {
 			regulator-min-microvolt = <1226000>;
 			regulator-max-microvolt = <1250000>;
 			regulator-enable-ramp-delay = <250>;
@@ -500,28 +500,28 @@
 			/* regulator-always-on; */
 		};
 
-		vreg_l2a_1p0: l2a {
+		vreg_l2a_1p0: l2 {
 			regulator-min-microvolt = <944000>;
 			regulator-max-microvolt = <1008000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l3a_1p0: l3a {
+		vreg_l3a_1p0: l3 {
 			regulator-min-microvolt = <944000>;
 			regulator-max-microvolt = <1008000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l5a_0p848: l5a {
+		vreg_l5a_0p848: l5 {
 			regulator-min-microvolt = <800000>;
 			regulator-max-microvolt = <952000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l6a_1p3: l6a {
+		vreg_l6a_1p3: l6 {
 			regulator-min-microvolt = <1304000>;
 			regulator-max-microvolt = <1368000>;
 			regulator-allow-set-load;
@@ -529,14 +529,14 @@
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l7a_1p2: l7a {
+		vreg_l7a_1p2: l7 {
 			regulator-min-microvolt = <1200000>;
 			regulator-max-microvolt = <1200000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l8a_1p8: l8a {
+		vreg_l8a_1p8: l8 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 			regulator-enable-ramp-delay = <250>;
@@ -546,7 +546,7 @@
 		};
 
 
-		vreg_l9a_1p8: l9a {
+		vreg_l9a_1p8: l9 {
 			regulator-min-microvolt = <1804000>;
 			regulator-max-microvolt = <1896000>;
 			regulator-enable-ramp-delay = <250>;
@@ -554,7 +554,7 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l10a_1p8: l10a {
+		vreg_l10a_1p8: l10 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1944000>;
 			regulator-enable-ramp-delay = <250>;
@@ -562,14 +562,14 @@
 			regulator-allow-set-load;
 		};
 
-		vreg_l11a_1p8: l11a {
+		vreg_l11a_1p8: l11 {
 			regulator-min-microvolt = <1784000>;
 			regulator-max-microvolt = <1944000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l12a_1p8: l12a {
+		vreg_l12a_1p8: l12 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1944000>;
 			regulator-enable-ramp-delay = <250>;
@@ -577,7 +577,7 @@
 		};
 
 		/* This gives power to the LPDDR4: never turn it off! */
-		vreg_l13a_1p8: l13a {
+		vreg_l13a_1p8: l13 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1944000>;
 			regulator-enable-ramp-delay = <250>;
@@ -586,33 +586,33 @@
 			regulator-always-on;
 		};
 
-		vreg_l14a_1p8: l14a {
+		vreg_l14a_1p8: l14 {
 			regulator-min-microvolt = <1710000>;
 			regulator-max-microvolt = <1904000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l15a_1p8: l15a {
+		vreg_l15a_1p8: l15 {
 			regulator-min-microvolt = <1648000>;
 			regulator-max-microvolt = <2952000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l16a_2p7: l16a {
+		vreg_l16a_2p7: l16 {
 			/* Unused */
 			status = "disabled";
 		};
 
-		vreg_l17a_1p8: l17a {
+		vreg_l17a_1p8: l17 {
 			regulator-min-microvolt = <1648000>;
 			regulator-max-microvolt = <2952000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 		};
 
-		vreg_l18a_1v8: l18a {
+		vreg_l18a_1v8: l18 {
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 			regulator-enable-ramp-delay = <250>;
@@ -624,7 +624,7 @@
 			/* regulator-always-on */
 		};
 
-		vreg_l19a_3p3: l19a {
+		vreg_l19a_3p3: l19 {
 			regulator-min-microvolt = <3312000>;
 			regulator-max-microvolt = <3400000>;
 			regulator-enable-ramp-delay = <250>;
