@@ -149,6 +149,13 @@
 				remote-endpoint = <&dsi1_in>;
 			};
 		};
+
+		port@2 {
+			reg = <2>;
+			mdp5_intf0_out: endpoint {
+				remote-endpoint = <&dp_in>;
+			};
+		};
 	};
 };
 
@@ -226,6 +233,65 @@
 		clocks = <&mmcc MDSS_AHB_CLK>, <&rpmcc RPM_SMD_XO_CLK_SRC>;
 		clock-names = "iface", "ref";
 	};
+
+	msm_dp: displayport-controller@c990000 {
+		compatible = "qcom,sc7180-dp";
+
+		reg = <0x0c990000 0xa8c>;
+
+		interrupt-parent = <&mdss>;
+		interrupts = <12>;
+
+		clocks = <&mmcc MDSS_AHB_CLK>,
+				<&mmcc MDSS_DP_AUX_CLK>,
+				<&mmcc MDSS_DP_LINK_CLK>,
+				<&mmcc MDSS_DP_LINK_INTF_CLK>,
+				<&mmcc MDSS_DP_PIXEL_CLK>;
+		clock-names = "core_iface", "core_aux", "ctrl_link",
+					"ctrl_link_iface", "stream_pixel";
+		#clock-cells = <1>;
+		assigned-clocks = <&mmcc DP_LINK_CLK_SRC>,
+					<&mmcc DP_PIXEL_CLK_SRC>;
+		assigned-clock-parents = <&msm_dp 0>, <&msm_dp 1>;
+
+		operating-points-v2 = <&dp_opp_table>;
+		power-domains = <&rpmpd SDM660_VDDCX>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				dp_in: endpoint {
+					remote-endpoint = <&mdp5_intf0_out>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				dp_out: endpoint { };
+			};
+		};
+
+		dp_opp_table: dp-opp-table {
+			compatible = "operating-points-v2";
+
+			opp-162000000 {
+				opp-hz = /bits/ 64 <162000000>;
+				required-opps = <&rpmpd_opp_svs>;
+			};
+
+			opp-270000000 {
+				opp-hz = /bits/ 64 <270000000>;
+				required-opps = <&rpmpd_opp_svs_plus>;
+			};
+
+			opp-540000000 {
+				opp-hz = /bits/ 64 <540000000>;
+				required-opps = <&rpmpd_opp_nom>;
+			};
+		};
+	};
 };
 
 &mmcc {
@@ -238,8 +304,8 @@
 			<&dsi0_phy 0>,
 			<&dsi1_phy 1>,
 			<&dsi1_phy 0>,
-			<0>,
-			<0>;
+			<&msm_dp 0>,
+			<&msm_dp 1>;
 };
 
 &tlmm {
