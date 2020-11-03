@@ -25,7 +25,7 @@
 		ranges;
 
 		/* Add "earlycon" intended to be used in combination with UART serial console */
-		bootargs = "earlycon";
+		bootargs = "earlycon clk_ignore_unused";
 
 		/*
 		 * Define as "serial0:115200n8" instead of simplefb "display0" for UART console;
