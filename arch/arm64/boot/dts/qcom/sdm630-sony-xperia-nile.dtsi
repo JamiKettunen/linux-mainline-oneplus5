@@ -390,12 +390,20 @@
 			regulator-allow-set-load;
 		};
 
+		/*
+		 * Downstream specifies a range of 1721-3600mV,
+		 * but the only assigned consumers are SDHCI2 VMMC
+		 * and Coresight QPDI that both request pinned 2.95V.
+		 * Tighten the range to 1.8-3.328 (closest to 3.3) to
+		 * make the mmc driver happy.
+		 */
 		vreg_l5b_29p5: l5 {
-			regulator-min-microvolt = <1720000>;
-			regulator-max-microvolt = <3544000>;
+			regulator-min-microvolt = <1800000>;
+			regulator-max-microvolt = <3328000>;
 			regulator-enable-ramp-delay = <250>;
 			regulator-ramp-delay = <0>;
 			regulator-allow-set-load;
+			regulator-system-load = <800000>;
 		};
 
 		vreg_l6b_3p3: l6 {
