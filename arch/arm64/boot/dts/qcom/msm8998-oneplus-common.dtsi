@@ -22,7 +22,7 @@
 		stdout-path = "serial0:115200n8";
 
 		/* Add "earlycon" intended to be used in combination with UART serial console */
-		bootargs = "earlycon clk_ignore_unused";
+		bootargs = "earlycon clk_ignore_unused pd_ignore_unused loglevel=10 drm.debug=15 debug";
 	};
 
 	gpio-hall-sensor {
