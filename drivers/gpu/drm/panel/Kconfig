@@ -324,6 +324,21 @@ config DRM_PANEL_SAMSUNG_S6E3FA5
 	  To compile this driver as a module, choose M here: the module
 	  will be called panel-samsung-s6e3fa5.
 
+config DRM_PANEL_SAMSUNG_S6E3FC1
+	tristate "Samsung S6E3FC1 DSI command mode panel"
+	depends on OF
+	depends on DRM_MIPI_DSI
+	depends on BACKLIGHT_CLASS_DEVICE
+	select VIDEOMODE_HELPERS
+	help
+	  Say Y here if you want to enable support for Samsung S6E3FC1 AMOLED
+	  command mode panel as found in OnePlus 5T (2017) devices. The panel has a
+	  FHD (1080x2160) resolution and uses 24 bit RGB per pixel. It provides a
+	  MIPI DSI interface to the host and has a built-in LED backlight.
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called panel-samsung-s6e3fc1.
+
 config DRM_PANEL_SAMSUNG_S6E3HA2
 	tristate "Samsung S6E3HA2 DSI video mode panel"
 	depends on OF
