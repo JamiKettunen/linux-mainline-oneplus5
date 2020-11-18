@@ -13,12 +13,14 @@
 
 #include <video/mipi_display.h>
 
+#include <drm/drm_connector.h>
 #include <drm/drm_mipi_dsi.h>
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
 
 struct s6e3fa5 {
 	struct drm_panel panel;
+	enum drm_panel_orientation orientation;
 	struct mipi_dsi_device *dsi;
 	struct regulator *supply;
 	struct gpio_desc *reset_gpio;
@@ -182,16 +184,19 @@ static int s6e3fa5_get_modes(struct drm_panel *panel,
 			     struct drm_connector *connector)
 {
 	struct drm_display_mode *mode;
+	struct s6e3fa5 *ctx;
 
 	mode = drm_mode_duplicate(connector->dev, &s6e3fa5_mode);
 	if (!mode)
 		return -ENOMEM;
+	ctx = to_s6e3fa5_panel(panel);
 
 	drm_mode_set_name(mode);
 
 	mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
 	connector->display_info.width_mm = mode->width_mm;
 	connector->display_info.height_mm = mode->height_mm;
+	drm_connector_set_panel_orientation(connector, ctx->orientation);
 	drm_mode_probed_add(connector, mode);
 
 	return 1;
@@ -286,6 +291,12 @@ static int s6e3fa5_probe(struct mipi_dsi_device *dsi)
 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_MODE_VIDEO_HSE |
 			  MIPI_DSI_MODE_EOT_PACKET |
 			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+
+	ret = of_drm_get_panel_orientation(dev->of_node, &ctx->orientation);
+	if (ret < 0) {
+		dev_err(dev, "Failed to parse rotation property: %d\n", ret);
+		return ret;
+	}
 
 	drm_panel_init(&ctx->panel, dev, &s6e3fa5_panel_funcs,
 		       DRM_MODE_CONNECTOR_DSI);
