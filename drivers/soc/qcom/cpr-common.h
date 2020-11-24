@@ -65,6 +65,8 @@ struct corner {
 struct corner_data {
 	unsigned int fuse_corner;
 	unsigned long freq;
+	int oloop_vadj;
+	int cloop_vadj;
 };
 
 struct acc_desc {
@@ -101,6 +103,8 @@ int cpr_populate_fuse_common(struct device *dev,
 int cpr_find_initial_corner(struct device *dev, struct clk *cpu_clk,
 			    struct corner *corners, int num_corners);
 u32 cpr_get_fuse_corner(struct dev_pm_opp *opp, u32 tid);
+void cpr_get_corner_post_vadj(struct dev_pm_opp *opp, u32 tid,
+			      s32 *open_loop, s32 *closed_loop);
 unsigned long cpr_get_opp_hz_for_req(struct dev_pm_opp *ref,
 				     struct device *cpu_dev);
 int cpr_calculate_scaling(const char *quot_offset,
