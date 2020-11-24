@@ -252,6 +252,29 @@ u32 cpr_get_fuse_corner(struct dev_pm_opp *opp, u32 tid)
 	of_node_put(np);
 
 	return fc;
+
+}
+
+void cpr_get_corner_post_vadj(struct dev_pm_opp *opp, u32 tid,
+			      s32 *open_loop, s32 *closed_loop)
+{
+	struct device_node *np;
+
+	/*
+	 * There is no of_property_read_s32_index, so we just store the
+	 * result into a s32 variable. After all, the OF API is doing
+	 * the exact same for of_property_read_s32...
+	 */
+	np = dev_pm_opp_get_of_node(opp);
+	if (of_property_read_u32_index(np, "qcom,opp-oloop-vadj", tid,
+				       open_loop))
+		*open_loop = 0;
+
+	if (of_property_read_u32_index(np, "qcom,opp-cloop-vadj", tid,
+				       closed_loop))
+		*closed_loop = 0;
+
+	of_node_put(np);
 }
 
 unsigned long cpr_get_opp_hz_for_req(struct dev_pm_opp *ref,
@@ -294,11 +317,10 @@ int cpr_calculate_scaling(const char *quot_offset,
 			  const struct fuse_corner_data *fdata,
 			  const struct corner *corner)
 {
-	u32 quot_diff = 0;
-	unsigned long freq_diff;
-	int scaling;
+	u64 freq_diff;
 	const struct fuse_corner *fuse, *prev_fuse;
-	int ret;
+	u32 quot_diff;
+	int scaling, ret;
 
 	fuse = corner->fuse_corner;
 	prev_fuse = fuse - 1;
@@ -315,8 +337,9 @@ int cpr_calculate_scaling(const char *quot_offset,
 	}
 
 	freq_diff = fuse->max_freq - prev_fuse->max_freq;
-	freq_diff /= 1000000; /* Convert to MHz */
-	scaling = 1000 * quot_diff / freq_diff;
+	freq_diff = div_u64(freq_diff, 1000000); /* Convert to MHz */
+	scaling = 1000 * quot_diff;
+	do_div(scaling, freq_diff);
 	return min(scaling, fdata->max_quot_scale);
 }
 
