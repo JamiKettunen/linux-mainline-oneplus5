@@ -42,6 +42,23 @@ config QCOM_CPR
 	  To compile this driver as a module, choose M here: the module will
 	  be called qcom-cpr
 
+config QCOM_CPR3
+	tristate "QCOM Core Power Reduction (CPR v3/v4/Hardened) support"
+	depends on ARCH_QCOM && HAS_IOMEM
+	select PM_OPP
+	select REGMAP
+	help
+	  Say Y here to enable support for the CPR hardware found on a broad
+	  variety of Qualcomm SoCs like MSM8996, MSM8998, SDM630, SDM660,
+	  SDM845 and others.
+
+	  This driver populates OPP tables and makes adjustments to them
+	  based on feedback from the CPR hardware. If you want to do CPU
+	  and/or GPU frequency scaling say Y here.
+
+	  To compile this driver as a module, choose M here: the module will
+	  be called qcom-cpr3
+
 config QCOM_GENI_SE
 	tristate "QCOM GENI Serial Engine Driver"
 	depends on ARCH_QCOM || COMPILE_TEST
