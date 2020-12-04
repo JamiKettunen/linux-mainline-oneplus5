@@ -1,0 +1,651 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2021, AngeloGioacchino Del Regno
+ *                     <angelogioacchino.delregno@somainline.org>
+ */
+
+/dts-v1/;
+
+#include "msm8998-mtp.dtsi"
+
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
+#include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
+
+/ {
+	model = "F(x)tec Pro1 (QX1000)";
+	compatible = "fxtec,pro1", "qcom,msm8998";
+	qcom,board-id = <0x02000b 0x10>;
+
+	/* This part enables graphical output via bootloader-enabled display */
+	chosen {
+		bootargs = "earlycon=tty0 console=tty0 clk_ignore_unused";
+
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+	};
+
+	reserved-memory {
+		cont_splash_mem: cont-splash-region@9d400000 {
+			reg = <0x0 0x9d400000 0x0 0x2000000>;
+			no-map;
+		};
+
+		zap_shader_region: gpu@f6400000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0xf6400000 0x0 0x2000>;
+			no-map;
+		};
+
+		ramoops@ffc00000 {
+			compatible = "ramoops";
+			reg = <0x0 0xffc00000 0x0 0x100000>;
+			record-size = <0x10000>;
+			console-size = <0x60000>;
+			ftrace-size = <0x10000>;
+			pmsg-size = <0x20000>;
+			ecc-size = <16>;
+			status = "okay";
+		};
+	};
+
+	keyboard-leds {
+		compatible = "gpio-leds";
+
+		backlight {
+			color = <LED_COLOR_ID_WHITE>;
+			default-state = "off";
+			function = LED_FUNCTION_KBD_BACKLIGHT;
+			gpios = <&tlmm 16 GPIO_ACTIVE_HIGH>;
+			label = "white:kbd_backlight";
+			retain-state-suspended;
+		};
+
+		caps-lock {
+			color = <LED_COLOR_ID_YELLOW>;
+			default-state = "off";
+			function = LED_FUNCTION_CAPSLOCK;
+			gpios = <&tlmm 26 GPIO_ACTIVE_HIGH>;
+			label = "yellow:capslock";
+			linux,default-trigger = "kbd-capslock";
+		};
+	};
+
+	gpio_keyboard: gpio-keyboard {
+		compatible = "gpio-fastmatrix-keyboard";
+		label = "F(x)Tec Pro1 Hardware Keyboard";
+		row-gpios =
+			<&gpioext0 0 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 1 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 2 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 3 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 4 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 5 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 6 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+			<&gpioext0 7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+
+		col-gpios =
+			<&gpioext0 8 GPIO_ACTIVE_LOW>,
+			<&gpioext0 9 GPIO_ACTIVE_LOW>,
+			<&gpioext0 10 GPIO_ACTIVE_LOW>,
+			<&gpioext0 11 GPIO_ACTIVE_LOW>,
+			<&gpioext0 12 GPIO_ACTIVE_LOW>,
+			<&gpioext0 13 GPIO_ACTIVE_LOW>,
+			<&gpioext0 14 GPIO_ACTIVE_LOW>,
+			<&gpioext0 15 GPIO_ACTIVE_LOW>;
+		keypad,num-rows = <8>;
+		keypad,num-columns = <8>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&keyboard_pins_col>, <&keyboard_pins_row>;
+
+		autorescan-ms = <5>;
+		debounce-delay-ms = <1>;
+		col-scan-delay-us = <1500>;
+	};
+
+	gpio_kb_extra_keys {
+		compatible = "gpio-keys";
+		input-name = "extra-kb-keys";
+		label = "Keyboard extra keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_kb_extra_active>;
+
+		home {
+			label = "Home";
+			gpios = <&tlmm 21 GPIO_ACTIVE_LOW>;
+			linux,code = <172>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		super_l {
+			label = "Super Left";
+			gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_FN>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		super_r {
+			label = "Super Right";
+			gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_FN>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		shift {
+			label = "Shift";
+			gpios = <&tlmm 114 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RIGHTSHIFT>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		ctrl {
+			label = "Ctrl";
+			gpios = <&tlmm 128 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_LEFTCTRL>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+
+		alt {
+			label = "Alt";
+			gpios = <&tlmm 129 GPIO_ACTIVE_LOW>;
+			linux,code = <56>;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+	};
+
+	gpio_hall_sensors {
+		compatible = "gpio-keys";
+		input-name = "hall-sensors";
+		label = "Hall sensors";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hall_sensor0_default>, <&hall_sensor1_default>;
+/*
+		hall_sensor0 {
+			label = "Cover Hall Sensor";
+			gpios = <&tlmm 82 GPIO_ACTIVE_HIGH>;
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_LID>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+*/
+		hall_sensor1 {
+			label = "Keyboard Hall Sensor";
+			gpios = <&tlmm 124 GPIO_ACTIVE_HIGH>;
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_KEYPAD_SLIDE>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		input-name = "side-buttons";
+		label = "Side buttons";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&vol_up_pin_a>, <&cam_focus_pin_a>,
+			    <&cam_snapshot_pin_a>;
+		vol_up {
+			label = "Volume Up";
+			gpios = <&pm8998_gpio 6 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_VOLUMEUP>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+		};
+
+		camera_snapshot {
+			label = "Camera Snapshot";
+			gpios = <&pm8998_gpio 7 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_CAMERA>;
+			debounce-interval = <15>;
+		};
+
+		camera_focus {
+			label = "Camera Focus";
+			gpios = <&pm8998_gpio 8 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_CAMERA_FOCUS>;
+			debounce-interval = <15>;
+		};
+	};
+
+	disp_vcc_vreg: disp-vcc-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_vcc";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	disp_vddio_vreg: disp-vddio-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_vddio";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		regulator-boot-on;
+		regulator-always-on;
+		regulator-allow-set-load;
+	};
+
+	disp_vci_vreg: disp-vci-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_vci";
+		regulator-min-microvolt = <3000000>;
+		regulator-max-microvolt = <3000000>;
+		regulator-boot-on;
+		regulator-always-on;
+		regulator-allow-set-load;
+	};
+
+	disp_elvdd_vreg: disp-elvdd-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_elvdd";
+		regulator-min-microvolt = <4600000>;
+		regulator-max-microvolt = <4600000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	disp_elvss_vreg: disp-elvss-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_elvss";
+		regulator-min-microvolt = <2400000>;
+		regulator-max-microvolt = <2400000>;
+		regulator-boot-on;
+		regulator-always-on;
+	};
+
+	ts_vio_vreg: ts-vio-vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "ts_vio_reg";
+		startup-delay-us = <2>;
+		enable-active-high;
+		gpio = <&tlmm 81 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&ts_vio_default>;
+		regulator-always-on;
+	};
+
+	/*
+	 * Until we hook up type-c detection, we
+	 * have to stick with this. But it works.
+	 */
+	extcon_usb: extcon-usb {
+		compatible = "linux,extcon-usb-gpio";
+		id-gpio = <&tlmm 38 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&adreno_gpu {
+	status = "ok";
+
+	zap-shader {
+		memory-region = <&zap_shader_region>;
+	};
+};
+
+&adreno_smmu {
+	status = "ok";
+};
+
+&apc_cprh {
+	status = "ok";
+};
+
+&blsp1_i2c6 {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&i2c6_default>;
+	pinctrl-1 = <&i2c6_sleep>;
+	dmas = <&blsp1_dma 16>, <&blsp1_dma 17>;
+	dma-names = "tx", "rx";
+	status = "ok";
+
+	gpioext0: gpio-expander@58 {
+		compatible = "awinic,aw9523-pinctrl";
+		reg = <0x58>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <50 IRQ_TYPE_EDGE_FALLING>;
+
+		gpio-controller;
+		#gpio-cells = <2>;
+		gpio-ranges = <&gpioext0 0 0 16>;
+		interrupt-controller;
+		#interrupt-cells = <2>;
+
+		pinctrl-0 = <&gpio_expander_int_n>, <&gpio_expander_rst_n>;
+		pinctrl-names = "default";
+		reset-gpios = <&tlmm 51 GPIO_ACTIVE_HIGH>;
+
+		keyboard_pins_col: keyboard-matrix-col-pins {
+			pins = "gpio8", "gpio9", "gpio10", "gpio11",
+			       "gpio12", "gpio13", "gpio14", "gpio15";
+			function = "gpio";
+			output-low;
+		};
+		keyboard_pins_row: keyboard-matrix-row-pins {
+			pins = "gpio0", "gpio1", "gpio2", "gpio3",
+			       "gpio4", "gpio5", "gpio6", "gpio7";
+			function = "gpio";
+			drive-open-drain;
+			input-enable;
+		};
+	};
+};
+
+&blsp2_i2c1 {
+	status = "ok";
+	qcom,noise-reject-scl = <3>;
+	qcom,noise-reject-sda = <3>;
+
+	touchscreen@14 {
+		compatible = "goodix,gt9286";
+		reg = <0x14>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <125 IRQ_TYPE_LEVEL_LOW>;
+		reset-gpios = <&tlmm 89 GPIO_ACTIVE_HIGH>;
+		AVDD28-supply = <&vreg_l28_3p0>;
+		VDDIO-supply = <&ts_vio_vreg>;
+		pinctrl-names = "active", "sleep";
+		pinctrl-0 = <&ts_active>;
+		pinctrl-1 = <&ts_sleep>;
+	};
+};
+
+&cpufreq_hw {
+	status = "ok";
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "ok";
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel: panel@0 {
+		compatible = "boe,bf060y8m-aj0";
+		reg = <0>;
+
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_LOW>;
+		no-hpd;
+
+		vcc-supply = <&disp_vcc_vreg>;
+		vddio-supply = <&disp_vddio_vreg>;
+		vci-supply = <&disp_vci_vreg>;
+		elvdd-supply = <&disp_elvdd_vreg>;
+		elvss-supply = <&disp_elvss_vreg>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_phy {
+	status = "ok";
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
+&gcc {
+	status = "ok";
+};
+
+&gpucc {
+	status = "ok";
+};
+
+&gpio_keyboard {
+	linux,keymap = <
+		MATRIX_KEY(0, 0, KEY_F1)    MATRIX_KEY(1, 0, KEY_H)
+		MATRIX_KEY(2, 0, KEY_B)     MATRIX_KEY(3, 0, KEY_7)
+		MATRIX_KEY(4, 0, KEY_UP)    MATRIX_KEY(5, 0, KEY_ENTER)
+		MATRIX_KEY(6, 0, KEY_Y)     MATRIX_KEY(7, 0, KEY_COMMA)
+		MATRIX_KEY(0, 1, KEY_3)     MATRIX_KEY(1, 1, KEY_S)
+		MATRIX_KEY(2, 1, KEY_Z)     MATRIX_KEY(3, 1, KEY_M)
+		MATRIX_KEY(4, 1, KEY_I)     MATRIX_KEY(5, 1, KEY_9)
+		MATRIX_KEY(6, 1, KEY_W)     MATRIX_KEY(7, 1, KEY_J)
+		MATRIX_KEY(0, 2, KEY_LEFT)  MATRIX_KEY(1, 2, KEY_G)
+		MATRIX_KEY(2, 2, KEY_V)     MATRIX_KEY(3, 2, KEY_6)
+		MATRIX_KEY(4, 2, KEY_RIGHT) MATRIX_KEY(5, 2, KEY_DELETE)
+		MATRIX_KEY(6, 2, KEY_T)     MATRIX_KEY(7, 2, KEY_DOT)
+		MATRIX_KEY(0, 3, KEY_SLASH) MATRIX_KEY(1, 3, KEY_A)
+		MATRIX_KEY(2, 3, KEY_RIGHTBRACE) MATRIX_KEY(3, 3, KEY_HOMEPAGE)
+		MATRIX_KEY(4, 3, KEY_P)     MATRIX_KEY(5, 3, KEY_MINUS)
+		MATRIX_KEY(6, 3, KEY_Q)     MATRIX_KEY(7, 3, KEY_L)
+		MATRIX_KEY(0, 4, KEY_BACKSPACE) MATRIX_KEY(1, 4, KEY_D)
+		MATRIX_KEY(2, 4, KEY_X)     MATRIX_KEY(3, 4, KEY_K)
+		MATRIX_KEY(4, 4, KEY_SEMICOLON) MATRIX_KEY(5, 4, KEY_EQUAL)
+		MATRIX_KEY(6, 4, KEY_E)     MATRIX_KEY(7, 4, KEY_APOSTROPHE)
+		MATRIX_KEY(0, 5, KEY_CAPSLOCK) MATRIX_KEY(1, 5, KEY_BACKSLASH)
+		MATRIX_KEY(2, 5, KEY_LEFTBRACE) MATRIX_KEY(3, 5, KEY_DOWN)
+		MATRIX_KEY(4, 5, KEY_O)     MATRIX_KEY(5, 5, KEY_0)
+		MATRIX_KEY(6, 5, KEY_GRAVE) MATRIX_KEY(7, 5, KEY_K)
+		MATRIX_KEY(0, 6, KEY_SPACE) MATRIX_KEY(1, 6, KEY_F)
+		MATRIX_KEY(2, 6, KEY_C)     MATRIX_KEY(3, 6, KEY_N)
+		MATRIX_KEY(4, 6, KEY_U)     MATRIX_KEY(5, 6, KEY_8)
+		MATRIX_KEY(6, 6, KEY_R)     MATRIX_KEY(7, 6, KEY_5)
+		MATRIX_KEY(0, 7, KEY_ESC)   MATRIX_KEY(1, 7, KEY_1)
+		MATRIX_KEY(2, 7, KEY_RESERVED) MATRIX_KEY(3, 7, KEY_RESERVED)
+		MATRIX_KEY(4, 7, KEY_2)     MATRIX_KEY(5, 7, KEY_4)
+		MATRIX_KEY(6, 7, KEY_TAB)   MATRIX_KEY(7, 7, KEY_RESERVED)
+	>;
+};
+
+&mdss {
+	status = "ok";
+};
+
+&mdss_mdp {
+	status = "ok";
+};
+
+&mmcc {
+	status = "ok";
+};
+
+&mmss_smmu {
+	status = "ok";
+};
+
+/* HACK! Push GPU voltage high until GPU CPR is hooked up */
+&pm8005_s1 {
+	regulator-min-microvolt = <988000>;
+	regulator-max-microvolt = <1100000>;
+};
+
+&pm8998_gpio {
+	unknown_pin_a: unk-active {
+		pins = "gpio5";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_HIGH>;
+	};
+
+	vol_up_pin_a: vol-up-active {
+		pins = "gpio6";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+	};
+
+	cam_focus_pin_a: cam-focus-btn-active {
+		pins = "gpio7";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+	};
+
+	cam_snapshot_pin_a: cam-snapshot-btn-active {
+		pins = "gpio8";
+		function = "normal";
+		input-enable;
+		bias-pull-up;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+	};
+};
+
+&pm8998_pon {
+	resin {
+		compatible = "pm8941-resin";
+		interrupts = <GIC_SPI 0x8 1 IRQ_TYPE_EDGE_BOTH>;
+		debounce = <15625>;
+		bias-pull-up;
+		linux,code = <KEY_VOLUMEDOWN>;
+	};
+};
+
+&tlmm {
+	gpio-reserved-ranges = <0 4>;
+
+	mdp_vsync_n: mdp-vsync-n {
+		pins = "gpio10";
+		function = "mdp_vsync_a";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	i2c6_default: i2c6-default {
+		pins = "gpio43", "gpio44";
+		function = "blsp_i2c6";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	i2c6_sleep: i2c6-sleep {
+		pins = "gpio43", "gpio44";
+		function = "blsp_i2c6";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	gpio_kb_extra_active: gpio-kb-extra-active {
+		pins = "gpio21", "gpio32", "gpio33", "gpio114",
+		       "gpio128", "gpio129";
+		function = "gpio";
+		drive-strength = <2>;
+		bias-pull-up;
+	};
+
+	gpio_expander_int_n: gpio-exp-intn-def {
+		pins = "gpio50";
+		drive-strength = <2>;
+		input-enable;
+	};
+
+	gpio_expander_rst_n: gpio-exp-rst-def {
+		pins = "gpio51";
+		drive-strength = <8>;
+	};
+
+	disp_en_default: disp-en {
+		pins = "gpio62";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	ts_vio_default: ts-vio-def {
+		pins = "gpio81";
+		drive-strength = <2>;
+		bias-disable;
+	};
+
+	hall_sensor0_default: hall-sensor0-def {
+		pins = "gpio82";
+		drive-strength = <2>;
+		bias-disable;
+		input-enable;
+	};
+
+	hall_sensor1_default: hall-sensor1-def {
+		pins = "gpio124";
+		drive-strength = <2>;
+		bias-disable;
+		input-enable;
+	};
+
+	panel_reset_n: panel-rst-n {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	ts_active: ts-active {
+		ts-rst-n {
+			pins = "gpio89";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		ts-intr-n {
+			pins = "gpio125";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	ts_sleep: ts-sleep {
+		ts-rst-n {
+			pins = "gpio89";
+			drive-strength = <2>;
+			bias-disable;
+		};
+
+		ts-intr-n {
+			pins = "gpio125";
+			drive-strength = <2>;
+			bias-pull-down;
+		};
+	};
+};
+
+&ufshc {
+	status = "ok";
+};
+
+&ufsphy {
+	status = "ok";
+};
+
+&usb3_dwc3 {
+	dr_mode = "peripheral";
+	extcon = <&extcon_usb>;
+};
+
+/* GT9286 analog supply */
+&vreg_l28_3p0 {
+	regulator-min-microvolt = <2800000>;
+	regulator-max-microvolt = <2800000>;
+};
