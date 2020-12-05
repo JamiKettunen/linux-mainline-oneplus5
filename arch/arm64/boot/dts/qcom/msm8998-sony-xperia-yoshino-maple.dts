@@ -1,0 +1,102 @@
+// SPDX-License-Identifier: BSD-3-Clause
+/*
+ * Copyright (c) 2021, AngeloGioacchino Del Regno
+ *                     <angelogioacchino.delregno@somainline.org>
+ */
+
+/dts-v1/;
+
+#include "msm8998-sony-xperia-yoshino.dtsi"
+
+/ {
+	model = "Sony Xperia XZ Premium";
+	compatible = "sony,xperia-maple", "qcom,msm8998";
+
+	disp_dvdd_vreg: disp-dvdd-vreg {
+		compatible = "regulator-fixed";
+		regulator-name = "disp_dvdd_en";
+		regulator-min-microvolt = <1350000>;
+		regulator-max-microvolt = <1350000>;
+		startup-delay-us = <0>;
+		enable-active-high;
+		gpio = <&pmi8998_gpio 10 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&disp_dvdd_en>;
+	};
+};
+
+&dsi0 {
+	qcom,dual-dsi-mode;
+	qcom,master-dsi;
+};
+
+&dsi1 {
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+	qcom,dual-dsi-mode;
+	status = "ok";
+};
+
+&dsi1_out {
+	remote-endpoint = <&panel_in1>;
+	data-lanes = <0 1 2 3>;
+};
+
+&dsi1_phy {
+	vdds-supply = <&vreg_l1a_0p875>;
+	status = "ok";
+};
+
+&ibb {
+	regulator-min-microvolt = <5600000>;
+	regulator-max-microvolt = <5600000>;
+};
+
+&lab {
+	regulator-min-microvolt = <5800000>;
+	regulator-max-microvolt = <5800000>;
+	qcom,soft-start-us = <200>;
+};
+
+&panel {
+	compatible = "sharp,ls055d1sx04";
+
+	dvdd-supply = <&disp_dvdd_vreg>;
+	ports {
+		port@1 {
+			reg = <1>;
+			panel_in1: endpoint {
+				remote-endpoint = <&dsi1_out>;
+			};
+		};
+	};
+};
+
+&pm8005_gpio {
+	ear_en_default: ear-en-active {
+		pins = "gpio1";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		output-low;
+		drive-push-pull;
+		bias-disable;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_HIGH>;
+		power-source = <1>;
+	};
+};
+
+&pmi8998_gpio {
+	disp_dvdd_en: disp-dvdd-en-active {
+		pins = "gpio10";
+		function = PMIC_GPIO_FUNC_NORMAL;
+		drive-push-pull;
+		bias-disable;
+		qcom,drive-strength = <PMIC_GPIO_STRENGTH_HIGH>;
+		power-source = <0>;
+		output-high;
+	};
+};
+
+&vreg_l22a_2p85 {
+	regulator-min-microvolt = <2704000>;
+	regulator-max-microvolt = <2704000>;
+};
