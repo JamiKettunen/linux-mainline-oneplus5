@@ -245,6 +245,19 @@ config KEYBOARD_GPIO
 	  To compile this driver as a module, choose M here: the
 	  module will be called gpio_keys.
 
+config KEYBOARD_GPIO_FASTMATRIX
+	tristate "GPIO Keyboard"
+	depends on GPIOLIB
+	select INPUT_MATRIXKMAP
+	help
+	  This driver implements support for matrix keypads and/or
+	  keyboards connected directly to GPIO pins of a CPU, made
+	  to also perform with slow I2C GPIO expanders and even
+	  on matrices with no protection diodes.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called gpio_fastmatrix
+
 config KEYBOARD_GPIO_POLLED
 	tristate "Polled GPIO buttons"
 	depends on GPIOLIB
