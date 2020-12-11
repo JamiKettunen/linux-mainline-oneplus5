@@ -924,12 +924,7 @@ DEFINE_CLK_SMD_RPM(msm8998, pcnoc_clk, pcnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 0);
 DEFINE_CLK_SMD_RPM(msm8998, snoc_clk, snoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 1);
 DEFINE_CLK_SMD_RPM(msm8998, cnoc_clk, cnoc_a_clk, QCOM_SMD_RPM_BUS_CLK, 2);
 DEFINE_CLK_SMD_RPM(msm8998, ce1_clk, ce1_a_clk, QCOM_SMD_RPM_CE_CLK, 0);
-DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, div_clk1, div_clk1_a, 0xb);
 DEFINE_CLK_SMD_RPM(msm8998, ipa_clk, ipa_a_clk, QCOM_SMD_RPM_IPA_CLK, 0);
-DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, ln_bb_clk1, ln_bb_clk1_a, 1);
-DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, ln_bb_clk2, ln_bb_clk2_a, 2);
-DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, ln_bb_clk3_pin, ln_bb_clk3_a_pin,
-				     3);
 DEFINE_CLK_SMD_RPM(msm8998, mmssnoc_axi_rpm_clk, mmssnoc_axi_rpm_a_clk,
 		   QCOM_SMD_RPM_MMAXI_CLK, 0);
 DEFINE_CLK_SMD_RPM(msm8998, aggre1_noc_clk, aggre1_noc_a_clk,
@@ -938,9 +933,20 @@ DEFINE_CLK_SMD_RPM(msm8998, aggre2_noc_clk, aggre2_noc_a_clk,
 		   QCOM_SMD_RPM_AGGR_CLK, 2);
 DEFINE_CLK_SMD_RPM_QDSS(msm8998, qdss_clk, qdss_a_clk,
 			QCOM_SMD_RPM_MISC_CLK, 1);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, div_clk1, div_clk1_a, 0xb);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, div_clk2, div_clk2_a, 0xc);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, div_clk3, div_clk3_a, 0xd);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, ln_bb_clk1, ln_bb_clk1_a, 1);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, ln_bb_clk2, ln_bb_clk2_a, 2);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, ln_bb_clk3, ln_bb_clk3_a, 3);
 DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, rf_clk1, rf_clk1_a, 4);
-DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk2_pin, rf_clk2_a_pin, 5);
+DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, rf_clk2, rf_clk2_a, 5);
 DEFINE_CLK_SMD_RPM_XO_BUFFER(msm8998, rf_clk3, rf_clk3_a, 6);
+DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, ln_bb_clk1_pin, ln_bb_clk1_a_pin, 1);
+DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, ln_bb_clk2_pin, ln_bb_clk2_a_pin, 2);
+DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, ln_bb_clk3_pin, ln_bb_clk3_a_pin, 3);
+DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk1_pin, rf_clk1_a_pin, 4);
+DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk2_pin, rf_clk2_a_pin, 5);
 DEFINE_CLK_SMD_RPM_XO_BUFFER_PINCTRL(msm8998, rf_clk3_pin, rf_clk3_a_pin, 6);
 static struct clk_smd_rpm *msm8998_clks[] = {
 	[RPM_SMD_XO_CLK_SRC] = &msm8998_bi_tcxo,
@@ -957,12 +963,22 @@ static struct clk_smd_rpm *msm8998_clks[] = {
 	[RPM_SMD_CE1_A_CLK] = &msm8998_ce1_a_clk,
 	[RPM_SMD_DIV_CLK1] = &msm8998_div_clk1,
 	[RPM_SMD_DIV_A_CLK1] = &msm8998_div_clk1_a,
+	[RPM_SMD_DIV_CLK2] = &msm8998_div_clk2,
+	[RPM_SMD_DIV_A_CLK2] = &msm8998_div_clk2_a,
+	[RPM_SMD_DIV_CLK3] = &msm8998_div_clk3,
+	[RPM_SMD_DIV_A_CLK3] = &msm8998_div_clk3_a,
 	[RPM_SMD_IPA_CLK] = &msm8998_ipa_clk,
 	[RPM_SMD_IPA_A_CLK] = &msm8998_ipa_a_clk,
 	[RPM_SMD_LN_BB_CLK1] = &msm8998_ln_bb_clk1,
 	[RPM_SMD_LN_BB_CLK1_A] = &msm8998_ln_bb_clk1_a,
 	[RPM_SMD_LN_BB_CLK2] = &msm8998_ln_bb_clk2,
 	[RPM_SMD_LN_BB_CLK2_A] = &msm8998_ln_bb_clk2_a,
+	[RPM_SMD_LN_BB_CLK3] = &msm8998_ln_bb_clk3,
+	[RPM_SMD_LN_BB_CLK3_A] = &msm8998_ln_bb_clk3_a,
+	[RPM_SMD_LN_BB_CLK1_PIN] = &msm8998_ln_bb_clk1_pin,
+	[RPM_SMD_LN_BB_CLK1_A_PIN] = &msm8998_ln_bb_clk1_a_pin,
+	[RPM_SMD_LN_BB_CLK2_PIN] = &msm8998_ln_bb_clk2_pin,
+	[RPM_SMD_LN_BB_CLK2_A_PIN] = &msm8998_ln_bb_clk2_a_pin,
 	[RPM_SMD_LN_BB_CLK3_PIN] = &msm8998_ln_bb_clk3_pin,
 	[RPM_SMD_LN_BB_CLK3_A_PIN] = &msm8998_ln_bb_clk3_a_pin,
 	[RPM_SMD_MMAXI_CLK] = &msm8998_mmssnoc_axi_rpm_clk,
@@ -975,10 +991,14 @@ static struct clk_smd_rpm *msm8998_clks[] = {
 	[RPM_SMD_QDSS_A_CLK] = &msm8998_qdss_a_clk,
 	[RPM_SMD_RF_CLK1] = &msm8998_rf_clk1,
 	[RPM_SMD_RF_CLK1_A] = &msm8998_rf_clk1_a,
-	[RPM_SMD_RF_CLK2_PIN] = &msm8998_rf_clk2_pin,
-	[RPM_SMD_RF_CLK2_A_PIN] = &msm8998_rf_clk2_a_pin,
+	[RPM_SMD_RF_CLK2] = &msm8998_rf_clk2,
+	[RPM_SMD_RF_CLK2_A] = &msm8998_rf_clk2_a,
 	[RPM_SMD_RF_CLK3] = &msm8998_rf_clk3,
 	[RPM_SMD_RF_CLK3_A] = &msm8998_rf_clk3_a,
+	[RPM_SMD_RF_CLK1_PIN] = &msm8998_rf_clk1_pin,
+	[RPM_SMD_RF_CLK1_A_PIN] = &msm8998_rf_clk1_a_pin,
+	[RPM_SMD_RF_CLK2_PIN] = &msm8998_rf_clk2_pin,
+	[RPM_SMD_RF_CLK2_A_PIN] = &msm8998_rf_clk2_a_pin,
 	[RPM_SMD_RF_CLK3_PIN] = &msm8998_rf_clk3_pin,
 	[RPM_SMD_RF_CLK3_A_PIN] = &msm8998_rf_clk3_a_pin,
 };
