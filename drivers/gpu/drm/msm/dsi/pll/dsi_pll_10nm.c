@@ -165,11 +165,7 @@ static void dsi_pll_calc_dec_frac(struct dsi_pll_10nm *pll)
 
 	pll_freq = pll->vco_current_rate;
 
-	if (config->disable_prescaler)
-		divider = fref;
-	else
-		divider = fref * 2;
-
+	divider = fref;
 	multiplier = 1 << config->frac_bits;
 	dec_multiple = div_u64(pll_freq * multiplier, divider);
 	dec = div_u64_rem(dec_multiple, multiplier, &frac);
@@ -266,9 +262,11 @@ static void dsi_pll_ssc_commit(struct dsi_pll_10nm *pll)
 
 static void dsi_pll_config_hzindep_reg(struct dsi_pll_10nm *pll)
 {
+	struct dsi_pll_config *config = &pll->pll_configuration;
 	void __iomem *base = pll->mmio;
+	u32 val = config->disable_prescaler ? 0x0 : 0x80;
 
-	pll_write(base + REG_DSI_10nm_PHY_PLL_ANALOG_CONTROLS_ONE, 0x80);
+	pll_write(base + REG_DSI_10nm_PHY_PLL_ANALOG_CONTROLS_ONE, val);
 	pll_write(base + REG_DSI_10nm_PHY_PLL_ANALOG_CONTROLS_TWO, 0x03);
 	pll_write(base + REG_DSI_10nm_PHY_PLL_ANALOG_CONTROLS_THREE, 0x00);
 	pll_write(base + REG_DSI_10nm_PHY_PLL_DSM_DIVIDER, 0x00);
@@ -499,16 +497,14 @@ static unsigned long dsi_pll_10nm_vco_recalc_rate(struct clk_hw *hw,
 	frac |= ((pll_read(base + REG_DSI_10nm_PHY_PLL_FRAC_DIV_START_HIGH_1) &
 		  0x3) << 16);
 
-	/*
-	 * TODO:
-	 *	1. Assumes prescaler is disabled
-	 */
 	multiplier = 1 << config->frac_bits;
-	pll_freq = dec * (ref_clk * 2);
-	tmp64 = (ref_clk * 2 * frac);
+	pll_freq = dec * ref_clk;
+	tmp64 = ref_clk * frac;
 	pll_freq += div_u64(tmp64, multiplier);
-
 	vco_rate = pll_freq;
+
+	if (config->disable_prescaler)
+		vco_rate = div_u64(vco_rate, 2);
 
 	DBG("DSI PLL%d returning vco rate = %lu, dec = %x, frac = %x",
 	    pll_10nm->id, (unsigned long)vco_rate, dec, frac);
