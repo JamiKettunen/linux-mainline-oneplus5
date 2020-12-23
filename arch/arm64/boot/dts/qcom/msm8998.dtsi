@@ -8,6 +8,15 @@
 #include <dt-bindings/power/qcom-rpmpd.h>
 #include <dt-bindings/gpio/gpio.h>
 
+/* Macro for CPR-Hardened OPP entries - Example phandle: cprh_opp0 */
+#define CPRH_OPP_ENTRY(lvl, _fuselevel, _oadj, _cadj)	\
+	cprh_opp##lvl##: opp-##lvl {			\
+		opp-level = <lvl>;			\
+		qcom,opp-fuse-level = <_fuselevel>;	\
+		qcom,opp-oloop-vadj = <_oadj>;		\
+		qcom,opp-cloop-vadj = <_cadj>;		\
+	}
+
 / {
 	interrupt-parent = <&intc>;
 
@@ -133,8 +142,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x0>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
 			next-level-cache = <&L2_0>;
+			operating-points-v2 = <&cpu_silver_opp_table>;
+			power-domains = <&apc_cprh 0>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 0>;
 			L2_0: l2-cache {
 				compatible = "arm,arch-cache";
 				cache-level = <2>;
@@ -152,8 +166,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x1>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
 			next-level-cache = <&L2_0>;
+			operating-points-v2 = <&cpu_silver_opp_table>;
+			power-domains = <&apc_cprh 0>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 0>;
 			L1_I_1: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -167,8 +186,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x2>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
 			next-level-cache = <&L2_0>;
+			operating-points-v2 = <&cpu_silver_opp_table>;
+			power-domains = <&apc_cprh 0>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 0>;
 			L1_I_2: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -182,8 +206,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x3>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&LITTLE_CPU_SLEEP_0 &LITTLE_CPU_SLEEP_1>;
 			next-level-cache = <&L2_0>;
+			operating-points-v2 = <&cpu_silver_opp_table>;
+			power-domains = <&apc_cprh 0>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 0>;
 			L1_I_3: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -197,8 +226,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x100>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
 			next-level-cache = <&L2_1>;
+			operating-points-v2 = <&cpu_gold_opp_table>;
+			power-domains = <&apc_cprh 1>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 1>;
 			L2_1: l2-cache {
 				compatible = "arm,arch-cache";
 				cache-level = <2>;
@@ -216,8 +250,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x101>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
 			next-level-cache = <&L2_1>;
+			operating-points-v2 = <&cpu_gold_opp_table>;
+			power-domains = <&apc_cprh 1>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 1>;
 			L1_I_101: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -231,8 +270,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x102>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
 			next-level-cache = <&L2_1>;
+			operating-points-v2 = <&cpu_gold_opp_table>;
+			power-domains = <&apc_cprh 1>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 1>;
 			L1_I_102: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -246,8 +290,13 @@
 			compatible = "qcom,kryo280";
 			reg = <0x0 0x103>;
 			enable-method = "psci";
+			clocks = <&xo>;
 			cpu-idle-states = <&BIG_CPU_SLEEP_0 &BIG_CPU_SLEEP_1>;
 			next-level-cache = <&L2_1>;
+			operating-points-v2 = <&cpu_gold_opp_table>;
+			power-domains = <&apc_cprh 1>;
+			power-domain-names = "cprh";
+			qcom,freq-domain = <&cpufreq_hw 1>;
 			L1_I_103: l1-icache {
 				compatible = "arm,arch-cache";
 			};
@@ -339,6 +388,378 @@
 				local-timer-stop;
 			};
 		};
+	};
+
+	cpu_gold_opp_table: cpu-gold-opp-table {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp-2361600000 {
+			opp-hz = /bits/ 64 <2361600000>;
+			required-opps = <&cprh_opp30>;
+			qcom,pll-override = <0x0a620062>;
+			qcom,spare-data = <3>;
+		};
+		opp-2342400000 {
+			opp-hz = /bits/ 64 <2342400000>;
+			required-opps = <&cprh_opp29>;
+			qcom,pll-override = <0x0a620062>;
+			qcom,spare-data = <3>;
+		};
+		opp-2323200000 {
+			opp-hz = /bits/ 64 <2323200000>;
+			required-opps = <&cprh_opp28>;
+			qcom,pll-override = <0x0a610061>;
+			qcom,spare-data = <3>;
+		};
+		opp-2265600000 {
+			opp-hz = /bits/ 64 <2265600000>;
+			required-opps = <&cprh_opp27>;
+			qcom,pll-override = <0x0a5e005e>;
+			qcom,spare-data = <3>;
+		};
+		opp-2208000000 {
+			opp-hz = /bits/ 64 <2208000000>;
+			required-opps = <&cprh_opp26>;
+			qcom,pll-override = <0x0a5c005c>;
+			qcom,spare-data = <3>;
+		};
+		opp-2112000000 {
+			opp-hz = /bits/ 64 <2112000000>;
+			required-opps = <&cprh_opp25>;
+			qcom,pll-override = <0x0a580058>;
+			qcom,spare-data = <3>;
+		};
+		opp-2035200000 {
+			opp-hz = /bits/ 64 <2035200000>;
+			required-opps = <&cprh_opp24>;
+			qcom,pll-override = <0x09550055>;
+			qcom,spare-data = <3>;
+		};
+		opp-1958400000 {
+			opp-hz = /bits/ 64 <1958400000>;
+			required-opps = <&cprh_opp23>;
+			qcom,pll-override = <0x09520052>;
+			qcom,spare-data = <2>;
+		};
+		opp-1881600000 {
+			opp-hz = /bits/ 64 <1881600000>;
+			required-opps = <&cprh_opp22>;
+			qcom,pll-override = <0x094e004e>;
+			qcom,spare-data = <2>;
+		};
+		opp-1804800000 {
+			opp-hz = /bits/ 64 <1804800000>;
+			required-opps = <&cprh_opp21>;
+			qcom,pll-override = <0x084b004b>;
+			qcom,spare-data = <2>;
+		};
+		opp-1728000000 {
+			opp-hz = /bits/ 64 <1728000000>;
+			required-opps = <&cprh_opp20>;
+			qcom,pll-override = <0x08480048>;
+			qcom,spare-data = <2>;
+		};
+		opp-1651200000 {
+			opp-hz = /bits/ 64 <1651200000>;
+			required-opps = <&cprh_opp19>;
+			qcom,pll-override = <0x07450045>;
+			qcom,spare-data = <2>;
+		};
+		opp-1574400000 {
+			opp-hz = /bits/ 64 <1574400000>;
+			required-opps = <&cprh_opp18>;
+			qcom,pll-override = <0x07420042>;
+			qcom,spare-data = <2>;
+		};
+		opp-1497600000 {
+			opp-hz = /bits/ 64 <1497600000>;
+			required-opps = <&cprh_opp17>;
+			qcom,pll-override = <0x073e003e>;
+			qcom,spare-data = <2>;
+		};
+		opp-1420800000 {
+			opp-hz = /bits/ 64 <1420800000>;
+			required-opps = <&cprh_opp16>;
+			qcom,pll-override = <0x063b003b>;
+			qcom,spare-data = <2>;
+		};
+		opp-1344000000 {
+			opp-hz = /bits/ 64 <1344000000>;
+			required-opps = <&cprh_opp15>;
+			qcom,pll-override = <0x06380038>;
+			qcom,spare-data = <2>;
+		};
+
+		opp-1267200000 {
+			opp-hz = /bits/ 64 <1267200000>;
+			required-opps = <&cprh_opp14>;
+			qcom,pll-override = <0x06350035>;
+			qcom,spare-data = <2>;
+		};
+		opp-1190400000 {
+			opp-hz = /bits/ 64 <1190400000>;
+			required-opps = <&cprh_opp13>;
+			qcom,pll-override = <0x05320032>;
+			qcom,spare-data = <2>;
+		};
+		opp-1132800000 {
+			opp-hz = /bits/ 64 <1132800000>;
+			required-opps = <&cprh_opp12>;
+			qcom,pll-override = <0x052f002f>;
+			qcom,spare-data = <1>;
+		};
+		opp-1056000000 {
+			opp-hz = /bits/ 64 <1056000000>;
+			required-opps = <&cprh_opp11>;
+			qcom,pll-override = <0x052c002c>;
+			qcom,spare-data = <1>;
+		};
+		opp-979200000 {
+			opp-hz = /bits/ 64 <979200000>;
+			required-opps = <&cprh_opp10>;
+			qcom,pll-override = <0x4290029>;
+			qcom,spare-data = <1>;
+		};
+		opp-902400000 {
+			opp-hz = /bits/ 64 <902400000>;
+			required-opps = <&cprh_opp9>;
+			qcom,pll-override = <0x4260026>;
+			qcom,spare-data = <1>;
+		};
+		opp-806400000 {
+			opp-hz = /bits/ 64 <806400000>;
+			required-opps = <&cprh_opp8>;
+			qcom,pll-override = <0x3200022>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-729600000 {
+			opp-hz = /bits/ 64 <729600000>;
+			required-opps = <&cprh_opp7>;
+			qcom,pll-override = <0x3200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-652800000 {
+			opp-hz = /bits/ 64 <652800000>;
+			required-opps = <&cprh_opp6>;
+			qcom,pll-override = <0x3200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-576000000 {
+			opp-hz = /bits/ 64 <576000000>;
+			required-opps = <&cprh_opp5>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-499200000 {
+			opp-hz = /bits/ 64 <499200000>;
+			required-opps = <&cprh_opp4>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-422400000 {
+			opp-hz = /bits/ 64 <422400000>;
+			required-opps = <&cprh_opp3>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-345600000 {
+			opp-hz = /bits/ 64 <345600000>;
+			required-opps = <&cprh_opp2>;
+			qcom,pll-override = <0x1200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-300000000 {
+			opp-hz = /bits/ 64 <300000000>;
+			required-opps = <&cprh_opp1>;
+			qcom,pll-override = <0x1200020>;
+			qcom,spare-data = <1>;
+		};
+	};
+
+	cpu_silver_opp_table: cpu-silver-opp-table {
+		compatible = "operating-points-v2";
+		opp-shared;
+
+		opp-1900800000 {
+			opp-hz = /bits/ 64 <1900800000>;
+			required-opps = <&cprh_opp22>;
+			qcom,pll-override = <0x094f004f>;
+			qcom,spare-data = <3>;
+		};
+		opp-1824000000 {
+			opp-hz = /bits/ 64 <1824000000>;
+			required-opps = <&cprh_opp21>;
+			qcom,pll-override = <0x084c004c>;
+			qcom,spare-data = <3>;
+		};
+		opp-1747200000 {
+			opp-hz = /bits/ 64 <1747200000>;
+			required-opps = <&cprh_opp20>;
+			qcom,pll-override = <0x08490049>;
+			qcom,spare-data = <2>;
+		};
+		opp-1670400000 {
+			opp-hz = /bits/ 64 <1670400000>;
+			required-opps = <&cprh_opp19>;
+			qcom,pll-override = <0x08460046>;
+			qcom,spare-data = <2>;
+		};
+		opp-1555200000 {
+			opp-hz = /bits/ 64 <1555200000>;
+			required-opps = <&cprh_opp18>;
+			qcom,pll-override = <0x07410041>;
+			qcom,spare-data = <2>;
+		};
+		opp-1478400000 {
+			opp-hz = /bits/ 64 <1478400000>;
+			required-opps = <&cprh_opp17>;
+			qcom,pll-override = <0x073e003e>;
+			qcom,spare-data = <2>;
+		};
+		opp-1401600000 {
+			opp-hz = /bits/ 64 <1401600000>;
+			required-opps = <&cprh_opp16>;
+			qcom,pll-override = <0x063a003a>;
+			qcom,spare-data = <2>;
+		};
+		opp-1324800000 {
+			opp-hz = /bits/ 64 <1324800000>;
+			required-opps = <&cprh_opp15>;
+			qcom,pll-override = <0x06370037>;
+			qcom,spare-data = <2>;
+		};
+		opp-1248000000 {
+			opp-hz = /bits/ 64 <1248000000>;
+			required-opps = <&cprh_opp14>;
+			qcom,pll-override = <0x05340034>;
+			qcom,spare-data = <2>;
+		};
+		opp-1171200000 {
+			opp-hz = /bits/ 64 <1171200000>;
+			required-opps = <&cprh_opp13>;
+			qcom,pll-override = <0x05310031>;
+			qcom,spare-data = <2>;
+		};
+		opp-1094400000 {
+			opp-hz = /bits/ 64 <1094400000>;
+			required-opps = <&cprh_opp12>;
+			qcom,pll-override = <0x052e002e>;
+			qcom,spare-data = <2>;
+		};
+		opp-1036800000 {
+			opp-hz = /bits/ 64 <1036800000>;
+			required-opps = <&cprh_opp11>;
+			qcom,pll-override = <0x042b002b>;
+			qcom,spare-data = <1>;
+		};
+		opp-960000000 {
+			opp-hz = /bits/ 64 <960000000>;
+			required-opps = <&cprh_opp10>;
+			qcom,pll-override = <0x4280028>;
+			qcom,spare-data = <1>;
+		};
+		opp-883200000 {
+			opp-hz = /bits/ 64 <883200000>;
+			required-opps = <&cprh_opp9>;
+			qcom,pll-override = <0x4250025>;
+			qcom,spare-data = <1>;
+		};
+		opp-825600000 {
+			opp-hz = /bits/ 64 <825600000>;
+			required-opps = <&cprh_opp8>;
+			qcom,pll-override = <0x3200022>;
+			qcom,spare-data = <1>;
+		};
+		opp-748800000 {
+			opp-hz = /bits/ 64 <748800000>;
+			required-opps = <&cprh_opp7>;
+			qcom,pll-override = <0x3200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-672000000 {
+			opp-hz = /bits/ 64 <672000000>;
+			required-opps = <&cprh_opp6>;
+			qcom,pll-override = <0x3200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-595200000 {
+			opp-hz = /bits/ 64 <595200000>;
+			required-opps = <&cprh_opp5>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-518400000 {
+			opp-hz = /bits/ 64 <518400000>;
+			required-opps = <&cprh_opp4>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-441600000 {
+			opp-hz = /bits/ 64 <441600000>;
+			required-opps = <&cprh_opp3>;
+			qcom,pll-override = <0x2200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-364800000 {
+			opp-hz = /bits/ 64 <364800000>;
+			required-opps = <&cprh_opp2>;
+			qcom,pll-override = <0x1200020>;
+			qcom,pll-div = <1>;
+			qcom,spare-data = <1>;
+		};
+		opp-300000000 {
+			opp-hz = /bits/ 64 <300000000>;
+			required-opps = <&cprh_opp1>;
+			qcom,pll-override = <0x1200020>;
+		};
+	};
+
+	cprh_opp_table: cpr-opp-table {
+		compatible = "operating-points-v2-qcom-level";
+
+		CPRH_OPP_ENTRY(1,  1,   0, 0);
+		CPRH_OPP_ENTRY(2,  1,   0, 0);
+		CPRH_OPP_ENTRY(3,  1,   0, 0);
+		CPRH_OPP_ENTRY(4,  1,   0, 0);
+		CPRH_OPP_ENTRY(5,  1,   0, 0);
+		CPRH_OPP_ENTRY(6,  1,   0, 0);
+		CPRH_OPP_ENTRY(7,  1,   0, 0);
+		CPRH_OPP_ENTRY(8,  1,   0, 0);
+		CPRH_OPP_ENTRY(9,  2,   0, 0);
+		CPRH_OPP_ENTRY(10, 2,   0, (-500) 0);
+		CPRH_OPP_ENTRY(11, 2,   0, 0);
+		CPRH_OPP_ENTRY(12, 3 2, (-12000) (-8000), (-10300) (-10000));
+		CPRH_OPP_ENTRY(13, 3,   (-16000) (-16000), (-11000) (-10000));
+		CPRH_OPP_ENTRY(14, 3,   (-16000) (-12000), (-12000) (-11000));
+		CPRH_OPP_ENTRY(15, 3,   (-12000) (-16000), (-13000) (-12000));
+		CPRH_OPP_ENTRY(16, 3,   (-12000) (-16000), (-14000) (-12000));
+		CPRH_OPP_ENTRY(17, 3,   (-16000) (-12000), (-14000) (-13000));
+		CPRH_OPP_ENTRY(18, 3,   (-16000) (-16000), (-15000) (-14000));
+		CPRH_OPP_ENTRY(19, 4 3, (-20000) (-16000), (-21000) (-14000));
+		CPRH_OPP_ENTRY(20, 4 3, (-24000) (-16000), (-24300) (-15000));
+		CPRH_OPP_ENTRY(21, 4,   (-28000) (-24000), (-26000) (-16000));
+		CPRH_OPP_ENTRY(22, 4,   (-28000) (-16000), (-28000) (-16000));
+		CPRH_OPP_ENTRY(23, 4,   0 (-20000), 0 (-17000));
+		CPRH_OPP_ENTRY(24, 4,   0 (-16000), 0 (-15000));
+		CPRH_OPP_ENTRY(25, 4,   0 (-12000), 0 (-14000));
+		CPRH_OPP_ENTRY(26, 4,   0 (-28000), 0 (-27000));
+		CPRH_OPP_ENTRY(27, 4,   0 (-28000), 0 (-27000));
+		CPRH_OPP_ENTRY(28, 4,   0 (-28000), 0 (-28000));
+		CPRH_OPP_ENTRY(29, 4,   0 (-28000), 0 (-28000));
+		CPRH_OPP_ENTRY(30, 4,   0 (-28000), 0 (-28000));
 	};
 
 	firmware {
@@ -860,13 +1281,193 @@
 
 		qfprom: qfprom@784000 {
 			compatible = "qcom,qfprom";
-			reg = <0x00784000 0x621c>;
+			reg = <0x00784000 0x221c>;
 			#address-cells = <1>;
 			#size-cells = <1>;
 
 			qusb2_hstx_trim: hstx-trim@23a {
 				reg = <0x23a 0x1>;
 				bits = <0 4>;
+			};
+
+			cpr_efuse_speedbin: speedbin@133 {
+				reg = <0x133 0x2>;
+				bits = <5 3>;
+			};
+
+			cpr_fuse_revision: cpr_fusing_rev@13e {
+				reg = <0x13E 0x1>;
+				bits = <3 3>;
+			};
+
+			/* CPR Ring Oscillator: Power Cluster */
+			cpr_ro_sel0_pwrcl: rosel0_pwrcl@219 {
+				reg = <0x219 0x2>;
+				bits = <4 4>;
+			};
+
+			cpr_ro_sel1_pwrcl: rosel1_pwrcl@219 {
+				reg = <0x219 0x1>;
+				bits = <0 4>;
+			};
+
+			cpr_ro_sel2_pwrcl: rosel2_pwrcl@218 {
+				reg = <0x218 0x2>;
+				bits = <4 4>;
+			};
+
+			cpr_ro_sel3_pwrcl: rosel3_pwrcl@218 {
+				reg = <0x218 0x1>;
+				bits = <0 4>;
+			};
+
+			/* CPR Init Voltage: Power Cluster */
+			cpr_init_voltage0_pwrcl: ivolt0_pwrcl@21c {
+				reg = <0x21C 0x2>;
+				bits = <2 6>;
+			};
+
+			cpr_init_voltage1_pwrcl: ivolt1_pwrcl@21b {
+				reg = <0x21B 0x2>;
+				bits = <4 6>;
+			};
+
+			cpr_init_voltage2_pwrcl: ivolt2_pwrcl@21a {
+				reg = <0x21A 0x2>;
+				bits = <6 6>;
+			};
+
+			cpr_init_voltage3_pwrcl: ivolt3_pwrcl@21a {
+				reg = <0x21A 0x1>;
+				bits = <0 6>;
+			};
+
+			/* CPR Target Quotients: Power Cluster */
+			cpr_quot0_pwrcl: quot0_pwrcl@222 {
+				reg = <0x222 0x3>;
+				bits = <2 12>;
+			};
+
+			cpr_quot1_pwrcl: quot1_pwrcl@220 {
+				reg = <0x220 0x3>;
+				bits = <6 12>;
+			};
+
+			cpr_quot2_pwrcl: quot2_pwrcl@21f {
+				reg = <0x21F 0x2>;
+				bits = <2 11>;
+			};
+
+			cpr_quot3_pwrcl: quot3_pwrcl@21d {
+				reg = <0x21D 0x3>;
+				bits = <6 12>;
+			};
+
+			/* CPR Quotient Offsets: Power Cluster */
+			cpr_quot_offset1_pwrcl: qoff1_pwrcl@227 {
+				reg = <0x227 0x2>;
+				bits = <7 6>;
+			};
+
+			cpr_quot_offset2_pwrcl: qoff2_pwrcl@227 {
+				reg = <0x227 0x1>;
+				bits = <0 7>;
+			};
+
+			cpr_quot_offset3_pwrcl: qoff3_pwrcl@226 {
+				reg = <0x226 0x2>;
+				bits = <1 7>;
+			};
+
+			/* CPR Aging Quotient Offsets: Power Cluster */
+			cpr_aging_quot_off_pwrcl: qoff_aging_pwrcl@228 {
+				reg = <0x228 0x2>;
+				bits = <6 8>;
+			};
+
+			/* CPR Ring Oscillator: Performance Cluster */
+			cpr_ro_sel0_perfcl: rosel0_perfcl@22b {
+				reg = <0x22B 0x1>;
+				bits = <2 4>;
+			};
+
+			cpr_ro_sel1_perfcl: rosel1_perfcl@22a {
+				reg = <0x22A 0x2>;
+				bits = <6 4>;
+			};
+
+			cpr_ro_sel2_perfcl: rosel2_perfcl@22a {
+				reg = <0x22A 0x1>;
+				bits = <2 4>;
+			};
+
+			cpr_ro_sel3_perfcl: rosel3_perfcl@229 {
+				reg = <0x229 0x2>;
+				bits = <6 4>;
+			};
+
+			/* CPR Init Voltage: Performance Cluster */
+			cpr_init_voltage0_perfcl: ivolt0_perfcl@22e {
+				reg = <0x22E 0x1>;
+				bits = <0 6>;
+			};
+
+			cpr_init_voltage1_perfcl: ivolt1_perfcl@22d {
+				reg = <0x22D 0x2>;
+				bits = <2 6>;
+			};
+
+			cpr_init_voltage2_perfcl: ivolt2_perfcl@22c {
+				reg = <0x22C 0x2>;
+				bits = <4 6>;
+			};
+
+			cpr_init_voltage3_perfcl: ivolt3_perfcl@22b {
+				reg = <0x22B 0x2>;
+				bits = <6 6>;
+			};
+
+			/* CPR Target Quotients: Performance Cluster */
+			cpr_quot0_perfcl: quot0_perfcl@234 {
+				reg = <0x234 0x2>;
+				bits = <0 12>;
+			};
+
+			cpr_quot1_perfcl: quot1_perfcl@232 {
+				reg = <0x232 0x2>;
+				bits = <4 12>;
+			};
+
+			cpr_quot2_perfcl: quot2_perfcl@231 {
+				reg = <0x231 0x2>;
+				bits = <0 12>;
+			};
+
+			cpr_quot3_perfcl: quot3_perfcl@22f {
+				reg = <0x22F 0x2>;
+				bits = <4 11>;
+			};
+
+			/* CPR Quotient Offsets: Performance Cluster */
+			cpr_quot_offset1_perfcl: qoff1_perfcl@239 {
+				reg = <0x239 0x2>;
+				bits = <5 3>;
+			};
+
+			cpr_quot_offset2_perfcl: qoff2_perfcl@238 {
+				reg = <0x238 0x2>;
+				bits = <6 7>;
+			};
+
+			cpr_quot_offset3_perfcl: qoff3_perfcl@237 {
+				reg = <0x237 0x2>;
+				bits = <7 7>;
+			};
+
+			/* CPR Aging Quotient Offsets: Performance Cluster */
+			cpr_aging_quot_off_perfcl: qoff_aging_perfcl@23b {
+				reg = <0x23b 0x2>;
+				bits = <1 8>;
 			};
 		};
 
@@ -2008,6 +2609,35 @@
 			};
 		};
 
+		power-controller@17812000 {
+			compatible = "qcom,msm8998-gold-saw2-v4.1-l2",
+				     "qcom,saw2";
+			reg = <0x017812000 0x1000>;
+		};
+
+		power-controller@17912000 {
+			compatible = "qcom,msm8998-silver-saw2-v4.1-l2",
+				     "qcom,saw2";
+			reg = <0x017912000 0x1000>;
+		};
+
+		cpufreq_hw: cpufreq_hw@17816000 {
+			compatible = "qcom,cpufreq-hw-8998";
+			reg = <0x017914800 0x100>,  <0x017814800 0x100>,
+			      <0x0179c0000 0x1000>, <0x0179c1000 0x1000>,
+			      <0x0179c2000 0x1000>, <0x0179c3000 0x1000>;
+			reg-names = "osm-acd0", "osm-acd1",
+				    "osm-domain0", "freq-domain0",
+				    "osm-domain1", "freq-domain1";
+
+			clocks = <&rpmcc RPM_SMD_XO_A_CLK_SRC>,
+				 <&gcc HMSS_GPLL0_CLK_SRC>;
+			clock-names = "xo", "alternate";
+
+			#freq-domain-cells = <1>;
+			status = "disabled";
+		};
+
 		apcs_glb: mailbox@17911000 {
 			compatible = "qcom,msm8998-apcs-hmss-global";
 			reg = <0x17911000 0x1000>;
@@ -2071,6 +2701,91 @@
 				reg = <0x17928000 0x1000>;
 				status = "disabled";
 			};
+		};
+
+		/* Gold and Silver cluster */
+		apc_cprh: power-controller@179c8000 {
+			compatible = "qcom,msm8998-cprh";
+			reg = <0x0179c8000 0x4000>, <0x0179c4000 0x4000>;
+
+			assigned-clocks = <&gcc GCC_HMSS_RBCPR_CLK>;
+			assigned-clock-rates = <19200000>;
+			clocks = <&gcc GCC_HMSS_RBCPR_CLK>;
+			clock-names = "ref";
+
+			operating-points-v2 = <&cprh_opp_table>;
+			#power-domain-cells = <1>;
+			status = "disabled";
+
+			nvmem-cells = <&cpr_efuse_speedbin>,
+				      <&cpr_fuse_revision>,
+				      <&cpr_quot0_pwrcl>,
+				      <&cpr_quot1_pwrcl>,
+				      <&cpr_quot2_pwrcl>,
+				      <&cpr_quot3_pwrcl>,
+				      <&cpr_quot_offset1_pwrcl>,
+				      <&cpr_quot_offset2_pwrcl>,
+				      <&cpr_quot_offset3_pwrcl>,
+				      <&cpr_init_voltage0_pwrcl>,
+				      <&cpr_init_voltage1_pwrcl>,
+				      <&cpr_init_voltage2_pwrcl>,
+				      <&cpr_init_voltage3_pwrcl>,
+				      <&cpr_ro_sel0_pwrcl>,
+				      <&cpr_ro_sel1_pwrcl>,
+				      <&cpr_ro_sel2_pwrcl>,
+				      <&cpr_ro_sel3_pwrcl>,
+				      <&cpr_aging_quot_off_pwrcl>,
+				      <&cpr_quot0_perfcl>,
+				      <&cpr_quot1_perfcl>,
+				      <&cpr_quot2_perfcl>,
+				      <&cpr_quot3_perfcl>,
+				      <&cpr_quot_offset1_perfcl>,
+				      <&cpr_quot_offset2_perfcl>,
+				      <&cpr_quot_offset3_perfcl>,
+				      <&cpr_init_voltage0_perfcl>,
+				      <&cpr_init_voltage1_perfcl>,
+				      <&cpr_init_voltage2_perfcl>,
+				      <&cpr_init_voltage3_perfcl>,
+				      <&cpr_ro_sel0_perfcl>,
+				      <&cpr_ro_sel1_perfcl>,
+				      <&cpr_ro_sel2_perfcl>,
+				      <&cpr_ro_sel3_perfcl>,
+				      <&cpr_aging_quot_off_perfcl>;
+
+			nvmem-cell-names = "cpr_speed_bin",
+					   "cpr_fuse_revision",
+					   "cpr0_quotient1",
+					   "cpr0_quotient2",
+					   "cpr0_quotient3",
+					   "cpr0_quotient4",
+					   "cpr0_quotient_offset2",
+					   "cpr0_quotient_offset3",
+					   "cpr0_quotient_offset4",
+					   "cpr0_init_voltage1",
+					   "cpr0_init_voltage2",
+					   "cpr0_init_voltage3",
+					   "cpr0_init_voltage4",
+					   "cpr0_ring_osc1",
+					   "cpr0_ring_osc2",
+					   "cpr0_ring_osc3",
+					   "cpr0_ring_osc4",
+					   "cpr0_aging_quotient",
+					   "cpr1_quotient1",
+					   "cpr1_quotient2",
+					   "cpr1_quotient3",
+					   "cpr1_quotient4",
+					   "cpr1_quotient_offset2",
+					   "cpr1_quotient_offset3",
+					   "cpr1_quotient_offset4",
+					   "cpr1_init_voltage1",
+					   "cpr1_init_voltage2",
+					   "cpr1_init_voltage3",
+					   "cpr1_init_voltage4",
+					   "cpr1_ring_osc1",
+					   "cpr1_ring_osc2",
+					   "cpr1_ring_osc3",
+					   "cpr1_ring_osc4",
+					   "cpr1_aging_quotient";
 		};
 
 		intc: interrupt-controller@17a00000 {
