@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/input/gpio-fastmatrix-keyboard.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Fast modern GPIO-driven keyboard/keypad matrix driver binding
+
+maintainers:
+  - AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+
+description: |
+  A simple common binding for matrix-connected keyboards/keypads, targeted at
+  defining the keys in the scope of linux key codes since that is a stable and
+  standardized interface at this time.
+  This driver uses the GPIOD API in order to support setting (and reading) an
+  entire array of GPIOs which is very fast (if the controller supports it) and
+  a requirement to support full keyboard matrices on slow external GPIO I2C
+  expanders, but also a great latency enhancement for faster GPIO controllers.
+
+properties:
+  linux,keymap:
+    $ref: '/schemas/types.yaml#/definitions/uint32-array'
+    description: |
+      An array of packed 1-cell entries containing the equivalent of row,
+      column and linux key-code as specified in dt-bindings/input/input.h
+
+  autorescan-ms:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Activates auto-rescanning of the matrix after receiving and processing
+      an event for quirky hardware that won't re-send interrupts on fast-press,
+      fast-depress, or multiple keys pressed events.
+      This time is expressed in milliseconds; if not specified, the feature is
+      disabled.
+
+  col-scan-delay-us:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Time to wait in microseconds for scan after activating a column.
+      If not specified, the default is 0 (no wait).
+
+  debounce-delay-ms:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: |
+      Matrix button debouncing interval time in milliseconds.
+      If not specified, debouncing is disabled.
+
+  drive-inactive-cols:
+    type: boolean
+    description: Keep direction of inactive columns as output
+
+  keypad,num-rows:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of row lines connected to the keypad controller.
+
+  keypad,num-columns:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Number of column lines connected to the keypad controller.
+
+additionalProperties: true
+
+examples:
+  - |
+    #include <dt-bindings/gpio/gpio.h>
+    #include <dt-bindings/input/input.h>
+
+    gpio-keyboard {
+        compatible = "gpio-fastmatrix-keyboard";
+        label = "Keyboard over I2C Expander"
+        row-gpios =
+          <&gpioext0 0 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 1 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 2 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 3 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 4 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 5 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 6 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>,
+          <&gpioext0 7 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
+        col-gpios =
+          <&gpioext0 8 GPIO_ACTIVE_LOW>,
+          <&gpioext0 9 GPIO_ACTIVE_LOW>,
+          <&gpioext0 10 GPIO_ACTIVE_LOW>,
+          <&gpioext0 11 GPIO_ACTIVE_LOW>,
+          <&gpioext0 12 GPIO_ACTIVE_LOW>,
+          <&gpioext0 13 GPIO_ACTIVE_LOW>,
+          <&gpioext0 14 GPIO_ACTIVE_LOW>,
+          <&gpioext0 15 GPIO_ACTIVE_LOW>;
+
+        linux,keymap = <
+          MATRIX_KEY(0, 0, KEY_F1) MATRIX_KEY(1, 0, KEY_H)
+          MATRIX_KEY(2, 0, KEY_B)  MATRIX_KEY(3, 0, KEY_7)
+          /* ... */
+        >;
+
+        keypad,num-rows = <8>;
+        keypad,num-columns = <8>;
+    };
