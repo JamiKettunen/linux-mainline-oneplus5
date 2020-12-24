@@ -643,3 +643,8 @@
 &cpufreq_hw {
 	status = "ok";
 };
+
+&pm8005_s1 {
+	regulator-min-microvolt = <988000>;
+	regulator-max-microvolt = <1100000>;
+};
