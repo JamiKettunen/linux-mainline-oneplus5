@@ -12,6 +12,10 @@
 	compatible = "oneplus,enchilada", "qcom,sdm845";
 };
 
+&pmi8998_fg {
+	qcom,battery-capacity-ua = <3300000>;
+};
+
 &display_panel {
 	status = "okay";
 
