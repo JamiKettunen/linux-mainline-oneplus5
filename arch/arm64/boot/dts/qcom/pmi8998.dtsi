@@ -18,6 +18,15 @@
 			interrupt-controller;
 			#interrupt-cells = <2>;
 		};
+
+		pmi8998_fg: fuel_guage {
+			compatible = "qcom,pmi8998-fg";
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			
+			reg = <0x4000>;
+		};
 	};
 
 	pmi8998_lsid1: pmic@3 {
