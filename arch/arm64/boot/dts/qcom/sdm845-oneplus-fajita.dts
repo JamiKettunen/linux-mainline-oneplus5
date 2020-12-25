@@ -18,6 +18,10 @@
 	compatible = "samsung,s6e3fc2x01";
 };
 
+&pmi8998_fg {
+	qcom,battery-capacity-ua = <3700000>;
+};
+
 &rmi4_f12 {
 	touchscreen-y-mm = <148>;
 };
