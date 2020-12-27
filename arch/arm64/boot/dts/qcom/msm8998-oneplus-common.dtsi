@@ -452,6 +452,14 @@
 	dr_mode = "peripheral"; /* Force to peripheral until we have the capability to switch modes */
 };
 
+&cpufreq_hw {
+	status = "ok";
+};
+
+&apc_cprh {
+	status = "ok";
+};
+
 &wifi {
 	status = "okay";
 
