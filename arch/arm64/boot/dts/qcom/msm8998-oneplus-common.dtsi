@@ -475,119 +475,66 @@
 	gpio-reserved-ranges = <0 4>, <81 4>;
 
 	gpio_hall_sensor_default: gpio-hall-sensor-default {
-		mux {
-			pins = "gpio124";
-			function = "gpio";
-		};
-		config {
-			pins = "gpio124";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio124";
+		function = "gpio";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	gpio_tristate_slider_default: gpio-tristate-slider-default {
-		mux {
-			pins = "gpio40", "gpio42", "gpio26";
-			function = "gpio";
-		};
-
-		config {
-			pins = "gpio40", "gpio42", "gpio26";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio40", "gpio42", "gpio26";
+		function = "gpio";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	touch_default: touch-default {
-		mux {
-			pins = "gpio89", "gpio125";
-			function = "gpio";
-		};
-
-		config {
-			pins = "gpio89", "gpio125";
-			drive-strength = <16>;  /* 16 mA */
-			bias-pull-up;           /* pull up */
-		};
+		pins = "gpio89", "gpio125";
+		function = "gpio";
+		drive-strength = <16>;  /* 16 mA */
+		bias-pull-up;           /* pull up */
 	};
 
 	touch_int_suspend: touch-int-suspend {
-		mux {
-			pins = "gpio125";
-			function = "gpio";
-		};
-
-		config {
-			pins = "gpio125";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio125";
+		function = "gpio";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	touch_reset_suspend: touch-reset-suspend {
-		mux {
-			pins = "gpio89";
-			function = "gpio";
-		};
-
-		config {
-			pins = "gpio89";
-			drive-strength = <2>;   /* 2 mA */
-			bias-pull-down;         /* pull down */
-		};
+		pins = "gpio89";
+		function = "gpio";
+		drive-strength = <2>;   /* 2 mA */
+		bias-pull-down;         /* pull down */
 	};
 
 	blsp1_i2c5_default: blsp1-i2c5 {
-		mux {
-			pins = "gpio87", "gpio88";
-			function = "blsp_i2c5";
-		};
-
-		config {
-			pins = "gpio87", "gpio88";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio87", "gpio88";
+		function = "blsp_i2c5";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	blsp1_i2c5_sleep: blsp1-i2c5-sleep {
-		mux {
-			pins = "gpio87", "gpio88";
-			function = "blsp_i2c5";
-		};
-
-		config {
-			pins = "gpio87", "gpio88";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio87", "gpio88";
+		function = "blsp_i2c5";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	blsp2_i2c0_default: blsp2-i2c0 {
-		mux {
-			pins = "gpio55", "gpio56";
-			function = "blsp_i2c7";
-		};
-
-		config {
-			pins = "gpio55", "gpio56";
-			drive-strength = <2>;   /* 2 mA */
-			bias-disable;           /* NO pull */
-		};
+		pins = "gpio55", "gpio56";
+		function = "blsp_i2c7";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
 	};
 
 	blsp2_i2c0_sleep: blsp2-i2c0-sleep {
-		mux {
-			pins = "gpio55", "gpio56";
-			function = "blsp_i2c7";
-		};
-
-		config {
-			pins = "gpio55", "gpio56";
-			drive-strength = <2>;   /* 2 mA */
-			bias-pull-up;           /* pull up */
-		};
+		pins = "gpio55", "gpio56";
+		function = "blsp_i2c7";
+		drive-strength = <2>;   /* 2 mA */
+		bias-pull-up;           /* pull up */
 	};
 };
 
