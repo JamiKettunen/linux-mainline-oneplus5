@@ -34,3 +34,76 @@
 		};
 	};
 };
+
+/* Display panel */
+&mmcc {
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_mdp {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel: panel@0 {
+		compatible = "samsung,s6e3fa5";
+		reg = <0>;
+
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+		disp-te-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
+
+		vddio-supply = <&vreg_l14a_1p88>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n>;
+
+		rotation = <180>; /* The panel is mounted upside down on the OnePlus 5 */
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
+&dsi0_phy {
+	status = "okay";
+};
+
+&tlmm {
+	disp_en_default: disp-en {
+		pins = "gpio62";
+		function = "gpio";
+		drive-strength = <8>;       /* 8 mA */
+		bias-disable;               /* NO pull */
+	};
+
+	panel_reset_n: panel-rst-n {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <8>;       /* 8 mA */
+		bias-disable;               /* NO pull */
+	};
+
+	mdp_vsync_n: mdp-vsync-n {
+		pins = "gpio11";
+		function = "mdp_vsync_a"; // 'mdp_vsync'
+		drive-strength = <2>;       /* 2 mA */
+		bias-pull-down;             /* pull down */
+	};
+};
