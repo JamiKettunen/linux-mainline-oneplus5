@@ -6,6 +6,7 @@
 #include <dt-bindings/clock/qcom,gpucc-msm8998.h>
 #include <dt-bindings/clock/qcom,mmcc-msm8998.h>
 #include <dt-bindings/clock/qcom,rpmcc.h>
+#include <dt-bindings/interconnect/qcom,msm8998.h>
 #include <dt-bindings/power/qcom-rpmpd.h>
 #include <dt-bindings/gpio/gpio.h>
 
@@ -879,6 +880,15 @@
 			};
 		};
 
+		bimc: interconnect@1008000 {
+			compatible = "qcom,msm8998-bimc";
+			reg = <0x01008000 0x78000>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_BIMC_CLK>,
+				 <&rpmcc RPM_SMD_BIMC_A_CLK>;
+		};
+
 		tsens0: thermal@10ab000 {
 			compatible = "qcom,msm8998-tsens", "qcom,tsens-v2";
 			reg = <0x010ab000 0x1000>, /* TM */
@@ -899,6 +909,33 @@
 				     <GIC_SPI 430 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "uplow", "critical";
 			#thermal-sensor-cells = <1>;
+		};
+
+		cnoc: interconnect@1500000 {
+			compatible = "qcom,msm8998-cnoc";
+			reg = <0x01500000 0x10000>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_CNOC_CLK>,
+				 <&rpmcc RPM_SMD_CNOC_A_CLK>;
+		};
+
+		snoc: interconnect@1625000 {
+			compatible = "qcom,msm8998-snoc";
+			reg = <0x01625000 0x6100>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_SNOC_CLK>,
+				 <&rpmcc RPM_SMD_SNOC_A_CLK>;
+		};
+
+		a1noc: interconnect@1669000 {
+			compatible = "qcom,msm8998-a1noc";
+			reg = <0x01669000 0x5020>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_AGGR1_NOC_CLK>,
+				 <&rpmcc RPM_SMD_AGGR1_NOC_A_CLK>;
 		};
 
 		anoc1_smmu: iommu@1680000 {
@@ -933,6 +970,25 @@
 				<GIC_SPI 463 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 464 IRQ_TYPE_EDGE_RISING>,
 				<GIC_SPI 465 IRQ_TYPE_EDGE_RISING>;
+		};
+
+		a2noc: interconnect@1705000 {
+			compatible = "qcom,msm8998-a2noc";
+			reg = <0x01705000 0xa090>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a";
+			clocks = <&rpmcc RPM_SMD_AGGR2_NOC_CLK>,
+				 <&rpmcc RPM_SMD_AGGR2_NOC_A_CLK>;
+		};
+
+		mnoc: interconnect@1744000 {
+			compatible = "qcom,msm8998-mnoc";
+			reg = <0x01744000 0xb010>;
+			#interconnect-cells = <1>;
+			clock-names = "bus", "bus_a", "iface";
+			clocks = <&rpmcc RPM_SMD_MMAXI_CLK>,
+				 <&rpmcc RPM_SMD_MMAXI_A_CLK>,
+				 <&mmcc AHB_CLK_SRC>;
 		};
 
 		pcie0: pci@1c00000 {
@@ -2689,6 +2745,18 @@
 				qcom,remote-pid = <2>;
 				mboxes = <&apcs_glb 9>;
 			};
+		};
+
+		gnoc: interconnect@17900000 {
+			compatible = "qcom,msm8998-gnoc";
+			reg = <0x17900000 0xe000>;
+			#interconnect-cells = <1>;
+			/*
+			 * This one apparently features no clocks,
+			 * so let's not mess with the driver needlessly
+			 */
+			clock-names = "bus", "bus_a";
+			clocks = <&xo>, <&xo>;
 		};
 
 		apcs_glb: mailbox@17911000 {
