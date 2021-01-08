@@ -775,4 +775,14 @@ config RN5T618_POWER
 	  This driver can also be built as a module. If so, the module will be
 	  called rn5t618_power.
 
+config BATTERY_PMI8998_FG
+	tristate "Qualcomm PMI8998 fuel gauge driver"
+	depends on MFD_SPMI_PMIC
+	help
+	  Say Y here to enable the Qualcomm PMI8998 Fuel Gauge driver. This 
+	  adds support for battery fuel gauging and state of charge of 
+	  battery connected tothe fuel gauge. The state of charge is 
+	  reported through a BMS power supply property and also sends 
+	  uevents when the capacity is updated.
+
 endif # POWER_SUPPLY
