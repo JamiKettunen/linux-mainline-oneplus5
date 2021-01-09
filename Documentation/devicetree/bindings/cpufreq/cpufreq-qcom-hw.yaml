@@ -18,6 +18,10 @@ description: |
 properties:
   compatible:
     oneOf:
+      - description: Non-secure v1 of CPUFREQ HW
+        items:
+          - const: qcom,cpufreq-hw-8998
+
       - description: v1 of CPUFREQ HW
         items:
           - const: qcom,cpufreq-hw
@@ -30,19 +34,27 @@ properties:
 
   reg:
     minItems: 2
-    maxItems: 3
+    maxItems: 7
     items:
       - description: Frequency domain 0 register region
       - description: Frequency domain 1 register region
       - description: Frequency domain 2 register region
+      - description: PLL ACD domain 0 register region
+      - description: PLL ACD domain 1 register region
+      - description: Operating State Manager domain 0 register region
+      - description: Operating State Manager domain 1 register region
 
   reg-names:
     minItems: 2
-    maxItems: 3
+    maxItems: 7
     items:
-      - const: freq-domain0
-      - const: freq-domain1
-      - const: freq-domain2
+      - const: "freq-domain0"
+      - const: "freq-domain1"
+      - const: "freq-domain2"
+      - const: "osm-acd0"
+      - const: "osm-acd1"
+      - const: "osm-domain0"
+      - const: "osm-domain1"
 
   clocks:
     items:
@@ -56,6 +68,28 @@ properties:
 
   '#freq-domain-cells':
     const: 1
+
+allOf:
+ - if:
+     properties:
+       reg-names:
+         contains:
+           const: qcom,cpufreq-hw-8998
+   then:
+     properties:
+       reg:
+         minItems: 4
+         maxItems: 6
+       reg-names:
+         items:
+           minItems: 4
+   else:
+     properties:
+       reg:
+         maxItems: 3
+       reg-names:
+         items:
+           maxItems: 3
 
 required:
   - compatible
