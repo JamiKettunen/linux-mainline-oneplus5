@@ -58,6 +58,20 @@ properties:
   '#size-cells':
     const: 0
 
+  qcom,noise-reject-sda:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Noise rejection level for the SDA line.
+    minimum: 0
+    maximum: 3
+    default: 0
+
+  qcom,noise-reject-scl:
+    $ref: /schemas/types.yaml#/definitions/uint32
+    description: Noise rejection level for the SCL line.
+    minimum: 0
+    maximum: 3
+    default: 0
+
 required:
   - compatible
   - clocks
