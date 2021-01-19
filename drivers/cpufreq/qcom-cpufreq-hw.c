@@ -1331,6 +1331,7 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 	void __iomem *base;
 	struct qcom_cpufreq_data *data;
 	char fdom_resname[] = "freq-domainX";
+	unsigned int transition_latency;
 	int cpu_count, index, ret;
 
 	cpu_dev = get_cpu_device(policy->cpu);
@@ -1381,6 +1382,24 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 	data->soc_data = of_device_get_match_data(&pdev->dev);
 	data->base = base;
 	data->res = res;
+	policy->driver_data = data;
+
+	cpu_count = qcom_get_related_cpus(index, policy->cpus);
+	if (!cpumask_weight(policy->cpus)) {
+		dev_err(dev, "Domain-%d failed to get related CPUs\n", index);
+		ret = -ENOENT;
+		goto error;
+	}
+
+	if (!data->soc_data->uses_tz) {
+		ret = qcom_cpufreq_hw_osm_setup(cpu_dev, policy,
+						cpu_count, index);
+		if (ret) {
+			dev_err(dev, "Cannot setup the OSM for CPU%d: %d\n",
+				policy->cpu, ret);
+			goto error;
+		}
+	}
 
 	/* HW should be in enabled state to proceed */
 	if (!(readl_relaxed(base + data->soc_data->reg_enable) & 0x1)) {
@@ -1388,15 +1407,6 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 		ret = -ENODEV;
 		goto error;
 	}
-
-	qcom_get_related_cpus(index, policy->cpus);
-	if (!cpumask_weight(policy->cpus)) {
-		dev_err(dev, "Domain-%d failed to get related CPUs\n", index);
-		ret = -ENOENT;
-		goto error;
-	}
-
-	policy->driver_data = data;
 
 	ret = qcom_cpufreq_hw_read_lut(cpu_dev, policy);
 	if (ret) {
@@ -1411,6 +1421,12 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 		goto error;
 	}
 
+	transition_latency = dev_pm_opp_get_max_transition_latency(cpu_dev);
+	if (!transition_latency)
+		transition_latency = CPUFREQ_ETERNAL;
+
+	policy->cpuinfo.transition_latency = transition_latency;
+
 	dev_pm_opp_of_register_em(cpu_dev, policy->cpus);
 
 	if (policy_has_boost_freq(policy)) {
@@ -1421,6 +1437,7 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 
 	return 0;
 error:
+	policy->driver_data = NULL;
 	kfree(data);
 unmap_base:
 	iounmap(base);
