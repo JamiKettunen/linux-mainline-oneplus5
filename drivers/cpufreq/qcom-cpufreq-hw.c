@@ -1407,6 +1407,7 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 	void __iomem *base;
 	struct qcom_cpufreq_data *data;
 	const char *fdom_resname;
+	unsigned int transition_latency;
 	int cpu_count, index, ret;
 
 	cpu_dev = get_cpu_device(policy->cpu);
@@ -1499,6 +1500,12 @@ static int qcom_cpufreq_hw_cpu_init(struct cpufreq_policy *policy)
 		ret = -ENODEV;
 		goto error;
 	}
+
+	transition_latency = dev_pm_opp_get_max_transition_latency(cpu_dev);
+	if (!transition_latency)
+		transition_latency = CPUFREQ_ETERNAL;
+
+	policy->cpuinfo.transition_latency = transition_latency;
 
 	dev_pm_opp_of_register_em(cpu_dev, policy->cpus);
 
