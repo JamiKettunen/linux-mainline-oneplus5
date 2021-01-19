@@ -237,6 +237,28 @@
 	};
 };
 
+&blsp1_i2c6 {
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&blsp1_i2c6_default>;
+	pinctrl-1 = <&blsp1_i2c6_sleep>;
+	status = "okay";
+
+	nfc: pn544@28 {
+		compatible = "nxp,pn544-i2c";
+		reg = <0x28>;
+		clock-frequency = <400000>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&nfc_int_active &nfc_enable_active &nfc_ese_pwr_active>;
+
+		interrupt-parent = <&tlmm>;
+		interrupts = <92 GPIO_ACTIVE_HIGH>;
+
+		enable-gpios   = <&tlmm 12 GPIO_ACTIVE_HIGH>;
+		firmware-gpios = <&tlmm 93 GPIO_ACTIVE_HIGH>;
+	};
+};
+
 &blsp2_uart1 {
 	status = "okay";
 };
@@ -474,6 +496,27 @@
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
 
+	nfc_int_active: nfc-int-active {
+		pins = "gpio92";
+		function = "gpio";
+		drive-strength = <6>;   /* 6 mA */
+		bias-pull-up;           /* pull up */
+	};
+
+	nfc_enable_active: nfc-enable-active {
+		pins = "gpio12", "gpio116"; // 12: enable | 116: wake up (apparently unused?)
+		function = "gpio";
+		drive-strength = <6>;   /* 6 mA */
+		bias-pull-up;           /* pull up */
+	};
+
+	nfc_ese_pwr_active: nfc-ese-pwr-active {
+		pins = "gpio37";
+		function = "gpio";
+		drive-strength = <2>;   /* 2 mA */
+		bias-pull-up;           /* pull up */
+	};
+
 	gpio_hall_sensor_default: gpio-hall-sensor-default {
 		pins = "gpio124";
 		function = "gpio";
@@ -521,6 +564,20 @@
 		function = "blsp_i2c5";
 		drive-strength = <2>;   /* 2 mA */
 		bias-disable;           /* NO pull */
+	};
+
+	blsp1_i2c6_default: blsp1-i2c6 {
+		pins = "gpio43", "gpio44";
+		function = "blsp_i2c6";
+		drive-strength = <2>;   /* 2 mA */
+		bias-disable;           /* NO pull */
+	};
+
+	blsp1_i2c6_sleep: blsp1-i2c6-sleep {
+		pins = "gpio43", "gpio44";
+		function = "blsp_i2c6";
+		drive-strength = <2>;   /* 2 mA */
+		bias-pull-up;           /* pull up */
 	};
 
 	blsp2_i2c0_default: blsp2-i2c0 {
