@@ -2089,6 +2089,7 @@
 			reg = <0x0c0a4900 0x314>, <0x0c0a4000 0x800>;
 			reg-names = "hc_mem", "core_mem";
 
+			interconnects = <&a2noc MASTER_SDCC_2 &a2noc SLAVE_A2NOC_SNOC>;
 			interrupts = <GIC_SPI 125 IRQ_TYPE_LEVEL_HIGH>,
 				     <GIC_SPI 221 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "hc_irq", "pwr_irq";
@@ -2099,6 +2100,26 @@
 				 <&xo>;
 			bus-width = <4>;
 			status = "disabled";
+
+			sdhc2_opp_table: sdhc2-opp-table {
+				 compatible = "operating-points-v2";
+
+				 opp-50000000 {
+					opp-hz = /bits/ 64 <50000000>;
+					opp-peak-kBps = <400000>;
+					opp-avg-kBps = <200000>;
+				 };
+				 opp-100000000 {
+					opp-hz = /bits/ 64 <100000000>;
+					opp-peak-kBps = <800000>;
+					opp-avg-kBps = <400000>;
+				 };
+				 opp-200000000 {
+					opp-hz = /bits/ 64 <200000000>;
+					opp-peak-kBps = <800000>;
+					opp-avg-kBps = <800000>;
+				 };
+			};
 		};
 
 		blsp1_dma: dma-controller@c144000 {
