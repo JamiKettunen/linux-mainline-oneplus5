@@ -2041,6 +2041,7 @@ static struct clk_branch gcc_bimc_gfx_clk = {
 		.enable_mask = BIT(0),
 		.hw.init = &(struct clk_init_data){
 			.name = "gcc_bimc_gfx_clk",
+			.flags = CLK_IS_CRITICAL,
 			.ops = &clk_branch2_ops,
 		},
 	},
@@ -2181,6 +2182,7 @@ static struct clk_rcg2 hmss_gpll0_clk_src = {
 		.name = "hmss_gpll0_clk_src",
 		.parent_names = gcc_parent_names_1,
 		.num_parents = ARRAY_SIZE(gcc_parent_names_1),
+		.flags = CLK_IS_CRITICAL,
 		.ops = &clk_rcg2_ops,
 	},
 };
@@ -3147,6 +3149,14 @@ static int gcc_msm8998_probe(struct platform_device *pdev)
 	ret = regmap_update_bits(regmap, 0x52008, BIT(21), BIT(21));
 	if (ret)
 		return ret;
+
+	/*
+	 * GCC_MMSS_MISC - GCC_GPU_MISC:
+	 * 1. Disable the GPLL0 active input to MMSS and GPU
+	 * 2. Select clk division 1 (CLK/2)
+	 */
+	regmap_write(regmap, 0x0902C, 0x10003); /* MMSS*/
+	regmap_write(regmap, 0x71028, 0x10003); /* GPU */
 
 	return qcom_cc_really_probe(pdev, &gcc_msm8998_desc, regmap);
 }
