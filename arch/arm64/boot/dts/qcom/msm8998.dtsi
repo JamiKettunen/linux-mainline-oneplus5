@@ -1495,6 +1495,8 @@
 				"rbcpr",
 				"core";
 
+			interconnects = <&bimc MASTER_OXILI &bimc SLAVE_EBI>;
+			interconnect-names = "gfx-mem";
 			interrupts = <0 300 IRQ_TYPE_LEVEL_HIGH>;
 			iommus = <&adreno_smmu 0>;
 			operating-points-v2 = <&gpu_opp_table>;
@@ -1507,42 +1509,55 @@
 				opp-710000097 {
 					opp-hz = /bits/ 64 <710000097>;
 					opp-level = <RPM_SMD_LEVEL_TURBO>;
+					opp-peak-kBps = <14432000>;
+					opp-avg-kBps = <14400000>;
 					opp-supported-hw = <0xFF>;
 				};
 
 				opp-670000048 {
 					opp-hz = /bits/ 64 <670000048>;
 					opp-level = <RPM_SMD_LEVEL_NOM_PLUS>;
+					opp-peak-kBps = <14432000>;
+					opp-avg-kBps = <14390000>;
 					opp-supported-hw = <0xFF>;
 				};
-
 				opp-596000097 {
 					opp-hz = /bits/ 64 <596000097>;
 					opp-level = <RPM_SMD_LEVEL_NOM>;
+					opp-peak-kBps = <14432000>;
+					opp-avg-kBps = <12440000>;
 					opp-supported-hw = <0xFF>;
 				};
 
 				opp-515000097 {
 					opp-hz = /bits/ 64 <515000097>;
 					opp-level = <RPM_SMD_LEVEL_SVS_PLUS>;
+					opp-peak-kBps = <14432000>;
+					opp-avg-kBps = <10368000>;
 					opp-supported-hw = <0xFF>;
 				};
 
 				opp-414000000 {
 					opp-hz = /bits/ 64 <414000000>;
 					opp-level = <RPM_SMD_LEVEL_SVS>;
+					opp-peak-kBps = <12440000>;
+					opp-avg-kBps = <8136000>;
 					opp-supported-hw = <0xFF>;
 				};
 
 				opp-342000000 {
 					opp-hz = /bits/ 64 <342000000>;
 					opp-level = <RPM_SMD_LEVEL_LOW_SVS>;
+					opp-peak-kBps = <8136000>;
+					opp-avg-kBps = <6144000>;
 					opp-supported-hw = <0xFF>;
 				};
 
 				opp-257000000 {
 					opp-hz = /bits/ 64 <257000000>;
 					opp-level = <RPM_SMD_LEVEL_MIN_SVS>;
+					opp-peak-kBps = <6144000>;
+					opp-avg-kBps = <3296000>;
 					opp-supported-hw = <0xFF>;
 				};
 			};
@@ -2570,6 +2585,10 @@
 
 			assigned-clocks = <&mmcc MDSS_MDP_CLK>;
 			assigned-clock-rates = <300000000>;
+			interconnects = <&mnoc MASTER_MDP_P0 &bimc SLAVE_EBI>,
+					<&mnoc MASTER_MDP_P1 &bimc SLAVE_EBI>;
+			interconnect-names = "mdp0-mem",
+					     "mdp1-mem";
 			interrupts = <GIC_SPI 83 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-controller;
 			iommus = <&mmss_smmu 0>;
