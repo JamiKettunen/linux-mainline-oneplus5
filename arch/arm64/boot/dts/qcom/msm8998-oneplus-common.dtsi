@@ -21,7 +21,7 @@
 	};
 
 	chosen {
-		bootargs = "earlycon";
+		bootargs = "earlycon=tty0 console=tty0 clk_ignore_unused pd_ignore_unused loglevel=10 drm.debug=15 debug";
 		stdout-path = "serial0:115200n8";
 	};
 
