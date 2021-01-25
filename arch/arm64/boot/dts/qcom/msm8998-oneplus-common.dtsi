@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
-
 /*
- * Common include for MSM8998 OnePlus devices, i.e. the OnePlus 5 and OnePlus 5T.
- * These devices are basically the same, only with differences in peripherals.
+ * OnePlus 5(T) (cheeseburger / dumpling) common device tree source
+ *
+ * Copyright (c) 2021, The Linux Foundation. All rights reserved.
  */
+
+/dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
@@ -24,21 +26,10 @@
 		#size-cells = <2>;
 		ranges;
 
-		/* Add "earlycon" intended to be used in combination with UART serial console */
 		bootargs = "earlycon";
-
-		/*
-		 * Define as "serial0:115200n8" instead of simplefb "display0" for UART console;
-		 * the tiny golden UART TX pad on the OnePlus 5 mainboard can be found in the
-		 * bottom left corner right above the black screw.
-		 */
 		stdout-path = "display0";
 
-		/*
-		 * HACK: Use display framebuffer setup by the UEFI XBL bootloader for simplefb.
-		 * the address was extracted from a bootloader dd image using the following:
-		 * $ strings xbl.img | grep 'Display Reserved'
-		 */
+		/* Use display framebuffer setup by the UEFI XBL bootloader for simplefb. */
 		framebuffer0: framebuffer@9d400000 {
 			compatible = "simple-framebuffer";
 			reg = <0 0x9d400000 0 (1080 * 1920 * 4)>;
@@ -49,87 +40,11 @@
 		};
 	};
 
-	gpio-hall-sensor {
-		compatible = "gpio-keys";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&gpio_hall_sensor_default>;
-
-		label = "GPIO Hall Effect Sensor";
-
-		hall-sensor {
-			label = "Hall Effect Sensor";
-			gpios = <&tlmm 124 GPIO_ACTIVE_LOW>;
-			linux,input-type = <EV_SW>;
-			linux,code = <SW_LID>;
-			linux,can-disable;
-		};
-	};
-
-	gpio-tristate-slider {
-		compatible = "gpio-keys";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&gpio_tristate_slider_default>;
-
-		label = "GPIO Tri-state Slider";
-
-		state-top {
-			label = "Tri-state Slider Top";
-			interrupt-parent = <&tlmm>;
-			interrupts = <40 IRQ_TYPE_EDGE_FALLING>;
-			debounce-interval = <15>;
-			linux,code = <BTN_0>;
-			linux,can-disable;
-		};
-
-		state-middle {
-			label = "Tri-state Slider Middle";
-			interrupt-parent = <&tlmm>;
-			interrupts = <42 IRQ_TYPE_EDGE_FALLING>;
-			debounce-interval = <15>;
-			linux,code = <BTN_1>;
-			linux,can-disable;
-		};
-
-		state-bottom {
-			label = "Tri-state Slider Bottom";
-			interrupt-parent = <&tlmm>;
-			interrupts = <26 IRQ_TYPE_EDGE_FALLING>;
-			debounce-interval = <15>;
-			linux,code = <BTN_2>;
-			linux,can-disable;
-		};
-	};
-
-	gpio-volume-keys {
-		compatible = "gpio-keys";
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&gpio_volume_keys_pinconf>;
-
-		label = "GPIO Volume Buttons";
-
-		volume-down {
-			label = "Volume Down";
-			gpios = <&pm8998_gpio 5 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_VOLUMEDOWN>;
-			debounce-interval = <15>;
-		};
-
-		volume-up {
-			label = "Volume Up";
-			gpios = <&pm8998_gpio 6 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_VOLUMEUP>;
-			debounce-interval = <15>;
-		};
-	};
-
 	reserved-memory {
 		/*
-		 * OnePlus' "adsp.mbn" firmware requires 30 MiB in total, so increase the
-		 * "adsp_mem" region by 4 MiB to account for this and relocate other
-		 * now conflicting memory nodes accordingly.
+		 * OnePlus' adsp.mbn firmware requires 30 MiB in total, so increase the adsp_mem
+		 * region by 4 MiB to account for this and relocate other now conflicting memory
+		 * nodes accordingly.
 		 */
 		memory@8b200000 {         /* adsp_mem */
 			reg = <0x0 0x8b200000 0x0 0x1e00000>;
@@ -160,11 +75,50 @@
 			reg = <0x0 0x95715000 0x0 0x100000>;
 		};
 
-		/* HACK: Bootloader display framebuffer memory region */
+		/* Bootloader display framebuffer region */
 		fb_mem: memory@9d400000 {
 			compatible = "removed-dma-pool";
 			reg = <0 0x9d400000 0 (1080 * 1920 * 4)>;
 			no-map;
+		};
+	};
+
+	gpio-vol-keys {
+		compatible = "gpio-keys";
+		label = "Volume keys";
+		//autorepeat;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&volume_up_down_gpios>;
+
+		vol-down {
+			label = "Volume down";
+			linux,code = <KEY_VOLUMEDOWN>;
+			gpios = <&pm8998_gpio 5 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+		};
+
+		vol-up {
+			label = "Volume up";
+			linux,code = <KEY_VOLUMEUP>;
+			gpios = <&pm8998_gpio 6 GPIO_ACTIVE_LOW>;
+			debounce-interval = <15>;
+		};
+	};
+
+	gpio-hall-sensor {
+		compatible = "gpio-keys";
+		label = "Hall effect sensor";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_hall_sensor_default>;
+
+		hall-sensor {
+			label = "Hall Effect Sensor";
+			linux,input-type = <EV_SW>;
+			linux,code = <SW_LID>;
+			linux,can-disable;
+			gpios = <&tlmm 124 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -173,18 +127,6 @@
 		regulator-name = "vph_pwr";
 		regulator-always-on;
 		regulator-boot-on;
-	};
-};
-
-&pm8998_gpio {
-	gpio_volume_keys_pinconf: gpio-volume-keys-pinconf {
-		pinconf {
-			pins = "gpio5", "gpio6";
-			function = "normal";
-			input-enable;
-			bias-pull-up;           /* pull up */
-			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
-		};
 	};
 };
 
@@ -202,6 +144,28 @@
 	};
 };
 
+&blsp1_uart3_on {
+	rx {
+		/delete-property/ bias-disable;
+		/*
+		 * Configure a pull-up on 45 (RX). This is needed to
+		 * avoid garbage data when the TX pin of the Bluetooth
+		 * module is in tri-state (module powered off or not
+		 * driving the signal yet).
+		 */
+		bias-pull-up;
+	};
+
+	cts {
+		/delete-property/ bias-disable;
+		/*
+		 * Configure a pull-down on 47 (CTS) to match the pull
+		 * of the Bluetooth module.
+		 */
+		bias-pull-down;
+	};
+};
+
 &blsp1_i2c5 {
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&blsp1_i2c5_default>;
@@ -213,12 +177,15 @@
 		reg = <0x20>;
 		#address-cells = <1>;
 		#size-cells = <0>;
-		interrupts-extended = <&tlmm 125 0x2008>; /* 0x2008 = IRQF_ONESHOT | IRQF_TRIGGER_LOW */
+		interrupts-extended = <&tlmm 125 IRQ_TYPE_EDGE_FALLING>;
+
 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&touch_default>;
 		pinctrl-1 = <&touch_int_suspend &touch_reset_suspend>;
+
 		vdd-supply = <&vreg_l28_3p0>;
 		vio-supply = <&vreg_l6a_1p8>;
+
 		syna,reset-delay-ms = <200>;
 		syna,startup-delay-ms = <200>;
 
@@ -241,15 +208,15 @@
 	status = "okay";
 };
 
-&blsp2_i2c0 {
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&blsp2_i2c0_default>;
-	pinctrl-1 = <&blsp2_i2c0_sleep>;
-	status = "okay";
-
-	bq27541: fuel-gauge@55 {
-		compatible = "ti,bq27541";
-		reg = <0x55>;
+&pm8998_gpio {
+	volume_up_down_gpios: pm8998-gpio5-gpio6 {
+		pinconf {
+			pins = "gpio5", "gpio6";
+			function = "normal";
+			input-enable;
+			bias-pull-up;
+			qcom,drive-strength = <PMIC_GPIO_STRENGTH_NO>;
+		};
 	};
 };
 
@@ -274,33 +241,21 @@
 	pm8998-regulators {
 		compatible = "qcom,rpm-pm8998-regulators";
 
-		vdd_s1-supply = <&vph_pwr>;
-		vdd_s2-supply = <&vph_pwr>;
+		vdd_s1-supply = <&vph_pwr>; /* GPU? */
 		vdd_s3-supply = <&vph_pwr>;
 		vdd_s4-supply = <&vph_pwr>;
 		vdd_s5-supply = <&vph_pwr>;
-		vdd_s6-supply = <&vph_pwr>;
 		vdd_s7-supply = <&vph_pwr>;
-		vdd_s8-supply = <&vph_pwr>;
-		vdd_s9-supply = <&vph_pwr>;
-		vdd_s10-supply = <&vph_pwr>;
-		vdd_s11-supply = <&vph_pwr>;
-		vdd_s12-supply = <&vph_pwr>;
-		vdd_s13-supply = <&vph_pwr>;
-		vdd_l1_l27-supply = <&vreg_s7a_1p025>;
-		vdd_l2_l8_l17-supply = <&vreg_s3a_1p35>;
-		vdd_l3_l11-supply = <&vreg_s7a_1p025>;
-		vdd_l4_l5-supply = <&vreg_s7a_1p025>;
+		vdd_l1-supply = <&vreg_s7a_1p025>;
+		vdd_l2_l17-supply = <&vreg_s3a_1p35>;
+		vdd_l5-supply = <&vreg_s7a_1p025>;
 		vdd_l6-supply = <&vreg_s5a_2p04>;
-		vdd_l7_l12_l14_l15-supply = <&vreg_s5a_2p04>;
-		vdd_l9-supply = <&vreg_bob>;
-		vdd_l10_l23_l25-supply = <&vreg_bob>;
-		vdd_l13_l19_l21-supply = <&vreg_bob>;
-		vdd_l16_l28-supply = <&vreg_bob>;
-		vdd_l18_l22-supply = <&vreg_bob>;
+		vdd_l7_l12-supply = <&vreg_s5a_2p04>;
+		vdd_l25-supply = <&vreg_bob>;
+		vdd_l28-supply = <&vreg_bob>;
 		vdd_l20_l24-supply = <&vreg_bob>;
 		vdd_l26-supply = <&vreg_s3a_1p35>;
-		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>;
+		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>; /* UFS + SLPI remoteproc */
 
 		vreg_s3a_1p35: s3 {
 			regulator-min-microvolt = <1352000>;
@@ -319,124 +274,61 @@
 			regulator-min-microvolt = <900000>;
 			regulator-max-microvolt = <1028000>;
 		};
-		vreg_l1a_0p875: l1 {
+		vreg_l1a_0p875: l1 { /* UFS PHY */
 			regulator-min-microvolt = <880000>;
 			regulator-max-microvolt = <880000>;
 		};
-		vreg_l2a_1p2: l2 {
+		vreg_l2a_1p2: l2 { /* UFS PHY */
 			regulator-min-microvolt = <1200000>;
 			regulator-max-microvolt = <1200000>;
 		};
-		vreg_l3a_1p0: l3 {
-			regulator-min-microvolt = <1000000>;
-			regulator-max-microvolt = <1000000>;
-		};
-		vreg_l5a_0p8: l5 {
+		vreg_l5a_0p8: l5 { /* Wi-Fi */
 			regulator-min-microvolt = <800000>;
 			regulator-max-microvolt = <800000>;
 		};
-		vreg_l6a_1p8: l6 {
+		vreg_l6a_1p8: l6 { /* Touchscreen */
 			regulator-min-microvolt = <1808000>;
 			regulator-max-microvolt = <1808000>;
 		};
-		vreg_l7a_1p8: l7 {
+		vreg_l7a_1p8: l7 { /* Wi-Fi + BT */
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
-		vreg_l8a_1p2: l8 {
-			regulator-min-microvolt = <1200000>;
-			regulator-max-microvolt = <1200000>;
-		};
-		vreg_l9a_1p8: l9 {
-			regulator-min-microvolt = <1808000>;
-			regulator-max-microvolt = <2960000>;
-		};
-		vreg_l10a_1p8: l10 {
-			regulator-min-microvolt = <1808000>;
-			regulator-max-microvolt = <2960000>;
-		};
-		vreg_l11a_1p0: l11 {
-			regulator-min-microvolt = <1000000>;
-			regulator-max-microvolt = <1000000>;
-		};
-		vreg_l12a_1p8: l12 {
+		vreg_l12a_1p8: l12 { /* QUSB2 PHY */
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
-		vreg_l13a_2p95: l13 {
-			regulator-min-microvolt = <1808000>;
-			regulator-max-microvolt = <2960000>;
-		};
-		vreg_l14a_1p88: l14 {
-			regulator-min-microvolt = <1880000>;
-			regulator-max-microvolt = <1880000>;
-		};
-		vreg_l15a_1p8: l15 {
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <1800000>;
-		};
-		vreg_l16a_2p7: l16 {
-			regulator-min-microvolt = <2704000>;
-			regulator-max-microvolt = <2704000>;
-		};
-		vreg_l17a_1p3: l17 {
+		vreg_l17a_1p3: l17 { /* Wi-Fi + BT */
 			regulator-min-microvolt = <1304000>;
 			regulator-max-microvolt = <1304000>;
 		};
-		vreg_l18a_2p7: l18 {
-			regulator-min-microvolt = <2704000>;
-			regulator-max-microvolt = <2704000>;
-		};
-		vreg_l19a_3p0: l19 {
-			regulator-min-microvolt = <3008000>;
-			regulator-max-microvolt = <3008000>;
-		};
-		vreg_l20a_2p95: l20 {
+		vreg_l20a_2p95: l20 { /* UFS HC */
 			regulator-min-microvolt = <2960000>;
 			regulator-max-microvolt = <2960000>;
 			regulator-allow-set-load;
 		};
-		vreg_l21a_2p95: l21 {
-			regulator-min-microvolt = <2960000>;
-			regulator-max-microvolt = <2960000>;
-			regulator-allow-set-load;
-			regulator-system-load = <800000>;
-		};
-		vreg_l22a_2p85: l22 {
-			regulator-min-microvolt = <2864000>;
-			regulator-max-microvolt = <2864000>;
-		};
-		vreg_l23a_3p3: l23 {
-			regulator-min-microvolt = <3312000>;
-			regulator-max-microvolt = <3312000>;
-		};
-		vreg_l24a_3p075: l24 {
-			/*
-			 * HACK: Set min-microvolt to ~3.1V unlike the ~1.85V on downstream;
-			 *       until we have working plug detection to switch between these
-			 *       voltages this shall do so we at least have working USB.
-			 */
+		vreg_l24a_3p075: l24 { /* QUSB2 PHY */
 			regulator-min-microvolt = <3088000>;
 			regulator-max-microvolt = <3088000>;
 		};
-		vreg_l25a_3p3: l25 {
+		vreg_l25a_3p3: l25 { /* Wi-Fi + BT */
 			regulator-min-microvolt = <3104000>;
 			regulator-max-microvolt = <3312000>;
 		};
-		vreg_l26a_1p2: l26 {
+		vreg_l26a_1p2: l26 { /* UFS PHY + HC */
 			regulator-min-microvolt = <1200000>;
 			regulator-max-microvolt = <1200000>;
 			regulator-allow-set-load;
 		};
-		vreg_l28_3p0: l28 {
+		vreg_l28_3p0: l28 { /* Touchscreen */
 			regulator-min-microvolt = <3008000>;
 			regulator-max-microvolt = <3008000>;
 		};
-		vreg_lvs1a_1p8: lvs1 {
+		vreg_lvs1a_1p8: lvs1 { /* UFS? */
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
-		vreg_lvs2a_1p8: lvs2 {
+		vreg_lvs2a_1p8: lvs2 { /* SLPI remoteproc */
 			regulator-min-microvolt = <1800000>;
 			regulator-max-microvolt = <1800000>;
 		};
@@ -454,21 +346,20 @@
 	};
 };
 
+&remoteproc_adsp {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/oneplus/adsp.mbn";
+};
+
 &remoteproc_mss {
-	firmware-name = "qcom/OnePlus/MSM8998/mba.mbn",
-	                "qcom/OnePlus/MSM8998/modem.mbn";
+	firmware-name = "qcom/msm8998/oneplus/mba.mbn", "qcom/msm8998/oneplus/modem.mbn";
 };
 
 &remoteproc_slpi {
 	status = "okay";
 
-	firmware-name = "qcom/OnePlus/MSM8998/slpi_v2.mbn";
-};
-
-&remoteproc_adsp {
-	status = "okay";
-
-	firmware-name = "qcom/OnePlus/MSM8998/adsp.mbn";
+	firmware-name = "qcom/msm8998/oneplus/slpi_v2.mbn";
 };
 
 &tlmm {
@@ -477,82 +368,47 @@
 	gpio_hall_sensor_default: gpio-hall-sensor-default {
 		pins = "gpio124";
 		function = "gpio";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
-	};
-
-	gpio_tristate_slider_default: gpio-tristate-slider-default {
-		pins = "gpio40", "gpio42", "gpio26";
-		function = "gpio";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
+		drive-strength = <2>;
+		bias-disable;
 	};
 
 	touch_default: touch-default {
 		pins = "gpio89", "gpio125";
 		function = "gpio";
-		drive-strength = <16>;  /* 16 mA */
-		bias-pull-up;           /* pull up */
+		drive-strength = <16>;
+		bias-pull-up;
 	};
 
 	touch_int_suspend: touch-int-suspend {
 		pins = "gpio125";
 		function = "gpio";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
+		drive-strength = <2>;
+		bias-disable;
 	};
 
 	touch_reset_suspend: touch-reset-suspend {
 		pins = "gpio89";
 		function = "gpio";
-		drive-strength = <2>;   /* 2 mA */
-		bias-pull-down;         /* pull down */
+		drive-strength = <2>;
+		bias-pull-down;
 	};
-
-	blsp1_i2c5_default: blsp1-i2c5 {
-		pins = "gpio87", "gpio88";
-		function = "blsp_i2c5";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
-	};
-
-	blsp1_i2c5_sleep: blsp1-i2c5-sleep {
-		pins = "gpio87", "gpio88";
-		function = "blsp_i2c5";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
-	};
-
-	blsp2_i2c0_default: blsp2-i2c0 {
-		pins = "gpio55", "gpio56";
-		function = "blsp_i2c7";
-		drive-strength = <2>;   /* 2 mA */
-		bias-disable;           /* NO pull */
-	};
-
-	blsp2_i2c0_sleep: blsp2-i2c0-sleep {
-		pins = "gpio55", "gpio56";
-		function = "blsp_i2c7";
-		drive-strength = <2>;   /* 2 mA */
-		bias-pull-up;           /* pull up */
-	};
-};
-
-&pcie0 {
-	/* This PCIe controller is not used on OnePlus devices */
-	status = "disabled";
 };
 
 &ufshc {
+	status = "okay";
+
 	vcc-supply = <&vreg_l20a_2p95>;
 	vccq-supply = <&vreg_l26a_1p2>;
 	vccq2-supply = <&vreg_s4a_1p8>;
+	//vdd-hba-supply = <&vreg_???>; // TODO: (UFS host controller supply regulator node)
 	vcc-max-microamp = <750000>;
 	vccq-max-microamp = <560000>;
 	vccq2-max-microamp = <750000>;
 };
 
 &ufsphy {
+	status = "okay";
+
 	vdda-phy-supply = <&vreg_l1a_0p875>;
 	vdda-pll-supply = <&vreg_l2a_1p2>;
 	vddp-ref-clk-supply = <&vreg_l26a_1p2>;
@@ -562,30 +418,27 @@
 	vddp-ref-clk-always-on;
 };
 
-&usb3 {
-	status = "okay";
-
-	/* Disable USB3 pipe_clk requirement */
-	qcom,select-utmi-as-pipe-clk;
-};
-
-&usb3_dwc3 {
-	/* Drop USB 3 SuperSpeed PHY to bring up the "usb0" interface */
-	phys = <&qusb2phy>;
-	phy-names = "usb2-phy";
-
-	/* We can only operate at USB 2.0 speeds */
-	maximum-speed = "high-speed";
-
-	/* Force to peripheral until we have Type-C hooked up */
-	dr_mode = "peripheral";
-};
-
 &qusb2phy {
 	status = "okay";
 
 	vdda-pll-supply = <&vreg_l12a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};
+
+&usb3 {
+	status = "okay";
+
+	qcom,select-utmi-as-pipe-clk; /* Disable USB 3 pipe_clk requirement */
+};
+
+&usb3_dwc3 {
+	/* Drop the unused USB 3 SuperSpeed PHY */
+	phys = <&qusb2phy>;
+	phy-names = "usb2-phy";
+
+	maximum-speed = "high-speed"; /* We can only operate at USB 2.0 speeds */
+	
+	dr_mode = "peripheral"; /* Force to peripheral until we have the capability to switch modes */
 };
 
 &wifi {
@@ -595,27 +448,26 @@
 	vdd-1.8-xo-supply = <&vreg_l7a_1p8>;
 	vdd-1.3-rfa-supply = <&vreg_l17a_1p3>;
 	vdd-3.3-ch0-supply = <&vreg_l25a_3p3>;
+	//vdd-3.3-ch1-supply = <&vreg_???>; // TODO:
 };
 
-/* PINCTRL - board-specific pinctrl */
-&blsp1_uart3_on {
-	rx {
-		/delete-property/ bias-disable;
-		/*
-		 * Configure a pull-up on 45 (RX). This is needed to
-		 * avoid garbage data when the TX pin of the Bluetooth
-		 * module is in tri-state (module powered off or not
-		 * driving the signal yet).
-		 */
-		bias-pull-up;
+/* FIXME: The following nodes are only needed on trees without "MSM8998 DTS updates" series applied */
+&tlmm {
+	blsp1_i2c5_default: blsp1-i2c5 {
+		pins = "gpio87", "gpio88";
+		function = "blsp_i2c5";
+		drive-strength = <2>;
+		bias-disable;
 	};
 
-	cts {
-		/delete-property/ bias-disable;
-		/*
-		 * Configure a pull-down on 47 (CTS) to match the pull
-		 * of the Bluetooth module.
-		 */
-		bias-pull-down;
+	blsp1_i2c5_sleep: blsp1-i2c5-sleep {
+		pins = "gpio87", "gpio88";
+		function = "blsp_i2c5";
+		drive-strength = <2>;
+		bias-disable;
 	};
+}
+
+&pcie0 {
+	status = "disabled"; /* The PCIe controller is not used on OnePlus 5/5T boards */
 };
