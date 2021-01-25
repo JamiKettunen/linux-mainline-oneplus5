@@ -204,6 +204,12 @@
 	};
 };
 
+&blsp1_i2c5_sleep {
+	/delete-property/ bias-pull-up;
+	/* Configure a no-pull on TP I2C sleep to match downstream. */
+	bias-disable;
+};
+
 &blsp2_uart1 {
 	status = "okay";
 };
@@ -454,25 +460,4 @@
 	vdd-1.3-rfa-supply = <&vreg_l17a_1p3>;
 	vdd-3.3-ch0-supply = <&vreg_l25a_3p3>;
 	//vdd-3.3-ch1-supply = <&vreg_???>; // TODO:
-};
-
-/* FIXME: The following nodes are only needed on trees without "MSM8998 DTS updates" series applied */
-&tlmm {
-	blsp1_i2c5_default: blsp1-i2c5 {
-		pins = "gpio87", "gpio88";
-		function = "blsp_i2c5";
-		drive-strength = <2>;
-		bias-disable;
-	};
-
-	blsp1_i2c5_sleep: blsp1-i2c5-sleep {
-		pins = "gpio87", "gpio88";
-		function = "blsp_i2c5";
-		drive-strength = <2>;
-		bias-disable;
-	};
-};
-
-&pcie0 {
-	status = "disabled"; /* The PCIe controller is not used on OnePlus 5/5T boards */
 };
