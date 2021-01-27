@@ -10,6 +10,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
+#include <linux/swab.h>
 
 #include <video/mipi_display.h>
 
@@ -204,10 +205,14 @@ static const struct drm_panel_funcs s6e3fc1_panel_funcs = {
 static int s6e3fc1_bl_update_status(struct backlight_device *bl)
 {
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
-	u16 brightness = backlight_get_brightness(bl);
+	u16 brightness;
 	int ret;
 
 	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+
+	brightness = (u16)backlight_get_brightness(bl);
+	// This panel needs the high and low bytes swapped for the brightness value
+	brightness = __swab16(brightness);
 
 	ret = mipi_dsi_dcs_set_display_brightness(dsi, brightness);
 	if (ret < 0)
@@ -229,6 +234,9 @@ static int s6e3fc1_bl_get_brightness(struct backlight_device *bl)
 	ret = mipi_dsi_dcs_get_display_brightness(dsi, &brightness);
 	if (ret < 0)
 		return ret;
+
+	// This panel needs the high and low bytes swapped for the brightness value
+	brightness = __swab16(brightness);
 
 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
