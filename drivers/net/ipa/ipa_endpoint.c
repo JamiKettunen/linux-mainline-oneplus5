@@ -347,7 +347,7 @@ ipa_endpoint_program_suspend(struct ipa_endpoint *endpoint, bool enable)
 {
 	bool suspended;
 
-	if (endpoint->ipa->version != IPA_VERSION_3_5_1)
+	if (endpoint->ipa->version >= IPA_VERSION_4_0)
 		return enable;	/* For IPA v4.0+, no change made */
 
 	/* assert(!endpoint->toward_ipa); */
@@ -1465,11 +1465,12 @@ static void ipa_endpoint_reset(struct ipa_endpoint *endpoint)
 	bool special;
 	int ret = 0;
 
-	/* On IPA v3.5.1, if an RX endpoint is reset while aggregation
-	 * is active, we need to handle things specially to recover.
+	/* On IPA v3.5.1 and older, if an RX endpoint is reset while
+	 * aggregation is active, we need to handle things in a special
+	 * way in order to recover.
 	 * All other cases just need to reset the underlying GSI channel.
 	 */
-	special = ipa->version == IPA_VERSION_3_5_1 &&
+	special = ipa->version <= IPA_VERSION_3_5_1 &&
 			!endpoint->toward_ipa &&
 			endpoint->data->aggregation;
 	if (special && ipa_endpoint_aggr_active(endpoint))
@@ -1568,8 +1569,8 @@ void ipa_endpoint_suspend_one(struct ipa_endpoint *endpoint)
 		(void)ipa_endpoint_program_suspend(endpoint, true);
 	}
 
-	/* IPA v3.5.1 doesn't use channel stop for suspend */
-	stop_channel = endpoint->ipa->version != IPA_VERSION_3_5_1;
+	/* IPA v3.x doesn't use channel stop for suspend */
+	stop_channel = endpoint->ipa->version >= IPA_VERSION_4_0;
 	ret = gsi_channel_suspend(gsi, endpoint->channel_id, stop_channel);
 	if (ret)
 		dev_err(dev, "error %d suspending channel %u\n", ret,
@@ -1589,8 +1590,8 @@ void ipa_endpoint_resume_one(struct ipa_endpoint *endpoint)
 	if (!endpoint->toward_ipa)
 		(void)ipa_endpoint_program_suspend(endpoint, false);
 
-	/* IPA v3.5.1 doesn't use channel start for resume */
-	start_channel = endpoint->ipa->version != IPA_VERSION_3_5_1;
+	/* IPA v3.x doesn't use channel start for resume */
+	start_channel = endpoint->ipa->version >= IPA_VERSION_4_0;
 	ret = gsi_channel_resume(gsi, endpoint->channel_id, start_channel);
 	if (ret)
 		dev_err(dev, "error %d resuming channel %u\n", ret,

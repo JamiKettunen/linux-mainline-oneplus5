@@ -227,8 +227,8 @@ static void ipa_hardware_config_comp(struct ipa *ipa)
 {
 	u32 val;
 
-	/* Nothing to configure for IPA v3.5.1 */
-	if (ipa->version == IPA_VERSION_3_5_1)
+	/* Nothing to configure for IPA v3.5.1 and below */
+	if (ipa->version <= IPA_VERSION_3_5_1)
 		return;
 
 	val = ioread32(ipa->reg_virt + IPA_REG_COMP_CFG_OFFSET);
@@ -275,6 +275,7 @@ static void ipa_hardware_config_qsb(struct ipa *ipa)
 
 	max1 = 12;
 	switch (version) {
+	case IPA_VERSION_3_1:
 	case IPA_VERSION_3_5_1:
 		max0 = 8;
 		break;
@@ -403,6 +404,9 @@ static void ipa_hardware_config(struct ipa *ipa)
 		/* Enable open global clocks (not needed for IPA v4.5) */
 		val = GLOBAL_FMASK;
 		val |= GLOBAL_2X_CLK_FMASK;
+		if (version == IPA_VERSION_3_1)
+			val |= MISC_FMASK;
+
 		iowrite32(val, ipa->reg_virt + IPA_REG_CLKON_CFG_OFFSET);
 
 		/* Disable PA mask to allow HOLB drop */
