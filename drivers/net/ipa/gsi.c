@@ -1859,7 +1859,7 @@ static void gsi_channel_teardown(struct gsi *gsi)
 int gsi_setup(struct gsi *gsi)
 {
 	struct device *dev = gsi->dev;
-	u32 val;
+	u32 val, mask;
 	int ret;
 
 	/* Here is where we first touch the GSI hardware */
@@ -1873,7 +1873,12 @@ int gsi_setup(struct gsi *gsi)
 
 	val = ioread32(gsi->virt + GSI_GSI_HW_PARAM_2_OFFSET);
 
-	gsi->channel_count = u32_get_bits(val, NUM_CH_PER_EE_FMASK);
+	if (gsi->version == IPA_VERSION_3_1)
+		mask = GSIV1_NUM_CH_PER_EE_FMASK;
+	else
+		mask = NUM_CH_PER_EE_FMASK;
+
+	gsi->channel_count = u32_get_bits(val, mask);
 	if (!gsi->channel_count) {
 		dev_err(dev, "GSI reports zero channels supported\n");
 		return -EINVAL;
@@ -1885,7 +1890,12 @@ int gsi_setup(struct gsi *gsi)
 		gsi->channel_count = GSI_CHANNEL_COUNT_MAX;
 	}
 
-	gsi->evt_ring_count = u32_get_bits(val, NUM_EV_PER_EE_FMASK);
+	if (gsi->version == IPA_VERSION_3_1)
+		mask = GSIV1_NUM_EV_PER_EE_FMASK;
+	else
+		mask = NUM_EV_PER_EE_FMASK;
+
+	gsi->evt_ring_count = u32_get_bits(val, mask);
 	if (!gsi->evt_ring_count) {
 		dev_err(dev, "GSI reports zero event rings supported\n");
 		return -EINVAL;

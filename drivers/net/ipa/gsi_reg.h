@@ -282,6 +282,11 @@ enum gsi_generic_cmd_opcode {
 			GSI_EE_N_GSI_HW_PARAM_2_OFFSET(GSI_EE_AP)
 #define GSI_EE_N_GSI_HW_PARAM_2_OFFSET(ee) \
 			(0x0001f040 + 0x4000 * (ee))
+
+/* Fields below are present for IPA v3.1 with GSI version 1 */
+#define GSIV1_NUM_EV_PER_EE_FMASK	GENMASK(8, 0)
+#define GSIV1_NUM_CH_PER_EE_FMASK	GENMASK(15, 8)
+/* Fields below are present for IPA v3.5.1 and above */
 #define IRAM_SIZE_FMASK			GENMASK(2, 0)
 #define NUM_CH_PER_EE_FMASK		GENMASK(7, 3)
 #define NUM_EV_PER_EE_FMASK		GENMASK(12, 8)
