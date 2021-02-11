@@ -46,6 +46,7 @@ properties:
     oneOf:
       - items:
           - enum:
+              - "qcom,msm8998-ipa"
               - "qcom,sdm845-ipa"
               - "qcom,sc7180-ipa"
 
