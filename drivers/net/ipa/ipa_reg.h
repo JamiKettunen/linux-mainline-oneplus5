@@ -199,6 +199,9 @@ static inline u32 ipa_reg_state_aggr_active_offset(enum ipa_version version)
 /* Backward compatibility register value to use for each version */
 static inline u32 ipa_reg_bcr_val(enum ipa_version version)
 {
+	if (version == IPA_VERSION_3_1)
+		return BCR_CMDQ_L_LACK_ONE_ENTRY_FMASK;
+
 	if (version == IPA_VERSION_3_5_1)
 		return BCR_CMDQ_L_LACK_ONE_ENTRY_FMASK |
 			BCR_TX_NOT_USING_BRESP_FMASK |

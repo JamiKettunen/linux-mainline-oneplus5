@@ -14,6 +14,7 @@
  * it where it's needed.
  */
 enum ipa_version {
+	IPA_VERSION_3_1,	/* GSI version 1.0 */
 	IPA_VERSION_3_5_1,	/* GSI version 1.3.0 */
 	IPA_VERSION_4_0,	/* GSI version 2.0 */
 	IPA_VERSION_4_1,	/* GSI version 2.1 */
