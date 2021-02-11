@@ -179,8 +179,11 @@ struct ipa_gsi_endpoint_data {
 /** enum ipa_resource_type_src - source resource types */
 enum ipa_resource_type_src {
 	IPA_RESOURCE_TYPE_SRC_PKT_CONTEXTS,
+	IPA_RESOURCE_TYPE_SRC_HDR_SECTORS,
+	IPA_RESOURCE_TYPE_SRC_HDRI1_BUFFER,
 	IPA_RESOURCE_TYPE_SRC_DESCRIPTOR_LISTS,
 	IPA_RESOURCE_TYPE_SRC_DESCRIPTOR_BUFF,
+	IPA_RESOURCE_TYPE_SRC_HDRI2_BUFFERS,
 	IPA_RESOURCE_TYPE_SRC_HPS_DMARS,
 	IPA_RESOURCE_TYPE_SRC_ACK_ENTRIES,
 };
@@ -188,6 +191,7 @@ enum ipa_resource_type_src {
 /** enum ipa_resource_type_dst - destination resource types */
 enum ipa_resource_type_dst {
 	IPA_RESOURCE_TYPE_DST_DATA_SECTORS,
+	IPA_RESOURCE_TYPE_DST_DATA_SECTOR_LISTS,
 	IPA_RESOURCE_TYPE_DST_DPS_DMARS,
 };
 
@@ -300,6 +304,7 @@ struct ipa_data {
 	const struct ipa_clock_data *clock_data;
 };
 
+extern const struct ipa_data ipa_data_msm8998;
 extern const struct ipa_data ipa_data_sdm845;
 extern const struct ipa_data ipa_data_sc7180;
 
