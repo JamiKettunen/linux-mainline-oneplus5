@@ -204,6 +204,21 @@
 	};
 };
 
+&pmi8998_haptics {
+	status = "okay";
+
+	qcom,vmax-mv = <2088>; // 3596 for SDM845?
+
+	//qcom,brake-pattern = <0x3030303>;
+
+	//qcom,int-pwm-freq-khz = <0x1f9>; // 505
+	//qcom,sc-deb-cycles = <0x08>; // 8
+	//qcom,correct-lra-drive-freq;
+	//qcom,wave-samples = <0x28282828 0x28282828>;
+	//qcom,wave-samples-overdrive = <0x7e7e7e7e 0x7e282828>;
+	//qcom,use-play-irq;
+};
+
 &pm8005_lsid1 {
 	pm8005-regulators {
 		compatible = "qcom,pm8005-regulators";
