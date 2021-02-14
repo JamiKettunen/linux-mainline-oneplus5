@@ -215,7 +215,7 @@ static int pmi8998_haptics_read(struct pmi8998_haptics *haptics, u16 addr, u8 *v
 	if (ret < 0)
 		pr_err("Error reading address: 0x%x, ret %d\n", addr, ret);
 	
-	pr_debug("%s: read 0x%x from 0x%x with mask 0x%x", __func__, *val, addr);
+	pr_debug("%s: read 0x%x from 0x%x", __func__, *val, addr); // " with mask 0x%x"
 
 	return ret;
 }
@@ -283,7 +283,7 @@ static int pmi8998_haptics_write_masked(struct pmi8998_haptics *haptics, u16 add
 #define HAP_CYCLES	4
 static bool is_haptics_idle(struct pmi8998_haptics *haptics)
 {
-	unsigned long wait_time_us;
+	//unsigned long wait_time_us;
 	int ret, i;
 	u8 val;
 
@@ -421,7 +421,7 @@ static int pmi8998_haptics_write_play_rate(struct pmi8998_haptics *haptics, u16 
 static int pmi8998_haptics_set_auto_res(struct pmi8998_haptics *haptics, bool enable)
 {
 	int rc = 0;
-	u32 delay_us = HAPTICS_BACK_EMF_DELAY_US;
+	//u32 delay_us = HAPTICS_BACK_EMF_DELAY_US;
 	u8 val;
 
 	if (haptics->actuator_type != HAP_TYPE_LRA)
@@ -540,7 +540,7 @@ static int pmi8998_haptics_write_brake(struct pmi8998_haptics *haptics)
 static int pmi8998_haptics_write_buffer_config(struct pmi8998_haptics *haptics)
 {
 	u8 buf[HAP_WAVE_SAMP_LEN];
-	u32* ptr;
+	//u32* ptr;
 	int rc, i;
 
 	pr_debug("Writing buffer config");
@@ -690,7 +690,7 @@ irq_handled:
  */
 static int pmi8998_haptics_init(struct pmi8998_haptics *haptics) {
 	int ret;
-	u8 val, mask, rc_clk_err_deci_pct;
+	u8 val, mask; //, rc_clk_err_deci_pct;
 	u16 lra_res_cal_period, auto_res_mode;
 	u16 play_rate = 0;
 
@@ -776,7 +776,12 @@ static int pmi8998_haptics_init(struct pmi8998_haptics *haptics) {
 
 	/* setup play irq */
 	if (haptics->play_irq >= 0) {
+		// FIXME: warning: format '%p' expects argument of type 'void *', but argument 3 has type 'struct device' [-Wformat=]
 		pr_info("%s: Requesting play IRQ, dev pointer: %p, irq: %d", __func__, haptics->pdev->dev, haptics->play_irq);
+		/*dev_printk(KERN_INFO, haptics->pdev->dev,
+			   "%s: Requesting play IRQ, dev pointer: %p, irq: %d\n",
+			   __func__, haptics->play_irq);*/
+
 		ret = devm_request_threaded_irq(&haptics->pdev->dev, haptics->play_irq,
 			NULL, pmi8998_haptics_play_irq_handler, IRQF_ONESHOT,
 			"haptics_play_irq", haptics);
@@ -796,6 +801,7 @@ static int pmi8998_haptics_init(struct pmi8998_haptics *haptics) {
 
 	/* setup short circuit1 irq */
 	if (haptics->sc_irq >= 0) {
+		// FIXME: warning: format '%p' expects argument of type 'void *', but argument 3 has type 'struct device' [-Wformat=]
 		pr_info("%s: Requesting play IRQ, dev pointer: %p, irq: %d", __func__, haptics->pdev->dev, haptics->play_irq);
 		ret = devm_request_threaded_irq(&haptics->pdev->dev, haptics->sc_irq,
 			NULL, pmi8998_haptics_sc_irq_handler, IRQF_ONESHOT,
@@ -908,7 +914,7 @@ static int pmi8998_haptics_play_effect(struct input_dev *dev, void *data,
 				  struct ff_effect *effect)
 {
 	struct pmi8998_haptics *haptics = input_get_drvdata(dev);
-	int magnitude;
+	//int magnitude;
 	pr_debug("%s: Rumbling with strong: %d and weak: %d", __func__, effect->u.rumble.strong_magnitude, effect->u.rumble.weak_magnitude);
 
 	haptics->magnitude = effect->u.rumble.strong_magnitude >> 8;
