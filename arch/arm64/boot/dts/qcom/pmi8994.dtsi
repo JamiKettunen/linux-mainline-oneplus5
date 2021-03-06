@@ -19,6 +19,17 @@
 			interrupt-controller;
 			#interrupt-cells = <2>;
 		};
+
+		pmi8994_fg: fuel_gauge@4000 {
+			compatible = "qcom,pmi8994-fg";
+			status = "disabled";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			       //FG  //Charger
+			reg = <0x4000 0x1000>;
+			interrupts = <0x2 0x44 0x0 IRQ_TYPE_EDGE_BOTH>;
+			interrupt-names = "mem-avail";
+		};
 	};
 
 	pmic@3 {
