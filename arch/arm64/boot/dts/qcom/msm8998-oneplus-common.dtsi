@@ -245,6 +245,13 @@
 	};
 };
 
+&ipa {
+	status = "okay";
+
+	memory-region = <&ipa_fws_region>; // ipa_fw_mem?
+	firmware-name = "qcom/msm8998/oneplus/ipa_fws.mbn";
+};
+
 &pm8998_gpio {
 	vol_keys_default: vol-keys-default {
 		pinconf {
@@ -262,6 +269,24 @@
 
 	vdda-pll-supply = <&vreg_l12a_1p8>;
 	vdda-phy-dpdm-supply = <&vreg_l24a_3p075>;
+};
+
+&remoteproc_adsp {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/oneplus/adsp.mbn";
+};
+
+&remoteproc_mss {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/oneplus/mba.mbn", "qcom/msm8998/oneplus/modem.mbn";
+};
+
+&remoteproc_slpi {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/oneplus/slpi_v2.mbn";
 };
 
 &rpm_requests {
