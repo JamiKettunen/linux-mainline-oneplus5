@@ -2115,6 +2115,8 @@
 					<&rpmpd MSM8998_VDDMX>;
 			power-domain-names = "cx", "mx";
 
+			status = "disabled";
+
 			mba {
 				memory-region = <&mba_mem>;
 			};
