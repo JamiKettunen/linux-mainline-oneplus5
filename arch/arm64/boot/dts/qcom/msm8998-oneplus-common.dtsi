@@ -18,7 +18,7 @@
 	aliases {
 		serial0 = &blsp2_uart1;
 		serial1 = &blsp1_uart3;
-		display0 = &framebuffer0;
+		display0 = &panel;
 	};
 
 	chosen {
@@ -37,6 +37,7 @@
 			height = <1920>;
 			stride = <(1080 * 4)>;
 			format = "a8r8g8b8";
+			display = <&panel>;
 		};
 	};
 
