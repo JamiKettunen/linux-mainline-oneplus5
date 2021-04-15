@@ -15,18 +15,11 @@
 #include "pm8005.dtsi"
 
 / {
-	aliases {
-		serial0 = &blsp2_uart1;
-		serial1 = &blsp1_uart3;
-		display0 = &framebuffer0;
-	};
-
 	chosen {
 		#address-cells = <2>;
 		#size-cells = <2>;
 		ranges;
 
-		bootargs = "earlycon";
 		stdout-path = "display0";
 
 		/* Use display framebuffer setup by the UEFI XBL bootloader for simplefb. */
