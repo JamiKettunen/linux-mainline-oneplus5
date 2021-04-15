@@ -225,8 +225,6 @@ static int s6e3fa5_bl_update_status(struct backlight_device *bl)
 	return 0;
 }
 
-// TODO: Check if /sys/class/backlight/.../actual_brightness actually returns
-// correct values. If not, remove this function.
 static int s6e3fa5_bl_get_brightness(struct backlight_device *bl)
 {
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
