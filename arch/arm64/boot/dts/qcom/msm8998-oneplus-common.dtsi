@@ -296,7 +296,7 @@
 		vdd_l28-supply = <&vreg_bob>;
 		vdd_l20_l24-supply = <&vreg_bob>;
 		vdd_l26-supply = <&vreg_s3a_1p35>;
-		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>; /* UFS + SLPI remoteproc */
+		vdd_lvs1_lvs2-supply = <&vreg_s4a_1p8>;
 
 		vreg_s3a_1p35: s3 {
 			regulator-min-microvolt = <1352000>;
@@ -369,14 +369,8 @@
 			regulator-min-microvolt = <3008000>;
 			regulator-max-microvolt = <3008000>;
 		};
-		vreg_lvs1a_1p8: lvs1 { /* UFS? */
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <1800000>;
-		};
-		vreg_lvs2a_1p8: lvs2 { /* SLPI remoteproc */
-			regulator-min-microvolt = <1800000>;
-			regulator-max-microvolt = <1800000>;
-		};
+		vreg_lvs1a_1p8: lvs1 { };
+		vreg_lvs2a_1p8: lvs2 { };
 	};
 
 	pmi8998-regulators {
