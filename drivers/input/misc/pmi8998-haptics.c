@@ -776,12 +776,7 @@ static int pmi8998_haptics_init(struct pmi8998_haptics *haptics) {
 
 	/* setup play irq */
 	if (haptics->play_irq >= 0) {
-		// FIXME: warning: format '%p' expects argument of type 'void *', but argument 3 has type 'struct device' [-Wformat=]
-		pr_info("%s: Requesting play IRQ, dev pointer: %p, irq: %d", __func__, haptics->pdev->dev, haptics->play_irq);
-		/*dev_printk(KERN_INFO, haptics->pdev->dev,
-			   "%s: Requesting play IRQ, dev pointer: %p, irq: %d\n",
-			   __func__, haptics->play_irq);*/
-
+		dev_info(&haptics->pdev->dev, "%s: Requesting play IRQ %d\n", __func__, haptics->play_irq);
 		ret = devm_request_threaded_irq(&haptics->pdev->dev, haptics->play_irq,
 			NULL, pmi8998_haptics_play_irq_handler, IRQF_ONESHOT,
 			"haptics_play_irq", haptics);
@@ -801,8 +796,7 @@ static int pmi8998_haptics_init(struct pmi8998_haptics *haptics) {
 
 	/* setup short circuit1 irq */
 	if (haptics->sc_irq >= 0) {
-		// FIXME: warning: format '%p' expects argument of type 'void *', but argument 3 has type 'struct device' [-Wformat=]
-		pr_info("%s: Requesting play IRQ, dev pointer: %p, irq: %d", __func__, haptics->pdev->dev, haptics->play_irq);
+		dev_info(&haptics->pdev->dev, "%s: Requesting play IRQ %d\n", __func__, haptics->play_irq);
 		ret = devm_request_threaded_irq(&haptics->pdev->dev, haptics->sc_irq,
 			NULL, pmi8998_haptics_sc_irq_handler, IRQF_ONESHOT,
 			"haptics_sc_irq", haptics);
@@ -946,9 +940,8 @@ static int pmi8998_haptics_probe(struct platform_device *pdev)
 	struct pmi8998_haptics *haptics;
 	struct device_node *node;
 	struct input_dev *input_dev;
-	int ret;
+	int ret, temp, i;
 	unsigned int val;
-	int temp;
 
 	haptics = devm_kzalloc(&pdev->dev, sizeof(*haptics), GFP_KERNEL);
 	if (!haptics)
@@ -1047,7 +1040,6 @@ static int pmi8998_haptics_probe(struct platform_device *pdev)
 	haptics->brake_pat[3] = 0x3;
 
 	haptics->wave_samp_idx = 0;
-	int i = 0;
 	for (i = 0; i < HAP_WAVE_SAMP_LEN; i++)
 			haptics->wave_samp[i] = HAP_WF_SAMP_MAX;
 
