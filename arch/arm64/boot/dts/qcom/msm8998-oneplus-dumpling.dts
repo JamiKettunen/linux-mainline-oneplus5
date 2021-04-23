@@ -9,7 +9,7 @@
 
 / {
 	model = "OnePlus 5T";
-	compatible = "qcom,msm8998-mtp\0qcom,msm8998\0qcom,mtp";
+	compatible = "oneplus,dumpling", "qcom,msm8998";
 	/* Required for bootloader to select correct board */
 	qcom,msm-id = <0x124 0x20001>; /* 8998 v2.1 */
 	qcom,board-id = <8 0 17801 43>; // 53, 43?
