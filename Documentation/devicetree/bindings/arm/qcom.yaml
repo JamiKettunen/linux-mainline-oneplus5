@@ -36,6 +36,7 @@ description: |
         msm8992
         msm8994
         msm8996
+        msm8998
         sc7180
         sdm630
         sdm660
@@ -171,6 +172,16 @@ properties:
           - enum:
               - qcom,ipq6018-cp01-c1
           - const: qcom,ipq6018
+
+      - items:
+          - enum:
+              - oneplus,cheeseburger
+              - oneplus,dumpling
+              - asus,novago-tp370ql
+              - hp,envy-x2
+              - lenovo,miix-630
+              - qcom,msm8998-mtp
+          - const: qcom,msm8998
 
       - items:
           - enum:
