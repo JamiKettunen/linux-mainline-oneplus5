@@ -36,7 +36,7 @@ static int pmi8998_read(struct regmap *map, u8 *val, u16 addr, int len)
 		return -EINVAL;
 	}
 
-	pr_info("%s: reading 0x%x bytes from 0x%x", __func__, len, addr);
+	pr_debug("%s: reading 0x%x bytes from 0x%x", __func__, len, addr);
 
 	return regmap_bulk_read(map, addr, val, len);
 }
@@ -66,6 +66,8 @@ static int pmi8998_write(struct regmap *map, u8 *val, u16 addr, int len)
 		pr_err("addr cannot be zero base=0x%02x\n", addr);
 		return -EINVAL;
 	}
+
+	pr_info("%s: writing 0x%x bytes to 0x%x", __func__, len, addr);
 
 	return regmap_bulk_write(map, addr, val, len);
 }
@@ -282,12 +284,13 @@ static int pmi8998_clear_ima(struct pmi8998_fg_chip *chip,
 	return rc;
 }
 
-int pmi8998_get_prop_usb_online(struct pmi8998_fg_chip *chip, int *val){
+int pmi8998_get_prop_usb_online(struct pmi8998_fg_chip *chip, int *val)
+{
 	unsigned int stat;
 	int rc;
 
 	rc = regmap_read(chip->regmap, POWER_PATH_STATUS_REG, &stat);
-	if (rc < 0){
+	if (rc < 0) {
 		dev_err(chip->dev, "Couldn't read POWER_PATH_STATUS! ret=%d\n", rc);
 		return rc;
 	}
@@ -297,7 +300,8 @@ int pmi8998_get_prop_usb_online(struct pmi8998_fg_chip *chip, int *val){
 	return rc;
 }
 
-int pmi8998_get_prop_batt_status(struct pmi8998_fg_chip *chip, int *val){
+int pmi8998_get_prop_batt_status(struct pmi8998_fg_chip *chip, int *val)
+{
 	int usb_online_val;
 	unsigned int stat;
 	int rc;
@@ -317,11 +321,11 @@ int pmi8998_get_prop_batt_status(struct pmi8998_fg_chip *chip, int *val){
 	}
 
 	rc = regmap_read(chip->regmap, BATTERY_CHARGER_STATUS_REG(chip), &stat);
-	if (rc < 0){
+	if (rc < 0) {
 		dev_err(chip->dev, "Charging status REGMAP read failed! ret=%d\n", rc);
 		return rc;
 	}
-		
+
 	stat = stat & BATTERY_CHARGER_STATUS_MASK;
 	dev_dbg(chip->dev, "Charging status : %d!\n", stat);
 
@@ -346,12 +350,13 @@ int pmi8998_get_prop_batt_status(struct pmi8998_fg_chip *chip, int *val){
 	return rc;
 }
 
-int pmi8998_get_prop_health_status(struct pmi8998_fg_chip *chip, int *val){
+int pmi8998_get_prop_health_status(struct pmi8998_fg_chip *chip, int *val)
+{
 	unsigned int stat;
 	int rc;
 
 	rc = regmap_read(chip->regmap, BATTERY_HEALTH_STATUS_REG(chip), &stat);
-	if (rc < 0){
+	if (rc < 0) {
 		dev_err(chip->dev, "Health status REGMAP read failed! ret=%d\n", rc);
 		return rc;
 	}
@@ -415,7 +420,7 @@ static void fg_get_model_name(struct pmi8998_fg_chip *chip, union power_supply_p
 	case PM8998_SUBTYPE:
 		val->strval = "PM8998 Battery";
 		break;
-	//handle pm660 and other socs that use fg3
+	// TODO: handle pm660 and other socs that use fg3
 	default:
 		val->strval = "Unknown PMIC Battery";
 	}
@@ -500,7 +505,8 @@ static const struct power_supply_desc bms_psy_desc = {
 	.get_property = fg_get_property,
 };
 
-irqreturn_t pmi8998_handle_usb_plugin(int irq, void *data){
+irqreturn_t pmi8998_handle_usb_plugin(int irq, void *data)
+{
 	struct pmi8998_fg_chip *chip = data;
 	int rc;
 	unsigned int stat;
@@ -508,7 +514,7 @@ irqreturn_t pmi8998_handle_usb_plugin(int irq, void *data){
 	union power_supply_propval val;
 
 	rc = regmap_read(chip->regmap, USBIN_BASE + INT_RT_STS, &stat);
-	if (rc < 0){
+	if (rc < 0) {
 		dev_err(chip->dev, "Couldn't read USB status from reg! ret=%d\n", rc);
 		return rc;
 	}
@@ -612,9 +618,7 @@ static int pmi8998_fg_probe(struct platform_device *pdev)
 	rc = pmi8998_masked_write(chip->regmap,
 		REG_MEM + MEM_INTF_IMA_CFG, BIT(3), BIT(3));
 	if (rc) {
-		dev_err(chip->dev,
-			"failed to configure interrupt source %d\n",
-			rc);
+		dev_err(chip->dev, "failed to configure interrupt source %d\n", rc);
 		return rc;
 	}
 
