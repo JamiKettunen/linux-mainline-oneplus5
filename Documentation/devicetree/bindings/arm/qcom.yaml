@@ -39,6 +39,7 @@ description: |
         sa8155p
         sc7180
         sc7280
+        msm8998
         sdm630
         sdm660
         sdm845
@@ -183,6 +184,16 @@ properties:
               - qcom,sc7280-idp
               - google,senor
           - const: qcom,sc7280
+
+      - items:
+          - enum:
+              - asus,novago-tp370ql
+              - hp,envy-x2
+              - lenovo,miix-630
+              - oneplus,cheeseburger
+              - oneplus,dumpling
+              - qcom,msm8998-mtp
+          - const: qcom,msm8998
 
       - items:
           - enum:
