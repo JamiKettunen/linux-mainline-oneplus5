@@ -64,7 +64,7 @@
 #define POWER_PATH_STATUS_REG	(MISC_BASE + 0x0B)
 
 enum wa_flags {
-	PMI8998_V1_REV_WA,
+	PMI8998_V1_REV_WA = 1,
 	PMI8998_V2_REV_WA,
 };
 
@@ -124,6 +124,7 @@ struct pmi8998_fg_chip {
 
 	u8 revision[4];
 	bool ima_supported;
+	enum wa_flags wa_flags;
 
 	int batt_cap_uah;
 	int batt_max_voltage_uv;

@@ -158,7 +158,7 @@ static int pmi8998_fg_get_current(struct pmi8998_fg_chip *chip, int *val)
 		pr_err("Failed to read current\n");
 		return rc;
 	}
-	//handle rev 1 too
+	// TODO: handle rev 1.1 (perhaps found on SDM660)?
 	temp = readval[1] << 8 | readval[0];
 	temp = twos_compliment_extend(temp, 15);
 	*val = div_s64((s64)temp * 488281, 1000);
@@ -175,7 +175,7 @@ static int pmi8998_fg_get_voltage(struct pmi8998_fg_chip *chip, int *val)
 		pr_err("Failed to read voltage\n");
 		return rc;
 	}
-	//handle rev 1 too
+	// TODO: handle rev 1.1 (perhaps found on SDM660)?
 	temp = readval[1] << 8 | readval[0];
 	*val = div_u64((u64)temp * 122070, 1000);
 	return 0;
@@ -608,6 +608,10 @@ static int pmi8998_fg_probe(struct platform_device *pdev)
 	dev_dbg(chip->dev, "pmi8998 revision DIG:%d.%d ANA:%d.%d\n",
 		chip->revision[DIG_MAJOR], chip->revision[DIG_MINOR],
 		chip->revision[ANA_MAJOR], chip->revision[ANA_MINOR]);
+	if (chip->revision[DIG_MAJOR] == 1)
+		chip->wa_flags |= PMI8998_V1_REV_WA;
+	else
+		chip->wa_flags |= PMI8998_V2_REV_WA;
 	
 	/*
 	 * Change the FG_MEM_INT interrupt to track IACS_READY
