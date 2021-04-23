@@ -228,6 +228,14 @@
 	firmware-name = "qcom/msm8998/oneplus/ipa_fws.mbn";
 };
 
+&pmi8998_fg {
+	status = "okay";
+
+	qcom,max-voltage-uv = <4370000>;
+	qcom,min-voltage-uv = <3700000>;
+	qcom,battery-capacity-ua = <3300000>;
+};
+
 &pm8998_gpio {
 	volume_up_down_gpios: pm8998-gpio5-gpio6 {
 		pinconf {
