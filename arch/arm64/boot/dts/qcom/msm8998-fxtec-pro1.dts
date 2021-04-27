@@ -481,6 +481,14 @@
 	regulator-max-microvolt = <1100000>;
 };
 
+&pmi8998_fg {
+	status = "okay";
+
+	qcom,max-voltage-uv = <4400000>;
+	qcom,min-voltage-uv = <3700000>;
+	qcom,battery-capacity-ua = <3150000>;
+};
+
 &pm8998_gpio {
 	unknown_pin_a: unk-active {
 		pins = "gpio5";
