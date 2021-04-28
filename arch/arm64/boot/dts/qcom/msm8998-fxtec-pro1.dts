@@ -475,6 +475,12 @@
 	status = "ok";
 };
 
+&pmi8998_haptics {
+	status = "okay";
+
+	qcom,vmax-mv = <3200>;
+};
+
 /* HACK! Push GPU voltage high until GPU CPR is hooked up */
 &pm8005_s1 {
 	regulator-min-microvolt = <988000>;
