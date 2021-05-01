@@ -299,6 +299,7 @@
 
 	zap-shader {
 		memory-region = <&zap_shader_region>;
+		firmware-name = "qcom/a540_zap.mbn";
 	};
 };
 
@@ -465,6 +466,22 @@
 
 &mdss_mdp {
 	status = "ok";
+};
+
+&remoteproc_adsp {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/fxtec/adsp.mbn";
+};
+
+&remoteproc_mss {
+	firmware-name = "qcom/msm8998/fxtec/mba.mbn", "qcom/msm8998/fxtec/modem.mbn";
+};
+
+&remoteproc_slpi {
+	status = "okay";
+
+	firmware-name = "qcom/msm8998/fxtec/slpi_v2.mbn";
 };
 
 &mmcc {
