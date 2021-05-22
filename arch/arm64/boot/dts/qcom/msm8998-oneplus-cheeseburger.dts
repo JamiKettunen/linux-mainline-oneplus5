@@ -48,3 +48,11 @@
 		syna,codes = <KEY_BACK KEY_APPSELECT>;
 	};
 };
+
+/* Display */
+&panel {
+	compatible = "samsung,s6e3fa5";
+
+	/* The panel is mounted upside down on the OnePlus 5 */
+	rotation = <180>;
+};

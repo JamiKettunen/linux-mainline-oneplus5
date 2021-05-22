@@ -32,6 +32,7 @@
 			height = <1920>;
 			stride = <(1080 * 4)>;
 			format = "a8r8g8b8";
+			status = "disabled";
 		};
 	};
 
@@ -490,8 +491,82 @@
 	firmware-name = "qcom/msm8998/oneplus/slpi_v2.mbn";
 };
 
+&mmcc {
+	status = "okay";
+};
+
+&mmss_smmu {
+	status = "okay";
+};
+
+&mdss {
+	status = "okay";
+};
+
+&mdss_mdp {
+	status = "okay";
+};
+
+&dsi0 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	vdd-supply = <&vreg_l1a_0p875>;
+	vdda-supply = <&vreg_l2a_1p2>;
+
+	panel: panel@0 {
+		reg = <0>;
+
+		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
+		disp-te-gpios = <&tlmm 11 GPIO_ACTIVE_LOW>;
+
+		vddio-supply = <&vreg_l14a_1p88>; // TODO: Could this be moved under dsi0?
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n>;
+
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+};
+
+&dsi0_phy {
+	status = "okay";
+	vdds-supply = <&vreg_l1a_0p875>;
+};
+
+&dsi0_out {
+	remote-endpoint = <&panel_in>;
+	data-lanes = <0 1 2 3>;
+};
+
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
+
+	disp_en_default: disp-en {
+		pins = "gpio62";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	panel_reset_n: panel-rst-n {
+		pins = "gpio94";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-disable;
+	};
+
+	mdp_vsync_n: mdp-vsync-n {
+		pins = "gpio11";
+		function = "mdp_vsync_a";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
 
 	hall_sensor_default: hall-sensor-default {
 		pins = "gpio124";
