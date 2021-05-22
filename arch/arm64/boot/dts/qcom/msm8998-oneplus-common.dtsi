@@ -544,6 +544,37 @@
 	data-lanes = <0 1 2 3>;
 };
 
+/* Adreno 540 GPU */
+&gpucc {
+	status = "ok";
+};
+
+&gpu_mem {
+	compatible = "shared-dma-pool";
+};
+
+&adreno_gpu {
+	status = "ok";
+
+	zap-shader {
+		memory-region = <&zap_shader_region>; // gpu_mem?
+		firmware-name = "qcom/a540_zap.mbn";
+	};
+};
+
+&adreno_smmu {
+	status = "ok";
+};
+
+/*
+ * HACK: Shoot GPU voltage high to stabilize Adreno 540 at high frequencies
+ *       until the GPU CPR is brought up.
+ */
+&pm8005_s1 {
+	regulator-min-microvolt = <988000>; /* 0,524V -> 0,988V */
+	//regulator-max-microvolt = <1100000>;
+};
+
 &tlmm {
 	gpio-reserved-ranges = <0 4>, <81 4>;
 
