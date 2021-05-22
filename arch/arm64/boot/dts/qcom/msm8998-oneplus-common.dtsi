@@ -279,6 +279,12 @@
 	qcom,battery-capacity-ua = <3300000>;
 };
 
+&pmi8998_haptics {
+	status = "okay";
+
+	qcom,vmax-mv = <2088>;
+};
+
 &qusb2phy {
 	status = "okay";
 
