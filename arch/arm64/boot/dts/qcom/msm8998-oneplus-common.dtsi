@@ -32,6 +32,7 @@
 			height = <1920>;
 			stride = <(1080 * 4)>;
 			format = "a8r8g8b8";
+			status = "disabled";
 		};
 	};
 
