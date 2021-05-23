@@ -307,10 +307,6 @@
 	status = "ok";
 };
 
-&apc_cprh {
-	status = "ok";
-};
-
 &blsp1_i2c6 {
 	pinctrl-names = "default", "sleep";
 	pinctrl-0 = <&i2c6_default>;
@@ -368,10 +364,6 @@
 		pinctrl-0 = <&ts_active>;
 		pinctrl-1 = <&ts_sleep>;
 	};
-};
-
-&cpufreq_hw {
-	status = "ok";
 };
 
 &dsi0 {
