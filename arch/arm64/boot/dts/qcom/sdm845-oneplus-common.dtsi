@@ -345,7 +345,13 @@
 				<GCC_LPASS_SWAY_CLK>;
 };
 
+&gmu {
+	status = "okay";
+};
+
 &gpu {
+	status = "okay";
+
 	zap-shader {
 		memory-region = <&gpu_mem>;
 		firmware-name = "qcom/sdm845/oneplus6/a630_zap.mbn";
@@ -610,6 +616,10 @@
 			input-enable;
 		};
 	};
+};
+
+&venus {
+	status = "okay";
 };
 
 &wifi {
