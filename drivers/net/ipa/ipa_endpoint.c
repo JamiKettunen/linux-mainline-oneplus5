@@ -75,8 +75,6 @@ struct ipa_status {
 #define IPA_STATUS_FLAGS1_RT_RULE_ID_FMASK	GENMASK(31, 22)
 #define IPA_STATUS_FLAGS2_TAG_FMASK		GENMASK_ULL(63, 16)
 
-#ifdef IPA_VALIDATE
-
 static bool ipa_endpoint_data_valid_one(struct ipa *ipa, u32 count,
 			    const struct ipa_gsi_endpoint_data *all_data,
 			    const struct ipa_gsi_endpoint_data *data)
@@ -229,27 +227,6 @@ static bool ipa_endpoint_data_valid(struct ipa *ipa, u32 count,
 
 	return true;
 }
-
-#else /* !IPA_VALIDATE */
-
-static bool ipa_endpoint_data_valid(struct ipa *ipa, u32 count,
-				    const struct ipa_gsi_endpoint_data *data)
-{
-	const struct ipa_gsi_endpoint_data *dp = data;
-	enum ipa_endpoint_name name;
-
-	if (ipa->version < IPA_VERSION_4_5)
-		return true;
-
-	/* IPA v4.5+ uses checksum offload, not yet supported by RMNet */
-	for (name = 0; name < count; name++, dp++)
-		if (data->endpoint.config.checksum)
-			return false;
-
-	return true;
-}
-
-#endif /* !IPA_VALIDATE */
 
 /* Allocate a transaction to use on a non-command endpoint */
 static struct gsi_trans *ipa_endpoint_trans_alloc(struct ipa_endpoint *endpoint,
