@@ -418,6 +418,17 @@
 	status = "okay";
 };
 
+&sdhc_2 {
+	status = "okay";
+
+	vmmc-supply = <&vreg_l9c_2p9>;
+	vqmmc-supply = <&vreg_l6c_2p9>;
+	cd-gpios = <&tlmm 96 GPIO_ACTIVE_HIGH>;
+	bus-width = <4>;
+	no-sdio;
+	no-emmc;
+};
+
 &tlmm {
 	gpio-reserved-ranges = <126 4>;
 };
