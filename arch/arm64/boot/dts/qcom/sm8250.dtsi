@@ -8,6 +8,7 @@
 #include <dt-bindings/clock/qcom,gcc-sm8250.h>
 #include <dt-bindings/clock/qcom,gpucc-sm8250.h>
 #include <dt-bindings/clock/qcom,rpmh.h>
+#include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interconnect/qcom,osm-l3.h>
 #include <dt-bindings/interconnect/qcom,sm8250.h>
 #include <dt-bindings/mailbox/qcom-ipcc.h>
@@ -2157,6 +2158,10 @@
 			power-domains = <&rpmhpd SM8250_CX>;
 			operating-points-v2 = <&sdhc2_opp_table>;
 
+			cd-gpios = <&tlmm 77 GPIO_ACTIVE_HIGH>;
+			pinctrl-0 = <&sdc2_default_state &sdc2_card_det_n>;
+			pinctrl-names = "default";
+
 			status = "disabled";
 
 			sdhc2_opp_table: sdhc2-opp-table {
@@ -3400,6 +3405,33 @@
 					drive-strength = <8>;
 					output-high;
 				};
+			};
+
+			sdc2_default_state: sdc2-default {
+				clk {
+					pins = "sdc2_clk";
+					drive-strength = <16>;
+					bias-disable;
+				};
+
+				cmd {
+					pins = "sdc2_cmd";
+					drive-strength = <16>;
+					bias-pull-up;
+				};
+
+				data {
+					pins = "sdc2_data";
+					drive-strength = <16>;
+					bias-pull-up;
+				};
+			};
+
+			sdc2_card_det_n: sd-card-det-n {
+				pins = "gpio77";
+				function = "gpio";
+				bias-pull-up;
+				drive-strength = <2>;
 			};
 		};
 
