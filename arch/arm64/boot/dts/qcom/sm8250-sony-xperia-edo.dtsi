@@ -456,6 +456,32 @@
 	/* Richwave RTC6226 FM Radio Receiver @ 64 */
 };
 
+&pcie0 {
+	status = "okay";
+
+	pinctrl-0 = <&pcie0_default_state>;
+};
+
+&pcie0_phy {
+	status = "okay";
+
+	vdda-phy-supply = <&vreg_l5a_0p88>;
+	vdda-pll-supply = <&vreg_l9a_1p2>;
+};
+
+&pcie2 {
+	status = "okay";
+
+	pinctrl-0 = <&pcie2_default_state &mdm2ap_default &ap2mdm_default>;
+};
+
+&pcie2_phy {
+	status = "okay";
+
+	vdda-phy-supply = <&vreg_l5a_0p88>;
+	vdda-pll-supply = <&vreg_l9a_1p2>;
+};
+
 &pon_pwrkey {
 	status = "okay";
 };
