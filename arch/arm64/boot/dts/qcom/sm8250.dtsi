@@ -1250,6 +1250,12 @@
 			phys = <&pcie0_lane>;
 			phy-names = "pciephy";
 
+			perst-gpio = <&tlmm 79 GPIO_ACTIVE_LOW>;
+			enable-gpio = <&tlmm 81 GPIO_ACTIVE_HIGH>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&pcie0_default_state>;
+
 			status = "disabled";
 		};
 
@@ -1347,6 +1353,12 @@
 
 			phys = <&pcie1_lane>;
 			phy-names = "pciephy";
+
+			perst-gpio = <&tlmm 82 GPIO_ACTIVE_LOW>;
+			enable-gpio = <&tlmm 84 GPIO_ACTIVE_HIGH>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&pcie1_default_state>;
 
 			status = "disabled";
 		};
@@ -1447,6 +1459,12 @@
 
 			phys = <&pcie2_lane>;
 			phy-names = "pciephy";
+
+			perst-gpio = <&tlmm 85 GPIO_ACTIVE_LOW>;
+			enable-gpio = <&tlmm 87 GPIO_ACTIVE_HIGH>;
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&pcie2_default_state>;
 
 			status = "disabled";
 		};
@@ -3436,6 +3454,89 @@
 				function = "gpio";
 				bias-pull-up;
 				drive-strength = <2>;
+			};
+
+			pcie0_default_state: pcie0-default {
+				pcie0_perst_default: perst {
+					pins = "gpio79";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-down;
+				};
+
+				clkreq {
+					pins = "gpio80";
+					function = "pci_e0";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+
+				wake {
+					pins = "gpio81";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+			};
+
+			pcie1_default_state: pcie1-default {
+				pcie1_perst_default: perst {
+					pins = "gpio82";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-down;
+				};
+
+				clkreq {
+					pins = "gpio83";
+					function = "pci_e1";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+
+				wake {
+					pins = "gpio84";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+			};
+
+			pcie2_default_state: pcie2-default {
+				pcie2_perst_default: perst {
+					pins = "gpio85";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-down;
+				};
+
+				clkreq {
+					pins = "gpio86";
+					function = "pci_e2";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+
+				wake {
+					pins = "gpio87";
+					function = "gpio";
+					drive-strength = <2>;
+					bias-pull-up;
+				};
+			};
+
+			mdm2ap_default: mdm2ap-default {
+				pins = "gpio1", "gpio3";
+				function = "gpio";
+				drive-strength = <8>;
+				bias-disable;
+			};
+
+			ap2mdm_default: ap2mdm-default {
+				pins = "gpio56", "gpio57";
+				function = "gpio";
+				drive-strength = <16>;
+				bias-disable;
 			};
 		};
 
