@@ -3414,13 +3414,13 @@
 					bias-disable;
 				};
 
-				cmd {
+				sdc2_cmd_default: cmd {
 					pins = "sdc2_cmd";
 					drive-strength = <16>;
 					bias-pull-up;
 				};
 
-				data {
+				sdc2_data_default: data {
 					pins = "sdc2_data";
 					drive-strength = <16>;
 					bias-pull-up;
