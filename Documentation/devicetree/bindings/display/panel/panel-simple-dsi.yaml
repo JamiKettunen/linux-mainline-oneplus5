@@ -53,6 +53,8 @@ properties:
       - samsung,s6e3fc2x01
         # Samsung sofef00 1080x2280 AMOLED panel
       - samsung,sofef00
+        # Samsung sofef03_m 1080x2520 OLED panel
+      - samsung,sofef03m
         # Shangai Top Display Optoelectronics 7" TL070WSH30 1024x600 TFT LCD panel
       - tdo,tl070wsh30
 
