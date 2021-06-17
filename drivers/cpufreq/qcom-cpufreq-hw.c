@@ -39,6 +39,13 @@ struct qcom_cpufreq_data {
 static unsigned long cpu_hw_rate, xo_rate;
 static bool icc_scaling_enabled;
 
+/**
+ * qcom_cpufreq_set_bw() - Set interconnect bandwidth
+ * @policy:   CPUFreq policy structure
+ * @freq_khz: CPU Frequency in KHz
+ *
+ * Returns: Zero for success, otherwise negative value on errors
+ */
 static int qcom_cpufreq_set_bw(struct cpufreq_policy *policy,
 			       unsigned long freq_khz)
 {
@@ -60,6 +67,20 @@ static int qcom_cpufreq_set_bw(struct cpufreq_policy *policy,
 	return ret;
 }
 
+/**
+ * qcom_cpufreq_update_opp() - Update CPU OPP tables
+ * @policy:   CPUFreq policy structure
+ * @freq_khz: CPU Frequency for OPP entry in KHz
+ * @volt:     CPU Voltage for OPP entry in microvolts
+ *
+ * The CPU frequencies and voltages are being read from the Operating
+ * State Manager (OSM) and the related OPPs, read from DT, need to be
+ * updated to reflect what the hardware will set for each p-state.
+ * If there is no OPP table specified in DT, then this function will
+ * add dynamic ones.
+ *
+ * Returns: Zero for success, otherwise negative value on errors
+ */
 static int qcom_cpufreq_update_opp(struct device *cpu_dev,
 				   unsigned long freq_khz,
 				   unsigned long volt)
@@ -80,6 +101,17 @@ static int qcom_cpufreq_update_opp(struct device *cpu_dev,
 	return dev_pm_opp_enable(cpu_dev, freq_hz);
 }
 
+/**
+ * qcom_cpufreq_hw_target_index() - Set frequency/voltage
+ * @policy:   CPUFreq policy structure
+ * @index:    Performance state index to be set
+ *
+ * This function sends a request to the Operating State Manager
+ * to set a Performance State index, so, to set frequency and
+ * voltage for the target CPU/cluster.
+ *
+ * Returns: Always zero
+ */
 static int qcom_cpufreq_hw_target_index(struct cpufreq_policy *policy,
 					unsigned int index)
 {
@@ -95,6 +127,12 @@ static int qcom_cpufreq_hw_target_index(struct cpufreq_policy *policy,
 	return 0;
 }
 
+/**
+ * qcom_cpufreq_hw_get() - Get current Performance State from OSM
+ * @cpu:      CPU number
+ *
+ * Returns: Current CPU/Cluster frequency or zero
+ */
 static unsigned int qcom_cpufreq_hw_get(unsigned int cpu)
 {
 	struct qcom_cpufreq_data *data;
@@ -128,6 +166,17 @@ static unsigned int qcom_cpufreq_hw_fast_switch(struct cpufreq_policy *policy,
 	return policy->freq_table[index].frequency;
 }
 
+/**
+ * qcom_cpufreq_hw_read_lut() - Read Lookup Table from the OSM
+ * @cpu_dev:   CPU device
+ * @policy:    CPUFreq policy structure
+ *
+ * The Operating State Manager Lookup Table can always be read, even
+ * in case it was pre-programmed by the bootloader or by TrustZone.
+ * Read the LUT from it in order to build OPPs containing DVFS info.
+ *
+ * Returns: Zero for success, otherwise negative number on errors.
+ */
 static int qcom_cpufreq_hw_read_lut(struct device *cpu_dev,
 				    struct cpufreq_policy *policy)
 {
@@ -228,6 +277,11 @@ static int qcom_cpufreq_hw_read_lut(struct device *cpu_dev,
 	return 0;
 }
 
+/*
+ * qcom_get_related_cpus - Get mask of CPUs in the same frequency domain
+ * @index: CPU number
+ * @m:     Returned CPU mask
+ */
 static void qcom_get_related_cpus(int index, struct cpumask *m)
 {
 	struct device_node *cpu_np;
