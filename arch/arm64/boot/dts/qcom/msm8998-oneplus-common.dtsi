@@ -257,6 +257,12 @@
 	};
 };
 
+&pmi8998_haptics {
+	status = "okay";
+
+	qcom,wave-play-rate-us = <4255>;
+};
+
 &qusb2phy {
 	status = "okay";
 
