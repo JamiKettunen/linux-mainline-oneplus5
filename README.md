@@ -106,6 +106,8 @@ ssh -t user@172.16.42.1 "sudo sh -c 'mkdir -p /lib/modules && tar -xmf modules.t
 	* PIN unlock
 	* Carrier info query
 	* Sending SMS
+* Notification light
+	* [Patches for Qualcomm Light Pulse Generator from bamse's WIP tree](https://github.com/andersson/kernel/commits/wip/lpg)
 
 ## What doesn't work?
 * Any kind of audio input/output (except via Bluetooth)
@@ -119,8 +121,6 @@ ssh -t user@172.16.42.1 "sudo sh -c 'mkdir -p /lib/modules && tar -xmf modules.t
 	* [Downstream driver here](https://github.com/LineageOS/android_kernel_oneplus_msm8998/blob/lineage-18.1/drivers/media/platform/msm/camera_v2/sensor/flash/msm_flash.c)
 * Hardware video acceleration via [Venus](https://cateee.net/lkddb/web-lkddb/VIDEO_QCOM_VENUS.html)
 	* [Pending SDM660 patches exist on LKML](https://patchwork.kernel.org/project/linux-arm-msm/cover/20210115185252.333562-1-angelogioacchino.delregno@somainline.org/); could be adapted somewhat easily for MSM8998?
-* Notification light
-	* [Pending patches for Qualcomm Light Pulse Generator exist on LKML](https://patchwork.kernel.org/project/linux-arm-msm/cover/20210429211517.312792-1-bjorn.andersson@linaro.org/) (waiting for v8 fixup)
 * Practically all sensors
 	* Needs "low power island" bringup + drivers as most of the sensors are controlled by this DSP
 * Fast charging
