@@ -287,6 +287,27 @@
 	qcom,battery-capacity-ua = <3300000>;
 };
 
+&pmi8998_lpg {
+	status = "okay";
+
+	qcom,power-source = <0>;
+
+	led@3 {
+		reg = <3>;
+		label = "blue";
+	};
+
+	led@4 {
+		reg = <4>;
+		label = "green";
+	};
+
+	led@5 {
+		reg = <5>;
+		label = "red";
+	};
+};
+
 &pmi8998_haptics {
 	status = "okay";
 
