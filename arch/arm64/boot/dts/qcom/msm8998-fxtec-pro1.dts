@@ -19,7 +19,7 @@
 
 	/* This part enables graphical output via bootloader-enabled display */
 	chosen {
-		bootargs = "earlycon=tty0 console=tty0 clk_ignore_unused";
+		bootargs = "fbcon=map:2 clk_ignore_unused";
 
 		#address-cells = <2>;
 		#size-cells = <2>;
@@ -232,7 +232,11 @@
 		regulator-min-microvolt = <3300000>;
 		regulator-max-microvolt = <3300000>;
 		regulator-boot-on;
-		regulator-always-on;
+		//regulator-always-on;
+		enable-active-high;
+		gpio = <&tlmm 62 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&disp_en_default>;
 	};
 
 	disp_vddio_vreg: disp-vddio-regulator {
@@ -387,6 +391,7 @@
 
 		reset-gpios = <&tlmm 94 GPIO_ACTIVE_LOW>;
 		disp-te-gpios = <&tlmm 10 GPIO_ACTIVE_LOW>;
+		//disp-enable-gpios = <&tlmm 62 GPIO_ACTIVE_HIGH>;
 		no-hpd;
 
 		vcc-supply = <&disp_vcc_vreg>;
@@ -396,7 +401,7 @@
 		elvss-supply = <&disp_elvss_vreg>;
 
 		pinctrl-names = "default";
-		pinctrl-0 = <&panel_reset_n &disp_en_default &mdp_vsync_n>;
+		pinctrl-0 = <&panel_reset_n &mdp_vsync_n>;
 		port {
 			panel_in: endpoint {
 				remote-endpoint = <&dsi0_out>;
@@ -461,6 +466,9 @@
 
 &mdss {
 	status = "ok";
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&mdp_vsync_two_n>;
 };
 
 &mdss_mdp {
@@ -530,6 +538,13 @@
 
 	mdp_vsync_n: mdp-vsync-n {
 		pins = "gpio10";
+		function = "mdp_vsync_a";
+		drive-strength = <2>;
+		bias-pull-down;
+	};
+
+	mdp_vsync_two_n: mdp-vsync-two-n {
+		pins = "gpio11";
 		function = "mdp_vsync_a";
 		drive-strength = <2>;
 		bias-pull-down;
