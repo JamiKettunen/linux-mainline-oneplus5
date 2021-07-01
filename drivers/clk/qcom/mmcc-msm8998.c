@@ -988,13 +988,13 @@ static struct clk_rcg2 mclk3_clk_src = {
 };
 
 static const struct freq_tbl ftbl_mdp_clk_src[] = {
-	F(85714286, P_GPLL0, 7, 0, 0),
-	F(100000000, P_GPLL0, 6, 0, 0),
-	F(150000000, P_GPLL0, 4, 0, 0),
-	F(171428571, P_GPLL0, 3.5, 0, 0),
-	F(200000000, P_GPLL0, 3, 0, 0),
+//	F(85714286, P_GPLL0, 7, 0, 0),
+//	F(100000000, P_GPLL0, 6, 0, 0),
+//	F(150000000, P_GPLL0, 4, 0, 0),
+//	F(171428571, P_GPLL0, 3.5, 0, 0),
+//	F(200000000, P_GPLL0, 3, 0, 0),
 	F(275000000, P_MMPLL5_OUT_EVEN, 3, 0, 0),
-	F(300000000, P_GPLL0, 2, 0, 0),
+//	F(300000000, P_GPLL0, 2, 0, 0),
 	F(330000000, P_MMPLL5_OUT_EVEN, 2.5, 0, 0),
 	F(412500000, P_MMPLL5_OUT_EVEN, 2, 0, 0),
 	{ }

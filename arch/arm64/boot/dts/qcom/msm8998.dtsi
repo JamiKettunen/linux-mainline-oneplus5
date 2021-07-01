@@ -3175,7 +3175,7 @@
 		};
 
 		mdss: mdss@c900000 {
-			compatible = "qcom,mdss-dpu1";
+			compatible = "qcom,sdm845-mdss";
 			reg = <0x0c900000 0x1000>;
 			reg-names = "mdss";
 
@@ -3211,7 +3211,7 @@
 
 				assigned-clocks = <&mmcc MDSS_MDP_CLK>,
 						  <&mmcc MDSS_VSYNC_CLK>;
-				assigned-clock-rates = <412500000>,
+				assigned-clock-rates = <300000000>,
 						       <19200000>;
 
 				clocks = <&mmcc MDSS_AHB_CLK>,
@@ -3249,6 +3249,7 @@
 				mdp_opp_table: mdp-opp-table {
 					compatible = "operating-points-v2";
 
+/*
 					opp-19200000 {
 						opp-hz = /bits/ 64 <19200000>;
 						required-opps = <&rpmpd_opp_min_svs>;
@@ -3258,7 +3259,7 @@
 						opp-hz = /bits/ 64 <150000000>;
 						required-opps = <&rpmpd_opp_low_svs>;
 					};
-
+*/
 					opp-275000000 {
 						opp-hz = /bits/ 64 <275000000>;
 						required-opps = <&rpmpd_opp_svs>;
