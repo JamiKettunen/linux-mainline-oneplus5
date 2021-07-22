@@ -14798,14 +14798,8 @@ M:	Niklas Cassel <nks@flawful.org>
 L:	linux-pm@vger.kernel.org
 L:	linux-arm-msm@vger.kernel.org
 S:	Maintained
-F:	Documentation/devicetree/bindings/soc/qcom/qcom,cpr.yaml
+F:	Documentation/devicetree/bindings/power/avs/qcom,cpr.txt
 F:	drivers/soc/qcom/cpr.c
-
-QUALCOMM CORE POWER REDUCTION v3/v4/Hardened AVS DRIVER
-M:	AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-S:	Maintained
-F:	Documentation/devicetree/bindings/soc/qcom/qcom,cpr3.yaml
-F:	drivers/soc/qcom/cpr3.c
 
 QUALCOMM CPUFREQ DRIVER MSM8996/APQ8096
 M:	Ilia Lin <ilia.lin@kernel.org>
