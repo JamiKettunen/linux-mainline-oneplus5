@@ -239,6 +239,23 @@
 	};
 };
 
+&blsp2_i2c3 {
+	status = "okay";
+
+	audio-codec@36 {
+		compatible = "nxp,tfa9890";
+		reg = <0x36>;
+
+		/*
+		 * vddd-supply = <&vreg_bob>;
+		 * vreg_l20a_2p95? 2950000->2960000 mV @ 200->800000 mA?
+		 */
+
+		sound-name-prefix = "Mono Speaker";
+		#sound-dai-cells = <0>;
+	};
+};
+
 &blsp2_uart1 {
 	status = "okay";
 };
