@@ -110,7 +110,7 @@ static void dsi_pll_calc_dec_frac(struct dsi_pll_10nm *pll, struct dsi_pll_confi
 
 	pll_freq = pll->vco_current_rate;
 
-	divider = fref * 2;
+	divider = fref;
 
 	multiplier = 1 << FRAC_BITS;
 	dec_multiple = div_u64(pll_freq * multiplier, divider);
@@ -428,12 +428,11 @@ static unsigned long dsi_pll_10nm_vco_recalc_rate(struct clk_hw *hw,
 	 *	1. Assumes prescaler is disabled
 	 */
 	multiplier = 1 << FRAC_BITS;
-	pll_freq = dec * (ref_clk * 2);
-	tmp64 = (ref_clk * 2 * frac);
+	pll_freq = dec * ref_clk;
+	tmp64 = ref_clk * frac;
 	pll_freq += div_u64(tmp64, multiplier);
 
 	vco_rate = pll_freq;
-	pll_10nm->vco_current_rate = vco_rate;
 
 	DBG("DSI PLL%d returning vco rate = %lu, dec = %x, frac = %x",
 	    pll_10nm->phy->id, (unsigned long)vco_rate, dec, frac);
