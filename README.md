@@ -1,3 +1,6 @@
+# REPO DEPRECATION
+This repository is deprecated in favor of [msm8998-mainline/linux on GitLab](https://gitlab.com/msm8998-mainline/linux) where development has continued where this tree left off :)
+
 # linux-mainline-oneplus5
 Linux mainline kernel fork focused on OnePlus 5 (cheeseburger) / 5T (dumpling) devices.
 
